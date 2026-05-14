@@ -16,7 +16,7 @@ const YEARS: YearSpec[] = [
 
 export function IntroSequence({ onComplete }: { onComplete: () => void }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const bgImageRef = useRef<HTMLDivElement | null>(null);
+  const yearBgRefs = useRef<(HTMLDivElement | null)[]>([]);
   const yearRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const headerRef = useRef<HTMLDivElement | null>(null);
   const revealRef = useRef<HTMLDivElement | null>(null);
@@ -55,6 +55,18 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
         el.dataset.col = String(YEARS[i]?.col ?? i);
       });
 
+      // Background images — all hidden initially; gentle blur + slight
+      // scale-up so each one zooms in softly when revealed.
+      const bgEls = yearBgRefs.current.filter(
+        (el): el is HTMLDivElement => !!el,
+      );
+      gsap.set(bgEls, {
+        autoAlpha: 0,
+        scale: 1.0,
+        filter: "blur(10px)",
+        transformOrigin: "50% 50%",
+      });
+
       if (revealRef.current) gsap.set(revealRef.current, { autoAlpha: 0 });
       if (headerRef.current)
         gsap.set(headerRef.current, { autoAlpha: 0, y: -8 });
@@ -75,14 +87,14 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
         );
       }
 
-      const enterDur = 0.18;
-      const countDur = 0.34;
-      const hold = 0.1;
-      const exitDur = 0.24;
+      const enterDur = 0.28;
+      const countDur = 0.5;
+      const hold = 0.5; // longer hold so each year's photo can breathe
+      const exitDur = 0.35;
       // The next year STARTS its entrance the moment the current one starts
       // exiting — no dead air between frames.
       const frameDur = enterDur + countDur + hold;
-      const baseStart = 0.22;
+      const baseStart = 0.28;
 
       YEARS.forEach((spec, i) => {
         const el = yearEls[i];
@@ -91,6 +103,56 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
         const counter = { value: 0 };
 
         tl.call(() => setText(el, 0), [], frameStart);
+
+        // ── Background image morph + slow ken-burns zoom ──
+        // Each year's image starts blurred + slightly under, then fades in,
+        // sharpens, and very slowly zooms in (1.0 → 1.08) across the whole
+        // time it's visible. The previous image dissolves with blur for a
+        // soft "morph" feel instead of a hard cut.
+        const bgEl = yearBgRefs.current[i];
+        if (bgEl) {
+          // Fade-in + sharpen, slightly before this year's number appears.
+          tl.to(
+            bgEl,
+            {
+              autoAlpha: 1,
+              filter: "blur(0px)",
+              duration: 0.85,
+              ease: "expo.out",
+            },
+            Math.max(0, frameStart - (i === 0 ? 0.2 : 0.15)),
+          );
+
+          // Very gentle, continuous zoom — duration is long enough that the
+          // motion is STILL progressing through the morph-out, so you never
+          // catch a static frame before the transition.
+          tl.fromTo(
+            bgEl,
+            { scale: 1.0 },
+            {
+              scale: 1.07,
+              duration: frameDur + 1.6,
+              ease: "none",
+            },
+            Math.max(0, frameStart - 0.2),
+          );
+        }
+        // Morph-out previous year's image: fade + grow + soften blur.
+        if (i > 0) {
+          const prevBg = yearBgRefs.current[i - 1];
+          if (prevBg) {
+            tl.to(
+              prevBg,
+              {
+                autoAlpha: 0,
+                filter: "blur(8px)",
+                duration: 0.85,
+                ease: "power2.inOut",
+              },
+              Math.max(0, frameStart - 0.15),
+            );
+          }
+        }
 
         // 1. Enter — blur in.
         tl.to(
@@ -151,7 +213,7 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
       tl.to(
         rootRef.current,
         {
-          backgroundColor: "#F9F7F3",
+          backgroundColor: "#F3F3F3",
           color: "#0A0A0F",
           duration: 0.85,
           ease: "expo.inOut",
@@ -159,12 +221,12 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
         phase2Start + 0.08,
       );
 
-      // Fade out the background photo at the same time as the cream
-      // background fades in — the image reads as the "dark stage" mood
-      // that gives way to the calm light hero.
-      if (bgImageRef.current) {
+      // Fade out the LAST year's background photo at phase 2 — image
+      // dissolves into the calm cream hero.
+      const lastBg = yearBgRefs.current[YEARS.length - 1];
+      if (lastBg) {
         tl.to(
-          bgImageRef.current,
+          lastBg,
           { autoAlpha: 0, duration: 0.85, ease: "expo.inOut" },
           phase2Start + 0.08,
         );
@@ -294,18 +356,28 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
       style={{ backgroundColor: "#000000", color: "#ffffff" }}
       aria-label="Rediscover 2026 intro sequence"
     >
-      {/* Background image — Rediscover stage photo with dark overlay */}
-      <div ref={bgImageRef} className="absolute inset-0 z-0">
-        <Image
-          src="/intro-bg.jpg"
-          alt=""
-          fill
-          priority
-          quality={80}
-          sizes="100vw"
-          className="object-cover"
-        />
-      </div>
+      {/* Year-specific background photos — one layer per year, all stacked.
+          GSAP cross-fades between them as the intro advances. */}
+      {YEARS.map((spec, i) => (
+        <div
+          key={`bg-${spec.value}`}
+          ref={(el) => {
+            yearBgRefs.current[i] = el;
+          }}
+          className="absolute inset-0 z-0"
+          style={{ opacity: 0, visibility: "hidden" }}
+        >
+          <Image
+            src={`/intro/year-${spec.value}.png`}
+            alt=""
+            fill
+            priority={i === 0}
+            quality={80}
+            sizes="100vw"
+            className="object-cover"
+          />
+        </div>
+      ))}
 
       <div
         ref={headerRef}
@@ -319,12 +391,12 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
       <button
         type="button"
         onClick={skip}
-        className="absolute right-6 top-6 z-10 inline-flex items-center gap-2 rounded-full border border-current/30 px-4 py-2 text-[10px] uppercase tracking-[0.28em] opacity-70 transition-opacity duration-200 hover:opacity-100 focus-ring cursor-pointer"
+        className="absolute bottom-10 left-1/2 z-10 inline-flex -translate-x-1/2 items-center gap-3 rounded-full border border-current/30 px-7 py-3.5 text-sm uppercase tracking-[0.28em] opacity-70 transition-opacity duration-200 hover:opacity-100 focus-ring cursor-pointer lg:bottom-14 lg:px-8 lg:py-4 lg:text-base"
         aria-label="Skip intro"
       >
         Skip intro
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-          <path d="M2 1L7 5L2 9" stroke="currentColor" strokeWidth="1.2" />
+        <svg width="14" height="14" viewBox="0 0 10 10" fill="none">
+          <path d="M2 1L7 5L2 9" stroke="currentColor" strokeWidth="1.4" />
         </svg>
       </button>
 

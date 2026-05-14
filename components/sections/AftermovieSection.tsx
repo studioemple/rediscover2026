@@ -101,7 +101,7 @@ export function AftermovieSection() {
       id="aftermovie"
       ref={sectionRef}
       aria-label="Rediscover 2025 aftermovie"
-      className="relative flex w-full items-center justify-center overflow-hidden bg-paper"
+      className="relative flex w-full items-center justify-center overflow-hidden"
       style={{ height: "100vh" }}
     >
       <div

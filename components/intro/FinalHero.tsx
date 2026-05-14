@@ -137,9 +137,11 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
       id={id}
       ref={sectionRef}
       className="relative flex min-h-screen w-full items-center justify-center overflow-hidden"
-      style={{ backgroundColor: "#F3F3F3" }}
+      /* No explicit bg — cream comes from the page-level <main>, so the
+         PageGeometry behind it is visible through the hero. */
     >
-      <HeroGeometry />
+      {/* HeroGeometry removed — page-wide PageGeometry now provides the
+          geometric backdrop across the entire site. */}
 
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center px-6 text-center">
 

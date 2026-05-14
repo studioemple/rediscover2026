@@ -9,7 +9,7 @@ const CURRENT_YEAR = "2026";
 
 export function ValuePropSection() {
   return (
-    <section className="relative overflow-hidden bg-paper px-4 pt-44 pb-32 lg:pt-72 lg:pb-44">
+    <section className="relative overflow-hidden px-4 pt-44 pb-32 lg:pt-72 lg:pb-44">
       <Container className="flex flex-col items-center text-center">
         {/* Years row */}
         <div className="flex items-end justify-center gap-5 lg:gap-7">
@@ -39,10 +39,12 @@ export function ValuePropSection() {
         <WordReveal
           as="h2"
           text={valueProp.bigHeadline}
-          className="headline mt-8 leading-[1.05] tracking-[-1.6px] text-ink lg:mt-12 lg:tracking-[-2.6px]"
+          className="headline mt-8 leading-[1.0] text-ink lg:mt-12"
           style={{
-            fontSize: "clamp(2.25rem, 5.5vw, 80px)",
+            fontSize: "clamp(2.5rem, 6vw, 96px)",
             whiteSpace: "nowrap",
+            fontWeight: 600,
+            letterSpacing: "-3px",
           }}
         />
 
@@ -67,7 +69,7 @@ export function ValuePropSection() {
               direction="left"
               speed={75}
               topics={valueProp.topics}
-              textColor="#F9F7F3"
+              textColor="#F3F3F3"
             />
           </div>
         </div>

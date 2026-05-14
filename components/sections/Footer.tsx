@@ -6,7 +6,7 @@ import Image from "next/image";
  */
 export function Footer() {
   return (
-    <footer className="relative w-full bg-paper px-4 pt-20 pb-16 lg:pt-28 lg:pb-20">
+    <footer className="relative w-full px-4 pt-20 pb-16 lg:pt-28 lg:pb-20">
       <div className="mx-auto flex max-w-[1180px] flex-col items-center gap-8 border-t border-ink/8 pt-14 sm:flex-row sm:justify-between sm:gap-6 lg:pt-20">
         <a
           href="mailto:rediscover@rentl.io"

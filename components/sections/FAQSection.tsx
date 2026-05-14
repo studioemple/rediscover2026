@@ -9,12 +9,17 @@ export function FAQSection() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="relative bg-paper px-4 pt-30 pb-30 lg:pt-44 lg:pb-44">
+    <section className="relative px-4 pt-30 pb-30 lg:pt-44 lg:pb-44">
       <Container className="flex flex-col items-center">
         <WordReveal
           as="h2"
           text="Frequently Asked Questions"
-          className="headline text-center text-[36px] leading-[1.1] tracking-[-1.44px] text-ink lg:text-[54px] lg:tracking-[-2.16px]"
+          className="headline text-center leading-[1.02] text-ink"
+          style={{
+            fontSize: "clamp(2.5rem, 6vw, 96px)",
+            fontWeight: 600,
+            letterSpacing: "-2.8px",
+          }}
         />
 
         <div className="mt-12 w-full max-w-[900px] lg:mt-16">

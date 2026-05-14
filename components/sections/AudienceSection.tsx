@@ -1,34 +1,51 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
 import { Button } from "@/components/ui/Button";
 import { audience, event } from "@/lib/content";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
-const SECONDS_PER_TITLE = 1.6; // how long the spotlight takes to slide one position
+/* 6 large event photos positioned in the SIDE GUTTERS of the section.
+   Title block stays centered; images flank it on left/right.
+   Positions in % so they remain inside the section regardless of viewport. */
+type Tile = {
+  src: string;
+  side: "left" | "right";
+  topPct: number;     // 0..100 (vertical anchor inside section)
+  offsetPct: number;  // horizontal offset from the section edge, in %
+  size: number;       // px (lg)
+  rot: number;
+  dur: number;
+  delay: number;
+};
+
+const ORBIT_IMAGES: Tile[] = [
+  { src: "/event/03.png", side: "left",  topPct: 18, offsetPct: 12, size: 420, rot: -7, dur: 7.5, delay: 0.0 },
+  { src: "/event/05.png", side: "right", topPct: 22, offsetPct: 12, size: 400, rot:  5, dur: 8.2, delay: 1.2 },
+  { src: "/event/06.png", side: "left",  topPct: 52, offsetPct: 6,  size: 500, rot:  4, dur: 9.0, delay: 0.5 },
+  { src: "/event/10.png", side: "right", topPct: 50, offsetPct: 6,  size: 480, rot: -5, dur: 7.8, delay: 1.8 },
+  { src: "/event/12.png", side: "left",  topPct: 84, offsetPct: 14, size: 420, rot: -3, dur: 8.5, delay: 0.3 },
+  { src: "/event/13.png", side: "right", topPct: 84, offsetPct: 14, size: 440, rot:  5, dur: 8.0, delay: 1.5 },
+];
 
 export function AudienceSection() {
   const titlesRef = useRef<HTMLDivElement>(null);
   const titleEls = useRef<(HTMLDivElement | null)[]>([]);
+  const orbitRef = useRef<HTMLDivElement>(null);
 
   /* Rising reveal — words rise up from below on scroll-in */
   useEffect(() => {
     ensureGsap();
     if (!titlesRef.current) return;
 
-    const inner = titlesRef.current.querySelectorAll<HTMLElement>(
-      ".rising-word",
-    );
-    const masks = titlesRef.current.querySelectorAll<HTMLElement>(
-      ".rising-mask",
-    );
+    const inner = titlesRef.current.querySelectorAll<HTMLElement>(".rising-word");
+    const masks = titlesRef.current.querySelectorAll<HTMLElement>(".rising-mask");
 
     const releaseMasks = () => {
-      masks.forEach((m) => {
-        m.style.overflow = "visible";
-      });
+      masks.forEach((m) => (m.style.overflow = "visible"));
     };
 
     if (prefersReducedMotion()) {
@@ -57,102 +74,108 @@ export function AudienceSection() {
     return () => ctx.revert();
   }, []);
 
-  /* Smooth continuous barrel — RAF-driven, no React re-renders.
-     A floating "position" advances continuously. Each title's style is
-     interpolated from its cyclic distance to that position, so the
-     spotlight glides between titles instead of jumping. */
+  /* Orbit tiles — stagger entrance on scroll-in */
   useEffect(() => {
+    ensureGsap();
+    if (!orbitRef.current) return;
+
+    const tiles = orbitRef.current.querySelectorAll<HTMLElement>(".orbit-tile");
+
     if (prefersReducedMotion()) {
-      titleEls.current.forEach((el) => {
-        if (!el) return;
-        el.style.opacity = "1";
-        el.style.filter = "grayscale(0)";
-      });
+      gsap.set(tiles, { autoAlpha: 1, scale: 1, filter: "blur(0px)" });
       return;
     }
 
-    const total = audience.titles.length;
-    const cycleSpeed = 1 / SECONDS_PER_TITLE;
-    let rafId = 0;
-    let last = performance.now();
-    let position = 0;
-    let hovered = -1;
-
-    const apply = (activePos: number) => {
-      titleEls.current.forEach((el, i) => {
-        if (!el) return;
-        const rawDist = Math.abs(i - activePos);
-        const dist = Math.min(rawDist, total - rawDist);
-        // Gentler falloff — all titles stay readable, the active one just shines.
-        const intensity = Math.max(0, 1 - dist * 0.55);
-        // Hovered title gets an extra scale boost for tactile feedback.
-        const isHovered = hovered === i;
-        const opacity = 0.45 + intensity * 0.55;
-        const grayscaleAmt = 0.6 - intensity * 0.6;
-        const scale = 1 + intensity * 0.06 + (isHovered ? 0.05 : 0);
-        el.style.opacity = String(opacity);
-        el.style.filter = `grayscale(${grayscaleAmt})`;
-        el.style.transform = `scale(${scale})`;
-        el.style.transition = "transform 0.35s var(--ease-premium)";
+    const ctx = gsap.context(() => {
+      gsap.set(tiles, { autoAlpha: 0, scale: 0.85, filter: "blur(14px)" });
+      gsap.to(tiles, {
+        autoAlpha: 1,
+        scale: 1,
+        filter: "blur(0px)",
+        duration: 1.3,
+        ease: "expo.out",
+        stagger: { each: 0.12, from: "random" },
+        scrollTrigger: {
+          trigger: orbitRef.current,
+          start: "top 75%",
+          once: true,
+        },
       });
-    };
+    }, orbitRef);
 
-    const tick = (now: number) => {
-      const dt = (now - last) / 1000;
-      last = now;
-      if (hovered === -1) {
-        position = (position + dt * cycleSpeed) % total;
-      }
-      apply(hovered === -1 ? position : hovered);
-      rafId = requestAnimationFrame(tick);
-    };
-
-    /* Hover handlers — focus on hovered title, freeze auto-cycle. */
-    const enterHandlers: Array<() => void> = [];
-    const leaveHandler = () => {
-      hovered = -1;
-    };
-
-    titleEls.current.forEach((el, i) => {
-      if (!el) return;
-      const onEnter = () => {
-        hovered = i;
-      };
-      enterHandlers[i] = onEnter;
-      el.addEventListener("mouseenter", onEnter);
-      el.addEventListener("mouseleave", leaveHandler);
-    });
-
-    rafId = requestAnimationFrame(tick);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      titleEls.current.forEach((el, i) => {
-        if (!el) return;
-        if (enterHandlers[i])
-          el.removeEventListener("mouseenter", enterHandlers[i]);
-        el.removeEventListener("mouseleave", leaveHandler);
-      });
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section className="relative bg-paper px-4 pt-30 pb-30 lg:pt-50 lg:pb-50">
-      <Container className="flex flex-col items-center text-center">
+    <section className="relative overflow-hidden px-4 pt-30 pb-30 lg:pt-44 lg:pb-44">
+
+      {/* Side-gutter event tiles — hidden below lg */}
+      <div
+        ref={orbitRef}
+        aria-hidden
+        className="pointer-events-none absolute inset-0 hidden lg:block"
+      >
+        {ORBIT_IMAGES.map((tile, i) => (
+          <div
+            key={tile.src}
+            className="orbit-tile absolute aspect-square"
+            style={{
+              [tile.side]: `${tile.offsetPct}%`,
+              top: `${tile.topPct}%`,
+              width: `min(${tile.size}px, 34vw)`,
+              transform: "translateY(-50%)",
+            }}
+          >
+            {/* Inner — continuous float + base rotation */}
+            <div
+              className="absolute inset-0"
+              style={{
+                animation: `orbitFloat${i % 4} ${tile.dur}s ease-in-out ${tile.delay}s infinite`,
+                ["--r" as never]: `${tile.rot}deg`,
+              }}
+            >
+              <div
+                className="relative h-full w-full overflow-hidden bg-surface"
+                style={{
+                  borderRadius: 28,
+                  boxShadow:
+                    "0 40px 80px -30px rgba(10,10,15,0.35), 0 12px 30px -12px rgba(10,10,15,0.18)",
+                }}
+              >
+                <Image
+                  src={tile.src}
+                  alt=""
+                  fill
+                  sizes="320px"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <Container className="relative z-10 flex flex-col items-center text-center">
         <p className="text-xs uppercase tracking-[0.32em] text-ink-soft lg:text-sm">
           {audience.eyebrow}
         </p>
 
+        {/* Headline — sized so it wraps to 2-3 lines, never explodes */}
         <WordReveal
           as="h2"
           text={audience.bigHeadline}
-          className="headline mt-6 max-w-[1100px] text-[40px] leading-[1.05] tracking-[-1.6px] text-ink lg:mt-8 lg:text-[72px] lg:tracking-[-2.88px]"
+          className="headline mt-7 max-w-[820px] leading-[1.02] text-ink lg:mt-10"
+          style={{
+            fontSize: "clamp(2.25rem, 4.8vw, 80px)",
+            letterSpacing: "-2.4px",
+            fontWeight: 600,
+          }}
         />
 
-        {/* Continuously cycling barrel of titles */}
+        {/* Titles stack */}
         <div
           ref={titlesRef}
-          className="mt-16 flex flex-col items-center gap-2 lg:mt-24 lg:gap-3"
+          className="mt-12 flex flex-col items-center gap-2 lg:mt-16 lg:gap-3"
         >
           {audience.titles.map((title, i) => {
             const words = title.split(" ");
@@ -162,11 +185,7 @@ export function AudienceSection() {
                 ref={(el) => {
                   titleEls.current[i] = el;
                 }}
-                className="audience-title-row cursor-pointer will-change-transform"
-                style={{
-                  opacity: 0.45,
-                  filter: "grayscale(0.6)",
-                }}
+                className="audience-title-row"
               >
                 <div className="flex flex-wrap justify-center gap-x-3 lg:gap-x-4">
                   {words.map((word, j) => (
@@ -188,10 +207,29 @@ export function AudienceSection() {
           })}
         </div>
 
-        <a href="#register" className="mt-16 lg:mt-24">
+        <a href="#register" className="mt-14 lg:mt-20">
           <Button variant="primary">{event.registerCta}</Button>
         </a>
       </Container>
+
+      <style>{`
+        @keyframes orbitFloat0 {
+          0%, 100% { transform: rotate(var(--r, 0deg)) translate3d(0, 0, 0); }
+          50%      { transform: rotate(calc(var(--r, 0deg) + 1deg)) translate3d(6px, -12px, 0); }
+        }
+        @keyframes orbitFloat1 {
+          0%, 100% { transform: rotate(var(--r, 0deg)) translate3d(0, 0, 0); }
+          50%      { transform: rotate(calc(var(--r, 0deg) - 1.5deg)) translate3d(-8px, 10px, 0); }
+        }
+        @keyframes orbitFloat2 {
+          0%, 100% { transform: rotate(var(--r, 0deg)) translate3d(0, 0, 0); }
+          50%      { transform: rotate(calc(var(--r, 0deg) + 2deg)) translate3d(-6px, -10px, 0); }
+        }
+        @keyframes orbitFloat3 {
+          0%, 100% { transform: rotate(var(--r, 0deg)) translate3d(0, 0, 0); }
+          50%      { transform: rotate(calc(var(--r, 0deg) - 1deg)) translate3d(10px, 8px, 0); }
+        }
+      `}</style>
     </section>
   );
 }

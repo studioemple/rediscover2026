@@ -1,13 +1,20 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
-import { partners, partnerTierMeta } from "@/lib/content";
+import { partners, partnerTierMeta, type PartnerTier } from "@/lib/content";
+import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
+
+/* Split the 12 partners into two rows — first 6 in row A (scrolls left),
+   last 6 in row B (scrolls right). */
+const ROW_A = partners.list.slice(0, 6);
+const ROW_B = partners.list.slice(6);
 
 export function PartnersSection() {
   return (
-    <section className="relative overflow-hidden bg-paper px-4 pt-30 pb-30 lg:pt-44 lg:pb-44">
+    <section className="relative pt-30 pb-30 lg:pt-44 lg:pb-44" style={{ overflowX: "clip", overflowY: "visible" }}>
       {/* Soft blue glow behind the Mastercard hero */}
       <div
         aria-hidden
@@ -19,21 +26,26 @@ export function PartnersSection() {
         }}
       />
 
-      <Container className="relative">
-        {/* Header — eyebrow title + side text */}
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
+      <Container className="relative px-4">
+        {/* Header — title + body STACKED and CENTERED */}
+        <div className="flex flex-col items-center text-center">
           <WordReveal
             as="h2"
             text={partners.eyebrow}
-            className="headline text-[34px] leading-[1.1] tracking-[-1.36px] text-ink lg:text-[48px] lg:tracking-[-1.92px]"
+            className="headline leading-[1.05] text-ink"
+            style={{
+              fontSize: "clamp(2.25rem, 5.2vw, 80px)",
+              fontWeight: 600,
+              letterSpacing: "-2.4px",
+            }}
           />
-          <p className="max-w-[520px] text-[16px] leading-[1.5] text-ink-soft lg:text-right lg:text-[18px]">
+          <p className="mt-6 max-w-[640px] text-[16px] leading-[1.5] text-ink-soft lg:mt-8 lg:text-[18px]">
             {partners.body}
           </p>
         </div>
 
-        {/* General partner — featured large logo */}
-        <div className="mt-20 flex flex-col items-center lg:mt-28">
+        {/* General partner — featured large logo (UNCHANGED) */}
+        <div className="mt-16 flex flex-col items-center lg:mt-24">
           <div className="relative h-[140px] w-[260px] lg:h-[180px] lg:w-[340px]">
             <Image
               src={partners.general.logo}
@@ -45,52 +57,117 @@ export function PartnersSection() {
           </div>
           <TierBadge tier="general" />
         </div>
-
-        {/* Partner grid */}
-        <div className="mt-16 flex flex-wrap items-center justify-center gap-x-10 gap-y-12 lg:mt-24 lg:gap-x-16 lg:gap-y-16">
-          {partners.list.map((p) => (
-            <div
-              key={p.name}
-              className="partner-item flex flex-col items-center gap-4"
-            >
-              <div className="relative h-[48px] w-[150px] lg:h-[60px] lg:w-[180px]">
-                <Image
-                  src={p.logo}
-                  alt={p.name}
-                  fill
-                  sizes="180px"
-                  className="object-contain"
-                  style={{
-                    filter: "brightness(0) saturate(100%) opacity(0.8)",
-                  }}
-                />
-              </div>
-              <TierBadge tier={p.tier} />
-            </div>
-          ))}
-        </div>
       </Container>
 
-      <style>{`
-        .partner-item {
-          opacity: 0.85;
-          transition:
-            opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-            transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .partner-item:hover {
-          opacity: 1;
-          transform: translateY(-3px);
-        }
-        .partner-item:hover img {
-          filter: brightness(0) saturate(100%) opacity(1) !important;
-        }
-      `}</style>
+      {/* Two-row partner marquee — full-width, no horizontal padding */}
+      <div className="mt-16 lg:mt-24">
+        <PartnerMarquee items={ROW_A} direction="left" speed={70} />
+        <div className="mt-10 lg:mt-14" />
+        <PartnerMarquee items={ROW_B} direction="right" speed={85} />
+      </div>
     </section>
   );
 }
 
-function TierBadge({ tier }: { tier: keyof typeof partnerTierMeta }) {
+function PartnerMarquee({
+  items,
+  direction,
+  speed,
+}: {
+  items: typeof partners.list;
+  direction: "left" | "right";
+  speed: number;
+}) {
+  // Triple the array to keep the marquee seamless on wide viewports.
+  const repeated = [...items, ...items, ...items];
+  const ref = useRef<HTMLDivElement>(null);
+
+  /* Entrance animation — logos fade in with stagger from END (DOM-rightmost
+     first), so visually the row reveals from RIGHT → LEFT before the
+     marquee scroll takes over. */
+  useEffect(() => {
+    ensureGsap();
+    if (!ref.current) return;
+    const tiles = ref.current.querySelectorAll<HTMLElement>(".partner-tile");
+    if (!tiles.length) return;
+
+    if (prefersReducedMotion()) {
+      gsap.set(tiles, { autoAlpha: 1, x: 0 });
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      gsap.set(tiles, { autoAlpha: 0, x: 40 });
+      gsap.to(tiles, {
+        autoAlpha: 1,
+        x: 0,
+        duration: 0.85,
+        ease: "expo.out",
+        stagger: { each: 0.04, from: "end" },
+        scrollTrigger: {
+          trigger: ref.current,
+          start: "top 88%",
+          once: true,
+        },
+      });
+    }, ref);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      aria-hidden
+      style={{ overflowX: "clip", overflowY: "visible" }}
+    >
+      <div
+        className="flex shrink-0 items-center gap-x-16 lg:gap-x-24"
+        style={{
+          width: "max-content",
+          animation: `${
+            direction === "left" ? "marquee-left" : "marquee-right"
+          } ${speed}s linear infinite`,
+        }}
+      >
+        {repeated.map((p, i) => (
+          <div
+            key={`${p.name}-${i}`}
+            className="partner-tile flex shrink-0 flex-col items-center gap-3"
+          >
+            <div className="relative h-[56px] w-[170px] lg:h-[68px] lg:w-[200px]">
+              <Image
+                src={p.logo}
+                alt={p.name}
+                fill
+                sizes="200px"
+                className="object-contain"
+                style={{
+                  filter: "brightness(0) saturate(100%) opacity(0.8)",
+                }}
+              />
+            </div>
+            <TierBadge tier={p.tier} />
+          </div>
+        ))}
+      </div>
+
+      <style>{`
+        .partner-tile {
+          transition:
+            opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+            transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .partner-tile:hover img {
+          filter: brightness(0) saturate(100%) opacity(1) !important;
+          transform: translateY(-2px);
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function TierBadge({ tier }: { tier: PartnerTier }) {
   const meta = partnerTierMeta[tier];
   return (
     <div className="flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-ink lg:text-sm">

@@ -1,9 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
 import { register } from "@/lib/content";
+
+/* 4 floating event photos around the form — adds "real event" vibe */
+const FLOATERS = [
+  { src: "/event/03.png", className: "left-[3%] top-[12%] size-[130px] -rotate-6 lg:size-[180px]", dur: 8 },
+  { src: "/event/08.png", className: "right-[4%] top-[8%] size-[120px] rotate-5 lg:size-[170px]",  dur: 9 },
+  { src: "/event/11.png", className: "left-[6%] bottom-[10%] size-[140px] rotate-3 lg:size-[200px]", dur: 7 },
+  { src: "/event/14.png", className: "right-[5%] bottom-[8%] size-[125px] -rotate-4 lg:size-[180px]", dur: 8.5 },
+] as const;
 
 export function RegisterSection() {
   const [email, setEmail] = useState("");
@@ -18,7 +27,7 @@ export function RegisterSection() {
   return (
     <section
       id="register"
-      className="relative overflow-hidden bg-paper px-4 pt-30 pb-30 lg:pt-44 lg:pb-44"
+      className="relative overflow-hidden px-4 pt-30 pb-30 lg:pt-44 lg:pb-44"
     >
       {/* Layered soft blue glows reminiscent of rediscover's blurred form */}
       <div
@@ -40,11 +49,40 @@ export function RegisterSection() {
         }}
       />
 
+      {/* Floating event photos at the corners */}
+      {FLOATERS.map((f, i) => (
+        <div
+          key={f.src}
+          aria-hidden
+          className={`pointer-events-none absolute hidden overflow-hidden lg:block ${f.className}`}
+          style={{
+            borderRadius: 22,
+            boxShadow:
+              "0 30px 60px -25px rgba(10,10,15,0.3), 0 10px 22px -10px rgba(10,10,15,0.18)",
+            animation: `registerFloat${i % 2} ${f.dur}s ease-in-out ${i * 0.5}s infinite`,
+            opacity: 0.85,
+          }}
+        >
+          <Image
+            src={f.src}
+            alt=""
+            fill
+            sizes="200px"
+            className="object-cover"
+          />
+        </div>
+      ))}
+
       <Container className="relative flex flex-col items-center text-center">
         <WordReveal
           as="h2"
           text={register.bigHeadline}
-          className="headline max-w-[1000px] text-[36px] leading-[1.15] tracking-[-1.44px] text-ink lg:text-[60px] lg:leading-[1.1] lg:tracking-[-2.4px]"
+          className="headline max-w-[1200px] leading-[1.02] text-ink"
+          style={{
+            fontSize: "clamp(2.5rem, 7vw, 112px)",
+            fontWeight: 600,
+            letterSpacing: "-3.4px",
+          }}
         />
 
         {/* Big CTA pill */}
@@ -105,6 +143,17 @@ export function RegisterSection() {
           </svg>
         </a>
       </Container>
+
+      <style>{`
+        @keyframes registerFloat0 {
+          0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+          50%      { transform: translate3d(0, -12px, 0) rotate(1deg); }
+        }
+        @keyframes registerFloat1 {
+          0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+          50%      { transform: translate3d(0, 10px, 0) rotate(-1deg); }
+        }
+      `}</style>
     </section>
   );
 }

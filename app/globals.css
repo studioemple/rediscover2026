@@ -5,7 +5,7 @@
 :root {
   --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
-  --paper: #f9f7f3;
+  --paper: #f3f3f3;
 }
 
 html {
@@ -54,7 +54,7 @@ body {
 
 ::selection {
   background: #0a0a0f;
-  color: #f9f7f3;
+  color: #f3f3f3;
 }
 
 /* WordReveal animation default state */
@@ -87,21 +87,22 @@ body {
   100% { transform: translateX(0); }
 }
 
-/* Audience titles — barrel effect with gradient blue spotlight */
+/* ─── Audience titles — ALWAYS vivid blue gradient, gentle shimmer ─── */
 @keyframes text-shimmer {
   0%   { background-position: 200% center; }
   100% { background-position: 0% center; }
 }
 
-/* Gradient blue text is applied ALWAYS — the parent's grayscale filter
-   dims inactive titles into soft gray on the cream background. */
+/* Every title word renders as a multi-stop blue gradient, continuously
+   shimmering at the same calm pace. No scale, no spotlight cycling —
+   just a uniform gentle slide of the gradient across all titles. */
 .audience-title-word {
   background: linear-gradient(
     90deg,
     #1c9dd9 0%,
-    #6fcdf0 30%,
-    #b3e3f5 50%,
-    #6fcdf0 70%,
+    #56c3e5 25%,
+    #a9dcf3 50%,
+    #56c3e5 75%,
     #1c9dd9 100%
   );
   background-size: 200% auto;
@@ -109,5 +110,5 @@ body {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-  animation: text-shimmer 4s linear infinite;
+  animation: text-shimmer 26s linear infinite;
 }

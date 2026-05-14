@@ -19,7 +19,7 @@ const config: Config = {
     extend: {
       colors: {
         ink: "#0A0A0F",
-        paper: "#F9F7F3",
+        paper: "#F3F3F3",
         "paper-pure": "#FFFFFF",
         surface: "#EFECE5",
         hairline: "#E5E1D7",
