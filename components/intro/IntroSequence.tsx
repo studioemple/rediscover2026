@@ -375,6 +375,7 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
             quality={80}
             sizes="100vw"
             className="object-cover"
+            style={{ filter: "grayscale(1)" }}
           />
         </div>
       ))}
