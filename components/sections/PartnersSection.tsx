@@ -15,17 +15,6 @@ const ROW_B = partners.list.slice(6);
 export function PartnersSection() {
   return (
     <section className="relative pt-30 pb-30 lg:pt-44 lg:pb-44" style={{ overflowX: "clip", overflowY: "visible" }}>
-      {/* Soft blue glow behind the Mastercard hero */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/3 h-[400px] w-[600px] -translate-x-1/2 -translate-y-1/2"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, rgba(28,157,217,0.18), transparent 65%)",
-          filter: "blur(80px)",
-        }}
-      />
-
       <Container className="relative px-4">
         {/* Header — title + body STACKED and CENTERED */}
         <div className="flex flex-col items-center text-center">
@@ -44,7 +33,7 @@ export function PartnersSection() {
           </p>
         </div>
 
-        {/* General partner — featured large logo (UNCHANGED) */}
+        {/* General partner — featured large logo */}
         <div className="mt-16 flex flex-col items-center lg:mt-24">
           <div className="relative h-[140px] w-[260px] lg:h-[180px] lg:w-[340px]">
             <Image
@@ -55,7 +44,9 @@ export function PartnersSection() {
               className="object-contain"
             />
           </div>
-          <TierBadge tier="general" />
+          <div className="mt-8 lg:mt-12">
+            <TierBadge tier="general" />
+          </div>
         </div>
       </Container>
 
