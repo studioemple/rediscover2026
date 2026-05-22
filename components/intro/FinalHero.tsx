@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { heroCopy, event } from "@/lib/content";
 import { gsap, ensureGsap } from "@/lib/animations";
@@ -160,21 +161,24 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
         {/* Rediscover — main wordmark, blurs in first */}
         <h1
           ref={rediscoverRef}
-          className="leading-none"
-          style={{
-            fontFamily: "var(--font-sora), sans-serif",
-            fontSize: "clamp(3.5rem, 15vw, 216.831px)",
-            fontWeight: 300,
-            letterSpacing: "-0.04em",
-            color: "#303030",
-          }}
+          aria-label="Rediscover"
+          className="relative w-full max-w-[1200px]"
+          style={{ aspectRatio: "1199 / 181" }}
         >
-          Rediscover
+          <Image
+            src="/rediscover-logo-2026.svg"
+            alt="Rediscover"
+            fill
+            priority
+            sizes="(min-width: 1280px) 1200px, 90vw"
+            className="object-contain"
+          />
         </h1>
 
         {/* What Now? */}
         <p
           ref={questionRef}
+          className="mt-6 lg:mt-10"
           style={{
             fontFamily: "var(--font-sora), sans-serif",
             fontSize: "clamp(2rem, 3.5vw, 50px)",

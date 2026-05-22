@@ -180,24 +180,24 @@ export const testimonials = {
   bigHeadline: "Hear It From the Hoteliers",
   quotes: [
     {
-      text: "Beyond expectations and truly inspiring.",
+      text: "Beyond expectations and truly inspiring!",
       author: "Past attendee",
       role: "Rediscover 2024",
     },
     {
-      text: "All five stars. Hope to see you next year.",
+      text: "All 5 stars, hope to see you next year!",
       author: "Hotelier",
       role: "Rediscover 2025",
     },
     {
-      text: "Each year, the event gets better and better.",
-      author: "Returning guest",
-      role: "Rediscover 2025",
-    },
-    {
-      text: "Flawless organization. No complaints.",
+      text: "Flawless organization, I have no complaints.",
       author: "General Manager",
       role: "Rediscover 2024",
+    },
+    {
+      text: "Keep going, the event is getting better and better each year.",
+      author: "Returning guest",
+      role: "Rediscover 2025",
     },
     {
       text: "Keep up the great work — everything else will follow naturally.",
@@ -207,6 +207,36 @@ export const testimonials = {
     {
       text: "The entire organization is on an incredible level.",
       author: "Revenue Manager",
+      role: "Rediscover 2024",
+    },
+    {
+      text: "Kudos to the team! See you next year.",
+      author: "Attendee",
+      role: "Rediscover 2025",
+    },
+    {
+      text: "Congrats to the host for excellent organization.",
+      author: "Hospitality Director",
+      role: "Rediscover 2024",
+    },
+    {
+      text: "Sve je bilo i više nego odlično — jedva čekamo iduću godinu!! (PS — Hvala :)",
+      author: "Hotelijer",
+      role: "Rediscover 2025",
+    },
+    {
+      text: "Hvala na svemu, posebno na velikoj dozi pozitivne energije. Jedva čekamo sljedeću godinu!",
+      author: "Direktor hotela",
+      role: "Rediscover 2024",
+    },
+    {
+      text: "Bilo je odlično. Meni osobno, bolje nego prošle godine. Hvala vam svima na svemu što ste napravili.",
+      author: "Hotelijer",
+      role: "Rediscover 2025",
+    },
+    {
+      text: "Organizacija kao i uvijek dovedena do savršenstva. Čestitamo, bravoo!",
+      author: "Vlasnik hotela",
       role: "Rediscover 2024",
     },
   ],

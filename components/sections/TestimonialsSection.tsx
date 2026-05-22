@@ -1,301 +1,273 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
 import { testimonials } from "@/lib/content";
-import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
+import { cn } from "@/lib/cn";
 
-const VISIBLE_COUNT = 5;
+/* ─────────────────────────────────────────────────────────────────
+   STAGGER TESTIMONIALS — adapted from 21st.dev (vaib215) for our
+   light cream palette. Side cards are white with ink text; the
+   centered hero card flips to ink-on-paper for contrast.
+   No avatar images — we render 5 gold stars instead, since the
+   testimonials are anonymous attendee quotes.
+   ───────────────────────────────────────────────────────────────── */
 
-/* Pentagram-ish orbit around the centered title.
-   Each card has a gentle continuous float animation. */
-type Tile = {
-  left: string;
-  top: string;
-  rot: number;
-  dur: number;
-  delay: number;
-};
+type Quote = (typeof testimonials.quotes)[number] & { tempId: number };
 
-const POSITIONS: Tile[] = [
-  // top-left
-  { left: "1%",  top: "10%", rot: -5, dur: 8.0, delay: 0.0 },
-  // top-right
-  { left: "77%", top: "10%", rot:  4, dur: 8.6, delay: 1.4 },
-  // mid-left (lower)
-  { left: "0%",  top: "60%", rot:  6, dur: 9.0, delay: 0.6 },
-  // mid-right (lower)
-  { left: "78%", top: "60%", rot: -4, dur: 7.8, delay: 1.8 },
-  // bottom-center
-  { left: "37%", top: "82%", rot: -3, dur: 8.4, delay: 0.3 },
-];
+const INITIAL: Quote[] = testimonials.quotes.map((q, i) => ({
+  ...q,
+  tempId: i,
+}));
 
 export function TestimonialsSection() {
-  const [page, setPage] = useState(0);
-  const stripRef = useRef<HTMLDivElement>(null);
-
-  const visible = Array.from({ length: VISIBLE_COUNT }, (_, i) => {
-    const idx = (page * VISIBLE_COUNT + i) % testimonials.quotes.length;
-    return testimonials.quotes[idx];
-  });
-
-  /* Entrance animation — re-runs on every page change because key={page}
-     remounts the cards. Bottom-to-top stagger. */
-  useEffect(() => {
-    ensureGsap();
-    if (!stripRef.current) return;
-
-    const cards = stripRef.current.querySelectorAll<HTMLElement>(
-      ".testimonial-card",
-    );
-    if (!cards.length) return;
-
-    if (prefersReducedMotion()) {
-      gsap.set(cards, { autoAlpha: 1, y: 0, filter: "blur(0px)" });
-      return;
-    }
-
-    const ctx = gsap.context(() => {
-      gsap.set(cards, {
-        autoAlpha: 0,
-        y: 60,
-        filter: "blur(14px)",
-        scale: 0.9,
-      });
-      gsap.to(cards, {
-        autoAlpha: 1,
-        y: 0,
-        filter: "blur(0px)",
-        scale: 1,
-        duration: 1.2,
-        ease: "expo.out",
-        stagger: { each: 0.12, from: "random" },
-        scrollTrigger: {
-          trigger: stripRef.current,
-          start: "top 85%",
-          once: true,
-        },
-      });
-    }, stripRef);
-
-    return () => ctx.revert();
-  }, [page]);
-
-  const total = Math.max(
-    1,
-    Math.ceil(testimonials.quotes.length / VISIBLE_COUNT),
-  );
-  const prev = () => setPage((p) => (p - 1 + total) % total);
-  const next = () => setPage((p) => (p + 1) % total);
-
   return (
-    <section className="relative overflow-hidden px-4 pt-30 pb-30 lg:pt-44 lg:pb-44">
-      {/* Soft blue glow behind the centered title */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[1000px] -translate-x-1/2 -translate-y-1/2"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, rgba(28,157,217,0.08), transparent 65%)",
-          filter: "blur(100px)",
-        }}
-      />
-
-      {/* Stage: orbit of cards around a centered title block */}
-      <div
-        ref={stripRef}
-        key={page}
-        className="relative mx-auto w-full max-w-[1600px]"
-      >
-        {/* Desktop orbit — cards positioned absolutely around centered title */}
-        <div className="relative hidden h-[820px] lg:block">
-          {/* Centered title block (z above cards) */}
-          <Container className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center">
-            <p
-              className="text-sm uppercase tracking-[0.2em] lg:text-base"
-              style={{ color: "#1C9DD9" }}
-            >
-              {testimonials.eyebrow}
-            </p>
-            <WordReveal
-              as="h2"
-              text={testimonials.bigHeadline}
-              className="headline mt-4 max-w-[900px] leading-[1.02] text-ink lg:mt-6"
-              style={{
-                fontSize: "clamp(2.5rem, 6.4vw, 104px)",
-                fontWeight: 600,
-                letterSpacing: "-3px",
-              }}
-            />
-          </Container>
-
-          {/* Orbiting cards */}
-          {visible.map((q, i) => {
-            const pos = POSITIONS[i];
-            return (
-              <div
-                key={`${page}-${i}`}
-                className="testimonial-card absolute z-10"
-                style={{
-                  left: pos.left,
-                  top: pos.top,
-                  width: "clamp(300px, 22vw, 380px)",
-                }}
-              >
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    animation: `testimonialFloat${i % 4} ${pos.dur}s ease-in-out ${pos.delay}s infinite`,
-                    ["--r" as never]: `${pos.rot}deg`,
-                  }}
-                >
-                  <TestimonialCard quote={q} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Mobile / tablet — title on top, cards stacked below */}
-        <div className="lg:hidden">
-          <Container className="flex flex-col items-center text-center">
-            <p
-              className="text-sm uppercase tracking-[0.2em]"
-              style={{ color: "#1C9DD9" }}
-            >
-              {testimonials.eyebrow}
-            </p>
-            <WordReveal
-              as="h2"
-              text={testimonials.bigHeadline}
-              className="headline mt-4 max-w-[900px] leading-[1.02] text-ink"
-              style={{
-                fontSize: "clamp(2.25rem, 8vw, 56px)",
-                fontWeight: 600,
-                letterSpacing: "-1.6px",
-              }}
-            />
-          </Container>
-
-          <div className="mt-12 flex flex-col items-center gap-5 px-2">
-            {visible.map((q, i) => (
-              <div
-                key={`m-${page}-${i}`}
-                className="testimonial-card w-full max-w-[400px]"
-              >
-                <TestimonialCard quote={q} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Arrows */}
-      <div className="mt-14 flex items-center justify-center gap-5 lg:mt-12">
-        <button
-          type="button"
-          onClick={prev}
-          aria-label="Previous testimonials"
-          className="flex size-12 items-center justify-center rounded-full border border-ink/20 text-ink transition-colors duration-300 hover:bg-ink hover:text-paper lg:size-14"
-          style={{ cursor: "pointer" }}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
+    <section className="relative pt-30 pb-30 lg:pt-44 lg:pb-44">
+      <Container className="relative px-4">
+        {/* Header — eyebrow + centered headline */}
+        <div className="flex flex-col items-center text-center">
+          <p
+            className="text-sm uppercase tracking-[0.18em] lg:text-base"
+            style={{ color: "#1C9DD9" }}
           >
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-        </button>
+            {testimonials.eyebrow}
+          </p>
+          <WordReveal
+            as="h2"
+            text={testimonials.bigHeadline}
+            className="headline mt-4 max-w-[900px] leading-[1.02] text-ink"
+            style={{
+              fontSize: "clamp(2.5rem, 5.6vw, 88px)",
+              fontWeight: 600,
+              letterSpacing: "-2.4px",
+            }}
+          />
+        </div>
+      </Container>
 
-        <span className="min-w-[60px] text-center text-sm uppercase tracking-[0.2em] text-ink-soft">
-          {page + 1} / {total}
-        </span>
-
-        <button
-          type="button"
-          onClick={next}
-          aria-label="Next testimonials"
-          className="flex size-12 items-center justify-center rounded-full border border-ink/20 text-ink transition-colors duration-300 hover:bg-ink hover:text-paper lg:size-14"
-          style={{ cursor: "pointer" }}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-          >
-            <path d="M5 12h14M12 5l7 7-7 7" />
-          </svg>
-        </button>
+      {/* Stagger slider */}
+      <div className="mt-16 lg:mt-24">
+        <StaggerTestimonials />
       </div>
-
-      <style>{`
-        @keyframes testimonialFloat0 {
-          0%, 100% { transform: rotate(var(--r, 0deg)) translate3d(0, 0, 0); }
-          50%      { transform: rotate(calc(var(--r, 0deg) + 1deg)) translate3d(6px, -14px, 0); }
-        }
-        @keyframes testimonialFloat1 {
-          0%, 100% { transform: rotate(var(--r, 0deg)) translate3d(0, 0, 0); }
-          50%      { transform: rotate(calc(var(--r, 0deg) - 1.5deg)) translate3d(-8px, 12px, 0); }
-        }
-        @keyframes testimonialFloat2 {
-          0%, 100% { transform: rotate(var(--r, 0deg)) translate3d(0, 0, 0); }
-          50%      { transform: rotate(calc(var(--r, 0deg) + 2deg)) translate3d(-6px, -10px, 0); }
-        }
-        @keyframes testimonialFloat3 {
-          0%, 100% { transform: rotate(var(--r, 0deg)) translate3d(0, 0, 0); }
-          50%      { transform: rotate(calc(var(--r, 0deg) - 1deg)) translate3d(10px, 8px, 0); }
-        }
-      `}</style>
     </section>
   );
 }
 
-/* Card uses the SVG shape from /testimonials/card-shape.svg as its background.
-   The SVG already includes:
-     - rounded outline with a tab-notch in the top-right
-     - soft blue gradient fill + frosted glass border
-     - 5 gold stars at top-left
-   We layer the quote text on top via padding/positioning that matches the
-   star area's vertical offset. */
-function TestimonialCard({
-  quote,
-}: {
-  quote: { text: string; author: string; role: string };
-}) {
+/* ──────────────────── Stagger slider ──────────────────── */
+
+function StaggerTestimonials() {
+  const [cardSize, setCardSize] = useState(365);
+  const [list, setList] = useState<Quote[]>(INITIAL);
+
+  useEffect(() => {
+    const updateSize = () => {
+      const matches = window.matchMedia("(min-width: 640px)").matches;
+      setCardSize(matches ? 365 : 290);
+    };
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
+  const handleMove = (steps: number) => {
+    setList((curr) => {
+      const next = [...curr];
+      if (steps > 0) {
+        for (let i = steps; i > 0; i--) {
+          const item = next.shift();
+          if (!item) return curr;
+          next.push({ ...item, tempId: Math.random() });
+        }
+      } else {
+        for (let i = steps; i < 0; i++) {
+          const item = next.pop();
+          if (!item) return curr;
+          next.unshift({ ...item, tempId: Math.random() });
+        }
+      }
+      return next;
+    });
+  };
+
   return (
     <div
       className="relative w-full"
-      style={{ aspectRatio: "280 / 203" }}
+      style={{ height: 640, overflowX: "clip", overflowY: "visible" }}
     >
-      {/* SVG shape — fills the card */}
-      <img
-        src="/testimonials/card-shape.svg"
-        alt=""
-        aria-hidden
-        className="absolute inset-0 h-full w-full select-none"
-        draggable={false}
-      />
+      {list.map((q, index) => {
+        const position =
+          list.length % 2
+            ? index - (list.length + 1) / 2
+            : index - list.length / 2;
+        return (
+          <StaggerCard
+            key={q.tempId}
+            quote={q}
+            handleMove={handleMove}
+            position={position}
+            cardSize={cardSize}
+          />
+        );
+      })}
 
-      {/* Quote text — softer black, bigger font, positioned below the stars */}
-      <div className="absolute inset-0 flex items-end px-[8%] pb-[10%] pt-[26%]">
-        <p
-          className="text-[17px] leading-[1.45] lg:text-[19px]"
-          style={{
-            color: "#2A2A33",
-            fontWeight: 400,
-          }}
-        >
-          {quote.text}
-        </p>
+      {/* Nav arrows */}
+      <div className="absolute bottom-2 left-1/2 z-20 flex -translate-x-1/2 gap-3">
+        <ArrowBtn dir="left" onClick={() => handleMove(-1)} />
+        <ArrowBtn dir="right" onClick={() => handleMove(1)} />
       </div>
     </div>
+  );
+}
+
+/* ──────────────────── Single card ──────────────────── */
+
+const SQRT_5000 = Math.sqrt(5000);
+
+function StaggerCard({
+  position,
+  quote,
+  handleMove,
+  cardSize,
+}: {
+  position: number;
+  quote: Quote;
+  handleMove: (steps: number) => void;
+  cardSize: number;
+}) {
+  const isCenter = position === 0;
+
+  return (
+    <div
+      onClick={() => handleMove(position)}
+      role="button"
+      aria-label={isCenter ? "Centered testimonial" : "Bring testimonial to center"}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleMove(position);
+        }
+      }}
+      className={cn(
+        "absolute left-1/2 top-1/2 cursor-pointer p-7 transition-all duration-500 ease-out sm:p-9",
+        isCenter ? "z-10" : "z-0",
+      )}
+      style={{
+        width: cardSize,
+        height: cardSize,
+        background: isCenter ? "#0A0A0F" : "#FFFFFF",
+        color: isCenter ? "#F3F3F3" : "#0A0A0F",
+        borderWidth: 2,
+        borderStyle: "solid",
+        borderColor: isCenter ? "#0A0A0F" : "#E2E2E2",
+        clipPath:
+          "polygon(50px 0%, calc(100% - 50px) 0%, 100% 50px, 100% 100%, calc(100% - 50px) 100%, 50px 100%, 0 100%, 0 0)",
+        transform: `
+          translate(-50%, -50%)
+          translateX(${(cardSize / 1.5) * position}px)
+          translateY(${isCenter ? -55 : position % 2 ? 18 : -18}px)
+          rotate(${isCenter ? 0 : position % 2 ? 2.6 : -2.6}deg)
+        `,
+        boxShadow: isCenter
+          ? "0px 10px 0px 4px #D9D9D9, 0 40px 80px -30px rgba(10,10,15,0.35)"
+          : "0 18px 40px -22px rgba(10,10,15,0.18)",
+      }}
+    >
+      {/* Notch diagonal hairline (top-right corner cut) */}
+      <span
+        aria-hidden
+        className="absolute block origin-top-right rotate-45"
+        style={{
+          right: -2,
+          top: 48,
+          width: SQRT_5000,
+          height: 2,
+          background: isCenter ? "#1F1F26" : "#E2E2E2",
+        }}
+      />
+
+      {/* 5 stars (replaces avatar image from original) */}
+      <div className="mb-5 flex items-center gap-[2px]">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <svg
+            key={i}
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill={isCenter ? "#F5D26B" : "#E8B948"}
+            aria-hidden
+          >
+            <path d="M12 2L14.618 9.172H22.5L16.122 13.914L18.74 21.086L12 16.343L5.26 21.086L7.878 13.914L1.5 9.172H9.382L12 2Z" />
+          </svg>
+        ))}
+      </div>
+
+      {/* Quote */}
+      <h3
+        className="headline text-[17px] leading-[1.35] sm:text-[20px]"
+        style={{
+          fontWeight: 500,
+          letterSpacing: "-0.4px",
+        }}
+      >
+        “{quote.text}”
+      </h3>
+
+      {/* Author — bottom-pinned italic */}
+      <p
+        className="absolute bottom-7 left-7 right-7 mt-2 text-xs italic sm:bottom-9 sm:left-9 sm:right-9 sm:text-sm"
+        style={{
+          color: isCenter ? "rgba(243,243,243,0.7)" : "rgba(10,10,15,0.55)",
+          fontWeight: 400,
+        }}
+      >
+        — {quote.author}
+        {quote.role ? `, ${quote.role}` : ""}
+      </p>
+    </div>
+  );
+}
+
+/* ──────────────────── Nav button ──────────────────── */
+
+function ArrowBtn({
+  dir,
+  onClick,
+}: {
+  dir: "left" | "right";
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={dir === "left" ? "Previous testimonial" : "Next testimonial"}
+      className="group flex size-12 items-center justify-center border-2 transition-colors focus-ring sm:size-14"
+      style={{
+        background: "#FFFFFF",
+        borderColor: "#E2E2E2",
+        color: "#0A0A0F",
+        cursor: "pointer",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "#0A0A0F";
+        e.currentTarget.style.borderColor = "#0A0A0F";
+        e.currentTarget.style.color = "#F3F3F3";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "#FFFFFF";
+        e.currentTarget.style.borderColor = "#E2E2E2";
+        e.currentTarget.style.color = "#0A0A0F";
+      }}
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        {dir === "left" ? (
+          <path d="M15 18l-6-6 6-6" />
+        ) : (
+          <path d="M9 18l6-6-6-6" />
+        )}
+      </svg>
+    </button>
   );
 }
