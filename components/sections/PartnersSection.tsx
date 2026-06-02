@@ -189,7 +189,7 @@ function PartnerMarquee({
       style={{ overflowX: "clip", overflowY: "visible" }}
     >
       <div
-        className="flex shrink-0 items-center gap-x-16 lg:gap-x-24"
+        className="flex shrink-0 items-center gap-x-8 sm:gap-x-12 lg:gap-x-24"
         style={{
           width: "max-content",
           animation: `${
@@ -202,12 +202,12 @@ function PartnerMarquee({
             key={`${p.name}-${i}`}
             className="partner-tile flex shrink-0 flex-col items-center gap-3"
           >
-            <div className="relative h-[56px] w-[170px] lg:h-[68px] lg:w-[200px]">
+            <div className="relative h-[44px] w-[130px] sm:h-[56px] sm:w-[170px] lg:h-[68px] lg:w-[200px]">
               <Image
                 src={p.logo}
                 alt={p.name}
                 fill
-                sizes="200px"
+                sizes="(min-width: 1024px) 200px, (min-width: 640px) 170px, 130px"
                 className="object-contain"
                 style={{
                   filter: "brightness(0) saturate(100%) opacity(0.8)",

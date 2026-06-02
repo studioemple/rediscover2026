@@ -112,14 +112,16 @@ export function AudienceSection() {
       style={{ overflowX: "clip", overflowY: "visible" }}
     >
 
-      {/* Side-gutter event tiles — hidden below lg.
-          z-20 so they sit ABOVE the centered headline/content
-          (Container has z-10). pointer-events-none keeps clicks
-          passing through to the title + CTA underneath. */}
+      {/* Side-gutter event tiles — visible from tablet upwards.
+          z-20 so they sit ABOVE the centered headline/content (Container
+          has z-10). pointer-events-none keeps clicks passing through to
+          the title + CTA underneath. On tablet (md..lg) the tiles cap at
+          ~22vw so they fit beside the smaller centered title without
+          crowding it; from lg upwards they grow to the design size. */}
       <div
         ref={orbitRef}
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-20 hidden lg:block"
+        className="pointer-events-none absolute inset-0 z-20 hidden md:block"
       >
         {ORBIT_IMAGES.map((tile, i) => (
           <div
@@ -128,7 +130,7 @@ export function AudienceSection() {
             style={{
               [tile.side]: `${tile.offsetPct}%`,
               top: `${tile.topPct}%`,
-              width: `min(${tile.size}px, 34vw)`,
+              width: `clamp(140px, 22vw, ${tile.size}px)`,
               transform: "translateY(-50%)",
             }}
           >

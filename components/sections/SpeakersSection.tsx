@@ -162,7 +162,7 @@ export function SpeakersSection() {
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="group inline-flex items-center gap-3 rounded-full border border-ink/15 bg-paper px-7 py-3.5 text-sm uppercase tracking-[0.22em] text-ink transition-all duration-300 hover:bg-ink hover:text-paper hover:border-ink focus-ring lg:px-9 lg:py-4 lg:text-base"
+            className="group inline-flex items-center gap-3 whitespace-nowrap rounded-full border border-ink/15 bg-paper px-6 py-3 text-xs uppercase tracking-[0.18em] text-ink transition-all duration-300 hover:bg-ink hover:text-paper hover:border-ink focus-ring sm:px-7 sm:py-3.5 sm:text-sm sm:tracking-[0.22em] lg:px-9 lg:py-4 lg:text-base"
             style={{
               fontFamily: "var(--font-sora), sans-serif",
               fontWeight: 500,
@@ -186,12 +186,13 @@ export function SpeakersSection() {
       {/* Horizontal cards strip — generous vertical padding gives hover
           scale + drop shadow plenty of room to render without being clipped
           (overflow-x: auto on this element clips Y too, so padding has to
-          contain the entire scale + shadow envelope). */}
+          contain the entire scale + shadow envelope). Padding shrinks on
+          mobile where cards (and their hover envelope) are smaller. */}
       <div
         ref={stripRef}
-        className="speakers-strip-scroll relative z-10 mt-14 overflow-x-auto pb-44 pt-28 lg:mt-20 lg:pb-56 lg:pt-32"
+        className="speakers-strip-scroll relative z-10 mt-10 overflow-x-auto pb-16 pt-10 sm:mt-14 sm:pb-32 sm:pt-20 lg:mt-20 lg:pb-56 lg:pt-32"
       >
-        <div className="speakers-strip-inner mx-auto flex w-max items-start px-6 lg:px-16">
+        <div className="speakers-strip-inner mx-auto flex w-max items-start px-4 sm:px-6 lg:px-16">
           {featured.map((s, i) => (
             <SpeakerCard
               key={`${s.year}-${s.slug}-${i}`}
@@ -309,7 +310,9 @@ function SpeakerCard({
     <div
       className="speaker-card-anim group relative shrink-0"
       style={{
-        width: "clamp(200px, 18vw, 260px)",
+        // Smaller floor on mobile so ~3 cards stay visible at once; on
+        // larger screens the design size (260px) takes over.
+        width: "clamp(130px, 22vw, 260px)",
         marginLeft: overlap,
         zIndex: 10 + index,
         transform: `rotate(${baseRot}deg)`,

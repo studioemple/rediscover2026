@@ -20,16 +20,16 @@ export function ValuePropSection() {
           ON A MISSION TO UPGRADE HOSPITALITY SINCE 2022.
         </p>
 
-        {/* Headline — single line on most viewports */}
+        {/* Headline — single line on desktop, allowed to wrap on tablet
+            and mobile so it never overflows the viewport. */}
         <WordReveal
           as="h2"
           text={valueProp.bigHeadline}
-          className="headline mt-8 leading-[1.0] text-ink lg:mt-12"
+          className="headline mt-8 leading-[1.05] text-ink lg:mt-12 lg:whitespace-nowrap lg:leading-[1.0]"
           style={{
-            fontSize: "clamp(2.5rem, 6vw, 96px)",
-            whiteSpace: "nowrap",
+            fontSize: "clamp(2.25rem, 6vw, 96px)",
             fontWeight: 600,
-            letterSpacing: "-3px",
+            letterSpacing: "-2.2px",
           }}
         />
 

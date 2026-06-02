@@ -32,7 +32,11 @@ export default function Home() {
   return (
     <main
       className={`relative bg-paper ${introDone ? "" : "overflow-hidden"}`}
-      style={introDone ? {} : { height: "100vh" }}
+      style={
+        introDone
+          ? { overflowX: "clip" }
+          : { height: "100vh" }
+      }
     >
       <IntroSequence onComplete={() => setIntroDone(true)} />
       {/* Page-wide geometric backdrop — only after intro completes */}

@@ -11,6 +11,10 @@
 html {
   scroll-behavior: smooth;
   background: var(--paper);
+  /* Hard guard so no rogue full-bleed element (tilted marquees,
+     side-gutter orbits, page geometry diagonals, etc.) can ever spawn
+     a horizontal scrollbar on small viewports. */
+  overflow-x: clip;
 }
 
 body {
@@ -19,6 +23,7 @@ body {
   font-family: var(--font-inter), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 @media (prefers-reduced-motion: reduce) {

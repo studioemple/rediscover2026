@@ -97,9 +97,13 @@ const DECORATIONS: Decor[] = [
 
 export function PageGeometry() {
   return (
+    /* Hidden on small screens — the diagonals, oversized circles and
+       full-document vh positioning don't play well with narrow mobile
+       viewports (lines look mis-placed and decorations clutter the
+       centred content). Comes back from md (768px) upwards. */
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-0 overflow-hidden"
+      className="pointer-events-none absolute inset-0 hidden overflow-hidden md:block"
     >
       {/* Vertical hairlines — full document height */}
       {VERTICAL_LINES.map((pct, i) => (

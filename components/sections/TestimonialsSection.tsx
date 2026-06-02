@@ -62,8 +62,11 @@ function StaggerTestimonials() {
 
   useEffect(() => {
     const updateSize = () => {
-      const matches = window.matchMedia("(min-width: 640px)").matches;
-      setCardSize(matches ? 365 : 290);
+      // Three breakpoints — mobile shrinks the cards enough that 3 always
+      // fit in the visible stagger (center + one on each side).
+      if (window.matchMedia("(min-width: 1024px)").matches) setCardSize(365);
+      else if (window.matchMedia("(min-width: 640px)").matches) setCardSize(300);
+      else setCardSize(230);
     };
     updateSize();
     window.addEventListener("resize", updateSize);
@@ -90,10 +93,14 @@ function StaggerTestimonials() {
     });
   };
 
+  /* Height scales with card size so the stage hugs the cards on mobile
+     instead of leaving a giant empty band. */
+  const stageHeight = cardSize + 220;
+
   return (
     <div
       className="relative w-full"
-      style={{ height: 640, overflowX: "clip", overflowY: "visible" }}
+      style={{ height: stageHeight, overflowX: "clip", overflowY: "visible" }}
     >
       {list.map((q, index) => {
         const position =

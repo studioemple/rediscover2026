@@ -4,7 +4,7 @@ import type { ButtonHTMLAttributes, AnchorHTMLAttributes } from "react";
 type Variant = "primary" | "ghost" | "outline";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-all duration-200 ease-premium cursor-pointer focus-ring";
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 text-sm font-medium transition-all duration-200 ease-premium cursor-pointer focus-ring";
 
 const variants: Record<Variant, string> = {
   primary:

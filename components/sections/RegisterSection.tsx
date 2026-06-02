@@ -77,7 +77,7 @@ export function RegisterSection() {
   return (
     <section
       id="register"
-      className="relative z-30 px-4 pt-30 pb-30 lg:pt-44 lg:pb-44"
+      className="relative z-30 px-4 pt-44 pb-44 lg:pt-64 lg:pb-64"
       style={{ overflowX: "clip", overflowY: "visible" }}
     >
       {/* Layered soft blue glows reminiscent of rediscover's blurred form */}
@@ -100,14 +100,15 @@ export function RegisterSection() {
         }}
       />
 
-      {/* Side-gutter event tiles — hidden below lg.
+      {/* Side-gutter event tiles — visible from tablet upwards.
           z-20 so they sit ABOVE the centered title + form (Container has
           z-10). pointer-events-none keeps clicks passing through to the
-          form fields underneath. */}
+          form fields underneath. Same vw-cap as AudienceSection so the
+          two paired layouts feel consistent across breakpoints. */}
       <div
         ref={orbitRef}
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-20 hidden lg:block"
+        className="pointer-events-none absolute inset-0 z-20 hidden md:block"
       >
         {ORBIT_IMAGES.map((tile, i) => (
           <div
@@ -116,7 +117,7 @@ export function RegisterSection() {
             style={{
               [tile.side]: `${tile.offsetPct}%`,
               top: `${tile.topPct}%`,
-              width: `min(${tile.size}px, 34vw)`,
+              width: `clamp(140px, 22vw, ${tile.size}px)`,
               transform: "translateY(-50%)",
             }}
           >

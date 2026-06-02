@@ -66,7 +66,7 @@ function MarqueeRow({
       style={{ overflowX: "clip", overflowY: "visible" }}
     >
       <div
-        className="flex shrink-0 gap-6 py-6 lg:gap-8 lg:py-10"
+        className="flex shrink-0 gap-3 py-4 sm:gap-5 sm:py-6 lg:gap-8 lg:py-10"
         style={{
           width: "max-content",
           animation: `${
@@ -77,17 +77,13 @@ function MarqueeRow({
         {doubled.map((item, i) => (
           <div
             key={`${item.src}-${i}`}
-            className="relative shrink-0"
-            style={{
-              width: 440,
-              height: 440,
-              transform: `rotate(${item.rot}deg)`,
-            }}
+            className="relative shrink-0 size-[220px] sm:size-[300px] lg:size-[440px]"
+            style={{ transform: `rotate(${item.rot}deg)` }}
           >
             <div
               className="absolute inset-0 overflow-hidden bg-surface"
               style={{
-                borderRadius: 28,
+                borderRadius: 20,
                 boxShadow:
                   "0 40px 80px -30px rgba(10,10,15,0.3), 0 12px 26px -10px rgba(10,10,15,0.15)",
               }}
@@ -96,7 +92,7 @@ function MarqueeRow({
                 src={item.src}
                 alt=""
                 fill
-                sizes="440px"
+                sizes="(min-width: 1024px) 440px, (min-width: 640px) 300px, 220px"
                 className="object-cover"
               />
             </div>
