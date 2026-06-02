@@ -23,10 +23,10 @@ type Tile = {
 };
 
 const ORBIT_IMAGES: Tile[] = [
-  { src: "/event/03.png", side: "left",  topPct: 18, offsetPct: 12, size: 420, rot: -7, dur: 7.5, delay: 0.0 },
-  { src: "/event/05.png", side: "right", topPct: 22, offsetPct: 12, size: 400, rot:  5, dur: 8.2, delay: 1.2 },
-  { src: "/event/06.png", side: "left",  topPct: 52, offsetPct: 6,  size: 500, rot:  4, dur: 9.0, delay: 0.5 },
-  { src: "/event/10.png", side: "right", topPct: 50, offsetPct: 6,  size: 480, rot: -5, dur: 7.8, delay: 1.8 },
+  { src: "/audience/made-1.jpg", side: "left",  topPct: 18, offsetPct: 12, size: 420, rot: -7, dur: 7.5, delay: 0.0 },
+  { src: "/audience/made-2.jpg", side: "right", topPct: 22, offsetPct: 12, size: 400, rot:  5, dur: 8.2, delay: 1.2 },
+  { src: "/audience/made-3.jpg", side: "left",  topPct: 52, offsetPct: 6,  size: 500, rot:  4, dur: 9.0, delay: 0.5 },
+  { src: "/audience/made-4.jpg", side: "right", topPct: 50, offsetPct: 6,  size: 480, rot: -5, dur: 7.8, delay: 1.8 },
   { src: "/event/12.png", side: "left",  topPct: 84, offsetPct: 14, size: 420, rot: -3, dur: 8.5, delay: 0.3 },
   { src: "/event/13.png", side: "right", topPct: 84, offsetPct: 14, size: 440, rot:  5, dur: 8.0, delay: 1.5 },
 ];
@@ -107,13 +107,19 @@ export function AudienceSection() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden px-4 pt-30 pb-30 lg:pt-44 lg:pb-44">
+    <section
+      className="relative px-4 pt-30 pb-30 lg:pt-44 lg:pb-44"
+      style={{ overflowX: "clip", overflowY: "visible" }}
+    >
 
-      {/* Side-gutter event tiles — hidden below lg */}
+      {/* Side-gutter event tiles — hidden below lg.
+          z-20 so they sit ABOVE the centered headline/content
+          (Container has z-10). pointer-events-none keeps clicks
+          passing through to the title + CTA underneath. */}
       <div
         ref={orbitRef}
         aria-hidden
-        className="pointer-events-none absolute inset-0 hidden lg:block"
+        className="pointer-events-none absolute inset-0 z-20 hidden lg:block"
       >
         {ORBIT_IMAGES.map((tile, i) => (
           <div
@@ -146,7 +152,8 @@ export function AudienceSection() {
                   src={tile.src}
                   alt=""
                   fill
-                  sizes="320px"
+                  sizes="(min-width: 1280px) 500px, 34vw"
+                  quality={95}
                   className="object-cover"
                 />
               </div>

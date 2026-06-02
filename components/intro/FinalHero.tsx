@@ -210,12 +210,9 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
         </div>
 
         {/* CTAs */}
-        <div ref={ctasRef} className="mt-12 flex flex-col items-center gap-4 sm:flex-row">
+        <div ref={ctasRef} className="mt-12 flex justify-center">
           <a href="#register">
             <Button variant="primary">{event.registerCta}</Button>
-          </a>
-          <a href="#aftermovie">
-            <Button variant="outline">Watch the 2025 aftermovie</Button>
           </a>
         </div>
       </div>

@@ -26,7 +26,7 @@ export const stats = [
 export const valueProp = {
   eyebrow: "The biggest hotel-tech event in the region",
   bigHeadline: "Every edition opens new ground.",
-  body: "Rediscover is where independent hoteliers meet the technology shaping the next decade of hospitality. Real conversations, real outcomes — no buzzwords.",
+  body: "Rediscover is where independent hoteliers meet the technology shaping the next decade of hospitality. Real conversations, real outcomes no buzzwords.",
   topics: [
     "Digitalization",
     "Automation",
@@ -65,8 +65,8 @@ export type Speaker = {
 
 export const speakers = {
   eyebrow: "Speakers through the years",
-  bigHeadline: "Inspiration and Change Through the Eyes of Experts",
-  body: "Rediscover surfaces the operators, founders, and builders defining where hospitality goes next — with their stories and stakes attached.",
+  bigHeadline: "Past Rediscover speakers: years of inspiration and change",
+  body: "Rediscover surfaces the operators, founders, and builders defining where hospitality goes next with their stories and stakes attached.",
   cardLabel: "5th Edition speakers",
   cardSubtitle: "Lineup announced throughout 2026",
   byYear: {
@@ -133,6 +133,20 @@ export const speakers = {
       { slug: "marko-henrik-marinsek", name: "Marko Henrik Marinšek" },
     ] as Speaker[],
   },
+  /* Curated "highlight reel" — these speakers appear in the main strip.
+     Each item points at the (year, slug) pair so the existing image lookup
+     under /public/speakers/{year}/{slug}.png keeps working. */
+  featured: [
+    { year: "2025", slug: "marko-misulic",          name: "Marko Mišulić",         role: "CEO, Rentlio",                              video: "https://youtu.be/i_ePFwcxflw" },
+    { year: "2025", slug: "tommaso-centonze",       name: "Tommaso Centonze",      role: "COO & Co-Founder, Smartness",               video: "https://youtu.be/8FaYD4ldVoQ" },
+    { year: "2025", slug: "lisa-hartley",           name: "Lisa Hartley",          role: "Strategic Account Manager, SiteMinder",     video: "https://youtu.be/X6FoXKgk77Y" },
+    { year: "2025", slug: "mario-kostelac",         name: "Mario Kostelac" },
+    { year: "2024", slug: "chris-willette",         name: "Chris Willette" },
+    { year: "2024", slug: "elena-klouda",           name: "Elena Klouda" },
+    { year: "2024", slug: "joana-pires-coelho",     name: "Joana Pires Coelho" },
+    { year: "2023", slug: "erlendur-steinn-gudnason", name: "Erlendur Steinn Gudnason" },
+    { year: "2023", slug: "paul-jeszenszky",        name: "Paul Jeszenszky" },
+  ] as Array<{ year: "2022" | "2023" | "2024" | "2025" } & Speaker>,
 };
 
 /* "Voices That Shape the Industry" — 3 featured talks from past editions */
@@ -200,7 +214,7 @@ export const testimonials = {
       role: "Rediscover 2025",
     },
     {
-      text: "Keep up the great work — everything else will follow naturally.",
+      text: "Keep up the great work everything else will follow naturally.",
       author: "Hotel Owner",
       role: "Rediscover 2025",
     },
@@ -220,7 +234,7 @@ export const testimonials = {
       role: "Rediscover 2024",
     },
     {
-      text: "Sve je bilo i više nego odlično — jedva čekamo iduću godinu!! (PS — Hvala :)",
+      text: "Sve je bilo i više nego odlično jedva čekamo iduću godinu!! (PS Hvala :)",
       author: "Hotelijer",
       role: "Rediscover 2025",
     },
@@ -288,7 +302,7 @@ export const partners = {
 };
 
 export const register = {
-  bigHeadline: "We'll soon start preparing for Rediscover 2026.",
+  bigHeadline: "Join the waitlist for early access and updates about Rediscover.",
   cta: "Join the waiting list",
   altCta: "Watch the 2025 aftermovie",
   emailPlaceholder: "you@hotel.com",
@@ -303,7 +317,7 @@ export const faqs = [
   },
   {
     q: "Who organizes Rentlio Rediscover?",
-    a: "Rentlio Rediscover is organized by Rentlio — a tech company based in Zadar that has been successfully digitalizing tourism for over a decade by developing its own Property Management, Channel Management, and Booking Engine system, and many other tools.",
+    a: "Rentlio Rediscover is organized by Rentlio a tech company based in Zadar that has been successfully digitalizing tourism for over a decade by developing its own Property Management, Channel Management, and Booking Engine system, and many other tools.",
   },
   {
     q: "When and where is Rentlio Rediscover held?",

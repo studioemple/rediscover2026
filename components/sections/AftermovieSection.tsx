@@ -108,7 +108,7 @@ export function AftermovieSection() {
         ref={labelRef}
         className="pointer-events-none absolute top-10 left-1/2 z-20 -translate-x-1/2 rounded-full border border-hairline bg-paper/80 px-5 py-2 text-xs uppercase tracking-[0.28em] text-ink-soft backdrop-blur-md lg:top-16"
       >
-        Rediscover 2025 — Aftermovie
+        Rediscover 2025 Aftermovie
       </div>
 
       <div

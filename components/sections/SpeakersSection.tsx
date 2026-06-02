@@ -10,14 +10,15 @@ import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 const YEARS = ["2022", "2023", "2024", "2025"] as const;
 type Year = (typeof YEARS)[number];
 
+type FeaturedSpeaker = Speaker & { year: Year };
+
 export function SpeakersSection() {
-  const [year, setYear] = useState<Year>("2025");
   const stripRef = useRef<HTMLDivElement>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
-  const list = speakers.byYear[year];
+  const featured = speakers.featured as FeaturedSpeaker[];
 
-  /* Entrance animation — re-runs whenever year changes.
-     All cards enter from the right, staggered right → left. */
+  /* Entrance animation — cards enter from the right, staggered right → left. */
   useEffect(() => {
     ensureGsap();
     if (!stripRef.current) return;
@@ -48,16 +49,93 @@ export function SpeakersSection() {
         scrollTrigger: {
           trigger: stripRef.current,
           start: "top 82%",
-          once: false,
+          once: true,
         },
       });
     }, stripRef);
 
     return () => ctx.revert();
-  }, [year]);
+  }, []);
+
+  /* Lock body scroll while the modal is open + close on ESC. */
+  useEffect(() => {
+    if (!modalOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setModalOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [modalOpen]);
 
   return (
-    <section className="relative pt-30 pb-30 lg:pt-44 lg:pb-44">
+    <section
+      className="relative z-30 pt-30 pb-30 lg:pt-44 lg:pb-44"
+      style={{ overflowX: "clip", overflowY: "visible" }}
+    >
+      {/* Rentlio circle backdrops — section-local */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 hidden lg:block"
+      >
+        <div
+          className="absolute"
+          style={{
+            left: "-260px",
+            top: "8%",
+            width: 640,
+            height: 640,
+            animation: "speakersLeftDrift 36s ease-in-out infinite",
+            willChange: "transform",
+          }}
+        >
+          <div
+            className="size-full"
+            style={{
+              ["--base-rot" as never]: "0deg",
+              animation: "pageRentlioBreatheCcw 320s linear infinite",
+            }}
+          >
+            <img
+              src="/rentlio-circle.svg"
+              alt=""
+              className="block size-full"
+              style={{ objectFit: "contain" }}
+            />
+          </div>
+        </div>
+        <div
+          className="absolute"
+          style={{
+            right: "-260px",
+            top: "22%",
+            width: 640,
+            height: 640,
+            animation: "speakersRightDrift 42s ease-in-out infinite",
+            willChange: "transform",
+          }}
+        >
+          <div
+            className="size-full"
+            style={{
+              ["--base-rot" as never]: "210deg",
+              animation: "pageRentlioBreatheCw 380s linear infinite",
+            }}
+          >
+            <img
+              src="/rentlio-circle.svg"
+              alt=""
+              className="block size-full"
+              style={{ objectFit: "contain" }}
+            />
+          </div>
+        </div>
+      </div>
+
       <Container className="px-4">
         {/* Header — centered */}
         <div className="flex flex-col items-center text-center">
@@ -79,64 +157,55 @@ export function SpeakersSection() {
           />
         </div>
 
-        {/* Year tabs CENTERED */}
-        <div
-          role="tablist"
-          aria-label="Speaker years"
-          className="mt-12 flex justify-center gap-7 lg:mt-16 lg:gap-12"
-        >
-          {YEARS.map((y) => {
-            const isActive = y === year;
-            return (
-              <button
-                key={y}
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => setYear(y)}
-                className="relative pb-1.5 text-2xl text-ink transition-opacity duration-300 focus:outline-none lg:text-[34px]"
-                style={{
-                  fontFamily: "var(--font-sora), sans-serif",
-                  opacity: isActive ? 1 : 0.4,
-                  fontWeight: isActive ? 500 : 400,
-                  cursor: "pointer",
-                  letterSpacing: "-0.5px",
-                }}
-              >
-                {y}
-                <span
-                  aria-hidden
-                  className="absolute -bottom-0.5 left-0 right-0 h-[2px] origin-center transition-transform duration-500"
-                  style={{
-                    background: "#4D7EF5",
-                    transform: isActive ? "scaleX(1)" : "scaleX(0)",
-                    transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
-                  }}
-                />
-              </button>
-            );
-          })}
+        {/* CTA — replaces the year tabs */}
+        <div className="mt-12 flex justify-center lg:mt-16">
+          <button
+            type="button"
+            onClick={() => setModalOpen(true)}
+            className="group inline-flex items-center gap-3 rounded-full border border-ink/15 bg-paper px-7 py-3.5 text-sm uppercase tracking-[0.22em] text-ink transition-all duration-300 hover:bg-ink hover:text-paper hover:border-ink focus-ring lg:px-9 lg:py-4 lg:text-base"
+            style={{
+              fontFamily: "var(--font-sora), sans-serif",
+              fontWeight: 500,
+              cursor: "pointer",
+            }}
+          >
+            Check all speakers
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 10 10"
+              fill="none"
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            >
+              <path d="M2 1L7 5L2 9" stroke="currentColor" strokeWidth="1.4" />
+            </svg>
+          </button>
         </div>
       </Container>
 
       {/* Horizontal cards strip — generous vertical padding gives hover
-          scale + drop shadow plenty of room to render without being clipped. */}
+          scale + drop shadow plenty of room to render without being clipped
+          (overflow-x: auto on this element clips Y too, so padding has to
+          contain the entire scale + shadow envelope). */}
       <div
         ref={stripRef}
-        key={year}
-        className="speakers-strip-scroll mt-14 overflow-x-auto pb-24 pt-20 lg:mt-20 lg:pb-32 lg:pt-28"
+        className="speakers-strip-scroll relative z-10 mt-14 overflow-x-auto pb-44 pt-28 lg:mt-20 lg:pb-56 lg:pt-32"
       >
         <div className="speakers-strip-inner mx-auto flex w-max items-start px-6 lg:px-16">
-          {list.map((s, i) => (
+          {featured.map((s, i) => (
             <SpeakerCard
-              key={`${year}-${s.slug}-${i}`}
+              key={`${s.year}-${s.slug}-${i}`}
               speaker={s}
-              year={year}
+              year={s.year}
               index={i}
-              total={list.length}
+              total={featured.length}
             />
           ))}
         </div>
       </div>
+
+      {/* All-speakers modal */}
+      {modalOpen && <AllSpeakersModal onClose={() => setModalOpen(false)} />}
 
       <style>{`
         /* Hide scrollbar on horizontal strip */
@@ -146,10 +215,20 @@ export function SpeakersSection() {
         .speakers-strip-scroll::-webkit-scrollbar {
           display: none;
         }
+        @keyframes speakersLeftDrift {
+          0%, 100% { transform: translate(0, 0); }
+          50%      { transform: translate(10px, -6px); }
+        }
+        @keyframes speakersRightDrift {
+          0%, 100% { transform: translate(0, 0); }
+          50%      { transform: translate(-12px, 8px); }
+        }
       `}</style>
     </section>
   );
 }
+
+/* ──────────────────── Featured speaker card ──────────────────── */
 
 function SpeakerCard({
   speaker,
@@ -166,7 +245,7 @@ function SpeakerCard({
   const middle = (total - 1) / 2;
   const baseRot = (index - middle) * 0.7;
 
-  // Cards overlap with -32px negative left margin (after the first).
+  // Cards overlap with -36px negative left margin (after the first).
   const overlap = index === 0 ? 0 : -36;
 
   const inner = (
@@ -276,4 +355,155 @@ function SpeakerCard({
       `}</style>
     </div>
   );
+}
+
+/* ──────────────────── All-speakers modal ──────────────────── */
+
+function AllSpeakersModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="All speakers across editions"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-10"
+      style={{
+        background: "rgba(10, 10, 15, 0.55)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        animation: "speakerModalFade 0.3s ease-out",
+      }}
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-[1280px] overflow-hidden rounded-[28px] bg-paper shadow-[0_50px_120px_-20px_rgba(10,10,15,0.45),0_0_0_1px_rgba(10,10,15,0.05)]"
+        style={{
+          maxHeight: "calc(100vh - 4rem)",
+          animation: "speakerModalRise 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-ink/8 bg-paper/95 px-6 py-5 backdrop-blur lg:px-10 lg:py-7">
+          <div>
+            <p
+              className="text-xs uppercase tracking-[0.22em] lg:text-sm"
+              style={{ color: "#1C9DD9", fontFamily: "var(--font-sora), sans-serif", fontWeight: 500 }}
+            >
+              Every Rediscover speaker
+            </p>
+            <h3
+              className="headline mt-1 text-[22px] leading-[1.1] text-ink lg:text-[32px]"
+              style={{ fontWeight: 600, letterSpacing: "-0.8px" }}
+            >
+              All speakers, all editions
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full border border-ink/15 bg-paper text-ink transition-all hover:bg-ink hover:text-paper hover:border-ink focus-ring lg:size-12"
+            style={{ cursor: "pointer" }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M6 6l12 12M6 18L18 6" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Body — scrollable */}
+        <div
+          className="overflow-y-auto px-6 pb-10 pt-8 lg:px-10 lg:pb-14 lg:pt-10"
+          style={{ maxHeight: "calc(100vh - 4rem - 100px)" }}
+        >
+          {[...YEARS].reverse().map((y) => {
+            const list = speakers.byYear[y];
+            if (!list || list.length === 0) return null;
+            return (
+              <section key={y} className="mb-10 lg:mb-14">
+                <div className="mb-5 flex items-baseline gap-3 lg:mb-7">
+                  <h4
+                    className="text-[26px] leading-none text-ink lg:text-[40px]"
+                    style={{
+                      fontFamily: "var(--font-sora), sans-serif",
+                      fontWeight: 500,
+                      letterSpacing: "-1.2px",
+                    }}
+                  >
+                    {y}
+                  </h4>
+                  <span className="text-xs text-ink/50 lg:text-sm">
+                    {list.length} {list.length === 1 ? "speaker" : "speakers"}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-5 lg:gap-x-6 lg:gap-y-9 xl:grid-cols-6 2xl:grid-cols-8">
+                  {list.map((s) => (
+                    <ModalSpeakerTile key={`${y}-${s.slug}`} speaker={s} year={y} />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes speakerModalFade {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes speakerModalRise {
+          from { opacity: 0; transform: translateY(20px) scale(0.985); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function ModalSpeakerTile({ speaker, year }: { speaker: Speaker; year: Year }) {
+  const tile = (
+    <>
+      <div className="relative aspect-square overflow-hidden rounded-2xl bg-ink/90">
+        <Image
+          src={`/speakers/${year}/${speaker.slug}.png`}
+          alt={speaker.name}
+          fill
+          sizes="(min-width: 1536px) 140px, (min-width: 1024px) 180px, 30vw"
+          quality={90}
+          className="object-cover transition-transform duration-500 group-hover/tile:scale-[1.06]"
+        />
+      </div>
+      <p
+        className="mt-2.5 text-center text-[13px] leading-[1.2] text-ink lg:text-sm"
+        style={{
+          fontFamily: "var(--font-sora), sans-serif",
+          fontWeight: 500,
+          letterSpacing: "-0.2px",
+        }}
+      >
+        {speaker.name}
+      </p>
+      {speaker.role && (
+        <p className="mt-0.5 text-center text-[11px] leading-[1.25] text-ink/50 lg:text-xs">
+          {speaker.role}
+        </p>
+      )}
+    </>
+  );
+
+  if (speaker.video) {
+    return (
+      <a
+        href={speaker.video}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group/tile block focus-ring"
+      >
+        {tile}
+      </a>
+    );
+  }
+  return <div className="group/tile">{tile}</div>;
 }

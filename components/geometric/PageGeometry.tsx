@@ -27,7 +27,15 @@ const HORIZONTAL_LINES = [
 /* Scattered decorations — circles and diagonals spread across vertical
    positions so the lower half of the page isn't just bare verticals. */
 type Decor =
-  | { kind: "circle"; left: string; topVh: number; size: number }
+  | {
+      kind: "circle";
+      left: string;
+      topVh: number;
+      size: number;
+      /** Optional override for base rotation in degrees. If omitted, a
+       *  deterministic pseudo-random rotation is computed from the index. */
+      rot?: number;
+    }
   | {
       kind: "diagonal";
       topVh: number;
@@ -37,14 +45,21 @@ type Decor =
 
 const DECORATIONS: Decor[] = [
   // ───── Top zone (Hero / Aftermovie 0–200vh) ─────
-  { kind: "circle",   left: "calc(23% - 224px)",  topVh: -1,   size: 448 },
+  // Hero left circle — size 900, ~60% visible (40% / 360px off the left edge),
+  // anchored at 38vh so it lives in the middle of the hero zone.
+  { kind: "circle",   left: "-360px",             topVh: 38,   size: 900 },
+  // Hero right circle — mirrors the left one, ~60% visible off the right edge,
+  // slightly higher so the two read as a paired but not symmetric duo.
+  { kind: "circle",   left: "calc(100% - 540px)", topVh: 62,   size: 900 },
   { kind: "diagonal", topVh: 4 },
   { kind: "diagonal", topVh: 76, flip: true },
   { kind: "circle",   left: "78%",                topVh: 145,  size: 380 },
 
   // ───── Value-prop zone (200–320vh) ─────
   { kind: "diagonal", topVh: 215 },
-  { kind: "circle",   left: "-6%",                topVh: 260,  size: 460 },
+  // Value-prop left circle — doubled in size for stronger presence behind
+  // marquee; pinned at rot: 0 so the Rentlio "R" reads upright.
+  { kind: "circle",   left: "-6%",                topVh: 260,  size: 920, rot: 0 },
 
   // ───── Audience zone (≈320–700vh) intentionally CLEAR — no lines,
   //       circles or diagonals cross the centered title + titles list.
@@ -54,17 +69,22 @@ const DECORATIONS: Decor[] = [
   { kind: "circle",   left: "8%",                 topVh: 720,  size: 500 },
   { kind: "circle",   left: "80%",                topVh: 760,  size: 380 },
   { kind: "diagonal", topVh: 800, flip: true },
+  // (Speakers headline backdrops are rendered locally inside
+  //  SpeakersSection.tsx, so they're guaranteed to sit in that section
+  //  regardless of how the document's total height shifts.)
 
   // ───── Gallery / Testimonials zone (800–1100vh) ─────
   { kind: "diagonal", topVh: 830 },
-  { kind: "circle",   left: "-4%",                topVh: 890,  size: 460 },
+  // (Left circle removed — it was bleeding into the testimonials section.)
   { kind: "diagonal", topVh: 950, flip: true },
   { kind: "circle",   left: "72%",                topVh: 1020, size: 440 },
   { kind: "diagonal", topVh: 1080 },
 
   // ───── Partners / Register zone (1100–1400vh) ─────
   { kind: "diagonal", topVh: 1160, flip: true },
-  { kind: "circle",   left: "10%",                topVh: 1210, size: 420 },
+  // (Partners-left backdrop is rendered locally inside PartnersSection.tsx,
+  //  so it's guaranteed to sit above the logo grid regardless of how the
+  //  document's total height shifts.)
   { kind: "diagonal", topVh: 1280 },
   { kind: "circle",   left: "82%",                topVh: 1340, size: 460 },
   { kind: "diagonal", topVh: 1390, flip: true },
@@ -111,15 +131,24 @@ export function PageGeometry() {
         />
       ))}
 
-      {/* Scattered circles + diagonals */}
+      {/* Scattered circles (Rentlio circle SVG) + diagonals */}
       {DECORATIONS.map((d, i) => {
         const driftAnim = `pageDriftDecor${i % 3} ${32 + (i % 5) * 4}s ease-in-out ${(i * 0.9) % 6}s infinite`;
 
         if (d.kind === "circle") {
+          /* Deterministic pseudo-random base rotation per index — stays
+             stable across renders (no hydration mismatch) yet looks
+             organically varied. A circle can override this by setting
+             `rot` explicitly (e.g. rot: 0 for the standard orientation).
+             The inner element also rotates very slowly forever, but the
+             per-revolution time is huge so it reads as nearly-static
+             "breathing" motion. */
+          const baseRot = d.rot ?? (i * 137 + 41) % 360;
+          const breatheDur = 240 + (i % 6) * 40; // 240–440s — almost imperceptible
+          const breatheDir = i % 2 === 0 ? 1 : -1; // alternate cw / ccw
           return (
-            <svg
+            <div
               key={`c-${i}`}
-              fill="none"
               className="absolute"
               style={{
                 left: d.left,
@@ -130,16 +159,22 @@ export function PageGeometry() {
                 willChange: "transform",
               }}
             >
-              <circle
-                cx={d.size / 2}
-                cy={d.size / 2}
-                r={d.size / 2}
-                stroke={STROKE}
-                strokeWidth={1}
-                vectorEffect="non-scaling-stroke"
-                fill="none"
-              />
-            </svg>
+              <div
+                className="size-full"
+                style={{
+                  ["--base-rot" as never]: `${baseRot}deg`,
+                  animation: `pageRentlioBreathe${breatheDir > 0 ? "Cw" : "Ccw"} ${breatheDur}s linear infinite`,
+                }}
+              >
+                <img
+                  src="/rentlio-circle.svg"
+                  alt=""
+                  aria-hidden
+                  className="block size-full"
+                  style={{ objectFit: "contain" }}
+                />
+              </div>
+            </div>
           );
         }
 
@@ -203,6 +238,19 @@ export function PageGeometry() {
         @keyframes pageDriftDecor2 {
           0%, 100% { transform: translate(0, 0); }
           50%      { transform: translate(8px, 14px); }
+        }
+        /* Ultra-slow rotation drift for Rentlio circle marks. Each circle
+           starts at its own --base-rot and completes a full revolution
+           over 4–7 minutes, so the motion reads as gentle breathing
+           rather than spinning. CW + CCW variants alternate so adjacent
+           circles never look perfectly in sync. */
+        @keyframes pageRentlioBreatheCw {
+          from { transform: rotate(var(--base-rot, 0deg)); }
+          to   { transform: rotate(calc(var(--base-rot, 0deg) + 360deg)); }
+        }
+        @keyframes pageRentlioBreatheCcw {
+          from { transform: rotate(var(--base-rot, 0deg)); }
+          to   { transform: rotate(calc(var(--base-rot, 0deg) - 360deg)); }
         }
       `}</style>
     </div>

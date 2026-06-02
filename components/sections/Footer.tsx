@@ -6,7 +6,7 @@ import Image from "next/image";
  */
 export function Footer() {
   return (
-    <footer className="relative w-full px-4 pt-20 pb-16 lg:pt-28 lg:pb-20">
+    <footer className="relative w-full px-4 pt-20 pb-10 lg:pt-28 lg:pb-12">
       <div className="mx-auto flex max-w-[1180px] flex-col items-center gap-8 border-t border-ink/8 pt-14 sm:flex-row sm:justify-between sm:gap-6 lg:pt-20">
         <a
           href="mailto:rediscover@rentl.io"
@@ -38,6 +38,19 @@ export function Footer() {
           className="text-sm text-ink-soft transition-colors duration-300 hover:text-ink lg:text-base"
         >
           www.rentl.io
+        </a>
+      </div>
+
+      {/* Sub-footer — privacy policy + copyright */}
+      <div className="mx-auto mt-8 flex max-w-[1180px] flex-col items-center gap-3 text-xs text-ink-soft sm:flex-row sm:justify-between lg:mt-10 lg:text-sm">
+        <p>© {new Date().getFullYear()} Rentlio. All rights reserved.</p>
+        <a
+          href="https://rediscover.rentl.io/en/privacy-policy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors duration-300 hover:text-ink"
+        >
+          Privacy Policy
         </a>
       </div>
     </footer>

@@ -15,6 +15,82 @@ const ROW_B = partners.list.slice(6);
 export function PartnersSection() {
   return (
     <section className="relative pt-30 pb-30 lg:pt-44 lg:pb-44" style={{ overflowX: "clip", overflowY: "visible" }}>
+      {/* Rentlio circle backdrops — section-local pair.
+          • LEFT main : 820px, ~65% visible (~287px off-screen), rot 270°
+          • RIGHT mirror : 820px, ~65% visible from the right, rot 200° so
+            the pair feels layered, not perfectly mirrored. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 hidden lg:block"
+      >
+        {/* Left */}
+        <div
+          className="absolute"
+          style={{
+            left: "-287px",
+            top: "-180px",
+            width: 820,
+            height: 820,
+            animation: "partnersLeftDrift 38s ease-in-out infinite",
+            willChange: "transform",
+          }}
+        >
+          <div
+            className="size-full"
+            style={{
+              ["--base-rot" as never]: "270deg",
+              animation: "pageRentlioBreatheCcw 380s linear infinite",
+            }}
+          >
+            <img
+              src="/rentlio-circle.svg"
+              alt=""
+              className="block size-full"
+              style={{ objectFit: "contain" }}
+            />
+          </div>
+        </div>
+
+        {/* Right */}
+        <div
+          className="absolute"
+          style={{
+            right: "-287px",
+            top: "-100px",
+            width: 820,
+            height: 820,
+            animation: "partnersRightDrift 44s ease-in-out infinite",
+            willChange: "transform",
+          }}
+        >
+          <div
+            className="size-full"
+            style={{
+              ["--base-rot" as never]: "200deg",
+              animation: "pageRentlioBreatheCw 420s linear infinite",
+            }}
+          >
+            <img
+              src="/rentlio-circle.svg"
+              alt=""
+              className="block size-full"
+              style={{ objectFit: "contain" }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes partnersLeftDrift {
+          0%, 100% { transform: translate(0, 0); }
+          50%      { transform: translate(10px, -8px); }
+        }
+        @keyframes partnersRightDrift {
+          0%, 100% { transform: translate(0, 0); }
+          50%      { transform: translate(-12px, 10px); }
+        }
+      `}</style>
+
       <Container className="relative px-4">
         {/* Header — title + body STACKED and CENTERED */}
         <div className="flex flex-col items-center text-center">

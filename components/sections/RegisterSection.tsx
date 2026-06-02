@@ -1,22 +1,72 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
 import { register } from "@/lib/content";
+import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
-/* 4 floating event photos around the form — adds "real event" vibe */
-const FLOATERS = [
-  { src: "/event/03.png", className: "left-[3%] top-[12%] size-[130px] -rotate-6 lg:size-[180px]", dur: 8 },
-  { src: "/event/08.png", className: "right-[4%] top-[8%] size-[120px] rotate-5 lg:size-[170px]",  dur: 9 },
-  { src: "/event/11.png", className: "left-[6%] bottom-[10%] size-[140px] rotate-3 lg:size-[200px]", dur: 7 },
-  { src: "/event/14.png", className: "right-[5%] bottom-[8%] size-[125px] -rotate-4 lg:size-[180px]", dur: 8.5 },
-] as const;
+/* 6 large event photos in the side gutters around the title + form —
+   same orbit pattern used in the Audience section so the two pages feel
+   visually paired. Positions in % so they stay inside the section
+   regardless of viewport. */
+type Tile = {
+  src: string;
+  side: "left" | "right";
+  topPct: number;     // 0..100 (vertical anchor inside section)
+  offsetPct: number;  // horizontal offset from the section edge, in %
+  size: number;       // px (lg)
+  rot: number;
+  dur: number;
+  delay: number;
+};
+
+const ORBIT_IMAGES: Tile[] = [
+  { src: "/event/03.png", side: "left",  topPct: 18, offsetPct: 12, size: 420, rot: -6, dur: 7.5, delay: 0.0 },
+  { src: "/event/08.png", side: "right", topPct: 22, offsetPct: 12, size: 400, rot:  5, dur: 8.2, delay: 1.2 },
+  { src: "/event/07.png", side: "left",  topPct: 52, offsetPct: 6,  size: 500, rot:  4, dur: 9.0, delay: 0.5 },
+  { src: "/event/09.png", side: "right", topPct: 50, offsetPct: 6,  size: 480, rot: -5, dur: 7.8, delay: 1.8 },
+  { src: "/event/11.png", side: "left",  topPct: 84, offsetPct: 14, size: 420, rot: -3, dur: 8.5, delay: 0.3 },
+  { src: "/event/14.png", side: "right", topPct: 84, offsetPct: 14, size: 440, rot:  5, dur: 8.0, delay: 1.5 },
+];
 
 export function RegisterSection() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const orbitRef = useRef<HTMLDivElement>(null);
+
+  /* Orbit tiles — stagger entrance on scroll-in */
+  useEffect(() => {
+    ensureGsap();
+    if (!orbitRef.current) return;
+
+    const tiles = orbitRef.current.querySelectorAll<HTMLElement>(".orbit-tile");
+
+    if (prefersReducedMotion()) {
+      gsap.set(tiles, { autoAlpha: 1, scale: 1, filter: "blur(0px)" });
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      gsap.set(tiles, { autoAlpha: 0, scale: 0.85, filter: "blur(14px)" });
+      gsap.to(tiles, {
+        autoAlpha: 1,
+        scale: 1,
+        filter: "blur(0px)",
+        duration: 1.3,
+        ease: "expo.out",
+        stagger: { each: 0.12, from: "random" },
+        scrollTrigger: {
+          trigger: orbitRef.current,
+          start: "top 75%",
+          once: true,
+        },
+      });
+    }, orbitRef);
+
+    return () => ctx.revert();
+  }, []);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +77,8 @@ export function RegisterSection() {
   return (
     <section
       id="register"
-      className="relative overflow-hidden px-4 pt-30 pb-30 lg:pt-44 lg:pb-44"
+      className="relative z-30 px-4 pt-30 pb-30 lg:pt-44 lg:pb-44"
+      style={{ overflowX: "clip", overflowY: "visible" }}
     >
       {/* Layered soft blue glows reminiscent of rediscover's blurred form */}
       <div
@@ -49,31 +100,57 @@ export function RegisterSection() {
         }}
       />
 
-      {/* Floating event photos at the corners */}
-      {FLOATERS.map((f, i) => (
-        <div
-          key={f.src}
-          aria-hidden
-          className={`pointer-events-none absolute hidden overflow-hidden lg:block ${f.className}`}
-          style={{
-            borderRadius: 22,
-            boxShadow:
-              "0 30px 60px -25px rgba(10,10,15,0.3), 0 10px 22px -10px rgba(10,10,15,0.18)",
-            animation: `registerFloat${i % 2} ${f.dur}s ease-in-out ${i * 0.5}s infinite`,
-            opacity: 0.85,
-          }}
-        >
-          <Image
-            src={f.src}
-            alt=""
-            fill
-            sizes="200px"
-            className="object-cover"
-          />
-        </div>
-      ))}
+      {/* Side-gutter event tiles — hidden below lg.
+          z-20 so they sit ABOVE the centered title + form (Container has
+          z-10). pointer-events-none keeps clicks passing through to the
+          form fields underneath. */}
+      <div
+        ref={orbitRef}
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-20 hidden lg:block"
+      >
+        {ORBIT_IMAGES.map((tile, i) => (
+          <div
+            key={tile.src}
+            className="orbit-tile absolute aspect-square"
+            style={{
+              [tile.side]: `${tile.offsetPct}%`,
+              top: `${tile.topPct}%`,
+              width: `min(${tile.size}px, 34vw)`,
+              transform: "translateY(-50%)",
+            }}
+          >
+            {/* Inner — continuous float + base rotation */}
+            <div
+              className="absolute inset-0"
+              style={{
+                animation: `registerOrbitFloat${i % 4} ${tile.dur}s ease-in-out ${tile.delay}s infinite`,
+                ["--r" as never]: `${tile.rot}deg`,
+              }}
+            >
+              <div
+                className="relative h-full w-full overflow-hidden bg-surface"
+                style={{
+                  borderRadius: 28,
+                  boxShadow:
+                    "0 40px 80px -30px rgba(10,10,15,0.35), 0 12px 30px -12px rgba(10,10,15,0.18)",
+                }}
+              >
+                <Image
+                  src={tile.src}
+                  alt=""
+                  fill
+                  sizes="(min-width: 1280px) 500px, 34vw"
+                  quality={95}
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
-      <Container className="relative flex flex-col items-center text-center">
+      <Container className="relative z-10 flex flex-col items-center text-center">
         <WordReveal
           as="h2"
           text={register.bigHeadline}
@@ -145,13 +222,21 @@ export function RegisterSection() {
       </Container>
 
       <style>{`
-        @keyframes registerFloat0 {
-          0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
-          50%      { transform: translate3d(0, -12px, 0) rotate(1deg); }
+        @keyframes registerOrbitFloat0 {
+          0%, 100% { transform: rotate(var(--r, 0deg)) translate3d(0, 0, 0); }
+          50%      { transform: rotate(calc(var(--r, 0deg) + 1deg)) translate3d(6px, -12px, 0); }
         }
-        @keyframes registerFloat1 {
-          0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
-          50%      { transform: translate3d(0, 10px, 0) rotate(-1deg); }
+        @keyframes registerOrbitFloat1 {
+          0%, 100% { transform: rotate(var(--r, 0deg)) translate3d(0, 0, 0); }
+          50%      { transform: rotate(calc(var(--r, 0deg) - 1.5deg)) translate3d(-8px, 10px, 0); }
+        }
+        @keyframes registerOrbitFloat2 {
+          0%, 100% { transform: rotate(var(--r, 0deg)) translate3d(0, 0, 0); }
+          50%      { transform: rotate(calc(var(--r, 0deg) + 2deg)) translate3d(-6px, -10px, 0); }
+        }
+        @keyframes registerOrbitFloat3 {
+          0%, 100% { transform: rotate(var(--r, 0deg)) translate3d(0, 0, 0); }
+          50%      { transform: rotate(calc(var(--r, 0deg) - 1deg)) translate3d(10px, 8px, 0); }
         }
       `}</style>
     </section>

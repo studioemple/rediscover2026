@@ -4,36 +4,21 @@ import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
 import { valueProp } from "@/lib/content";
 
-const PAST_YEARS = ["2022", "2023", "2024", "2025"] as const;
-const CURRENT_YEAR = "2026";
-
 export function ValuePropSection() {
   return (
     <section className="relative overflow-hidden px-4 pt-44 pb-32 lg:pt-72 lg:pb-44">
       <Container className="flex flex-col items-center text-center">
-        {/* Years row */}
-        <div className="flex items-end justify-center gap-5 lg:gap-7">
-          {PAST_YEARS.map((year) => (
-            <span
-              key={year}
-              className="text-base text-ink-soft lg:text-lg"
-              style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 400 }}
-            >
-              {year}
-            </span>
-          ))}
-          <span
-            className="relative text-base text-ink lg:text-lg"
-            style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 600 }}
-          >
-            {CURRENT_YEAR}
-            <span
-              aria-hidden
-              className="absolute -bottom-[3px] left-0 right-0 h-[2px]"
-              style={{ background: "#4D7EF5" }}
-            />
-          </span>
-        </div>
+        {/* Mission statement — replaces the years row */}
+        <p
+          className="text-sm uppercase tracking-[0.22em] lg:text-base"
+          style={{
+            color: "#1C9DD9",
+            fontFamily: "var(--font-sora), sans-serif",
+            fontWeight: 500,
+          }}
+        >
+          ON A MISSION TO UPGRADE HOSPITALITY SINCE 2022.
+        </p>
 
         {/* Headline — single line on most viewports */}
         <WordReveal

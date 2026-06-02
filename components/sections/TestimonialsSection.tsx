@@ -222,7 +222,7 @@ function StaggerCard({
           fontWeight: 400,
         }}
       >
-        — {quote.author}
+        {quote.author}
         {quote.role ? `, ${quote.role}` : ""}
       </p>
     </div>

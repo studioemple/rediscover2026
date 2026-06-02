@@ -329,12 +329,6 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
     return () => ctx.revert();
   }, [onComplete]);
 
-  function skip() {
-    if (tlRef.current) tlRef.current.progress(0.999);
-    setDone(true);
-    onComplete();
-  }
-
   if (done) return null;
 
   // 4 columns; each year locked to the bottom of its column.
@@ -388,18 +382,6 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
         <p>Rediscover · 5th Edition</p>
         <p>November 2026 · Zadar</p>
       </div>
-
-      <button
-        type="button"
-        onClick={skip}
-        className="absolute bottom-10 left-1/2 z-10 inline-flex -translate-x-1/2 items-center gap-3 rounded-full border border-current/30 px-7 py-3.5 text-sm uppercase tracking-[0.28em] opacity-70 transition-opacity duration-200 hover:opacity-100 focus-ring cursor-pointer lg:bottom-14 lg:px-8 lg:py-4 lg:text-base"
-        aria-label="Skip intro"
-      >
-        Skip intro
-        <svg width="14" height="14" viewBox="0 0 10 10" fill="none">
-          <path d="M2 1L7 5L2 9" stroke="currentColor" strokeWidth="1.4" />
-        </svg>
-      </button>
 
       {/* Year columns — each pinned to the bottom of its quarter of the screen */}
       {YEARS.map((spec, i) => {
