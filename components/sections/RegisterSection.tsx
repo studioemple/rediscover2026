@@ -23,12 +23,12 @@ type Tile = {
 };
 
 const ORBIT_IMAGES: Tile[] = [
-  { src: "/event/03.png", side: "left",  topPct: 18, offsetPct: 12, size: 420, rot: -6, dur: 7.5, delay: 0.0 },
-  { src: "/event/08.png", side: "right", topPct: 22, offsetPct: 12, size: 400, rot:  5, dur: 8.2, delay: 1.2 },
-  { src: "/event/07.png", side: "left",  topPct: 52, offsetPct: 6,  size: 500, rot:  4, dur: 9.0, delay: 0.5 },
-  { src: "/event/09.png", side: "right", topPct: 50, offsetPct: 6,  size: 480, rot: -5, dur: 7.8, delay: 1.8 },
-  { src: "/event/11.png", side: "left",  topPct: 84, offsetPct: 14, size: 420, rot: -3, dur: 8.5, delay: 0.3 },
-  { src: "/event/14.png", side: "right", topPct: 84, offsetPct: 14, size: 440, rot:  5, dur: 8.0, delay: 1.5 },
+  { src: "/event/03.png", side: "left",  topPct: 24, offsetPct: 10, size: 300, rot: -6, dur: 7.5, delay: 0.0 },
+  { src: "/event/08.png", side: "right", topPct: 26, offsetPct: 10, size: 290, rot:  5, dur: 8.2, delay: 1.2 },
+  { src: "/event/07.png", side: "left",  topPct: 52, offsetPct: 8,  size: 340, rot:  4, dur: 9.0, delay: 0.5 },
+  { src: "/event/09.png", side: "right", topPct: 50, offsetPct: 8,  size: 320, rot: -5, dur: 7.8, delay: 1.8 },
+  { src: "/event/11.png", side: "left",  topPct: 78, offsetPct: 12, size: 300, rot: -3, dur: 8.5, delay: 0.3 },
+  { src: "/event/14.png", side: "right", topPct: 78, offsetPct: 12, size: 310, rot:  5, dur: 8.0, delay: 1.5 },
 ];
 
 export function RegisterSection() {
@@ -77,7 +77,7 @@ export function RegisterSection() {
   return (
     <section
       id="register"
-      className="relative z-30 px-4 pt-44 pb-44 lg:pt-64 lg:pb-64"
+      className="relative z-30 px-4 pt-28 pb-28 lg:pt-40 lg:pb-40"
       style={{ overflowX: "clip", overflowY: "visible" }}
     >
       {/* Layered soft blue glows reminiscent of rediscover's blurred form */}
@@ -117,7 +117,9 @@ export function RegisterSection() {
             style={{
               [tile.side]: `${tile.offsetPct}%`,
               top: `${tile.topPct}%`,
-              width: `clamp(140px, 22vw, ${tile.size}px)`,
+              /* Cap at ~17vw so tiles always leave plenty of room for the
+                 centred title even on laptop (1280–1440) screens. */
+              width: `clamp(130px, 17vw, ${tile.size}px)`,
               transform: "translateY(-50%)",
             }}
           >
@@ -155,11 +157,11 @@ export function RegisterSection() {
         <WordReveal
           as="h2"
           text={register.bigHeadline}
-          className="headline max-w-[1200px] leading-[1.02] text-ink"
+          className="headline max-w-[680px] leading-[1.05] text-ink"
           style={{
-            fontSize: "clamp(2.5rem, 7vw, 112px)",
+            fontSize: "clamp(2rem, 3.8vw, 62px)",
             fontWeight: 600,
-            letterSpacing: "-3.4px",
+            letterSpacing: "-1.8px",
           }}
         />
 

@@ -74,7 +74,7 @@ export function SpeakersSection() {
 
   return (
     <section
-      className="relative z-30 pt-30 pb-30 lg:pt-44 lg:pb-44"
+      className="relative z-30 pt-20 pb-10 lg:pt-28 lg:pb-12"
       style={{ overflowX: "clip", overflowY: "visible" }}
     >
       {/* Rentlio circle backdrops — section-local */}
@@ -183,16 +183,15 @@ export function SpeakersSection() {
         </div>
       </Container>
 
-      {/* Horizontal cards strip — generous vertical padding gives hover
-          scale + drop shadow plenty of room to render without being clipped
-          (overflow-x: auto on this element clips Y too, so padding has to
-          contain the entire scale + shadow envelope). Padding shrinks on
-          mobile where cards (and their hover envelope) are smaller. */}
+      {/* Horizontal cards strip — vertical padding tuned so the hover
+          scale + drop shadow envelope still fits within the (overflow-x:
+          auto -> implicitly clips Y) strip, without leaving a giant
+          empty band when no card is being hovered. */}
       <div
         ref={stripRef}
-        className="speakers-strip-scroll relative z-10 mt-10 overflow-x-auto pb-16 pt-10 sm:mt-14 sm:pb-32 sm:pt-20 lg:mt-20 lg:pb-56 lg:pt-32"
+        className="speakers-strip-scroll relative z-10 mt-6 overflow-x-auto pb-10 pt-6 sm:mt-10 sm:pb-24 sm:pt-14 lg:mt-12 lg:pb-32 lg:pt-16"
       >
-        <div className="speakers-strip-inner mx-auto flex w-max items-start px-4 sm:px-6 lg:px-16">
+        <div className="speakers-strip-inner mx-auto flex w-max items-start px-4 sm:px-6 lg:px-4">
           {featured.map((s, i) => (
             <SpeakerCard
               key={`${s.year}-${s.slug}-${i}`}
@@ -310,9 +309,11 @@ function SpeakerCard({
     <div
       className="speaker-card-anim group relative shrink-0"
       style={{
-        // Smaller floor on mobile so ~3 cards stay visible at once; on
-        // larger screens the design size (260px) takes over.
-        width: "clamp(130px, 22vw, 260px)",
+        /* Card width is tuned so all 9 featured cards fit in a typical
+           laptop viewport (1280–1440 px) without horizontal scrolling.
+           Mobile keeps a 120 px floor; large desktops cap at 220 px so
+           the row never gets cartoonishly oversized. */
+        width: "clamp(120px, 12vw, 220px)",
         marginLeft: overlap,
         zIndex: 10 + index,
         transform: `rotate(${baseRot}deg)`,

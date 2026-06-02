@@ -23,12 +23,12 @@ type Tile = {
 };
 
 const ORBIT_IMAGES: Tile[] = [
-  { src: "/audience/made-1.jpg", side: "left",  topPct: 18, offsetPct: 12, size: 420, rot: -7, dur: 7.5, delay: 0.0 },
-  { src: "/audience/made-2.jpg", side: "right", topPct: 22, offsetPct: 12, size: 400, rot:  5, dur: 8.2, delay: 1.2 },
-  { src: "/audience/made-3.jpg", side: "left",  topPct: 52, offsetPct: 6,  size: 500, rot:  4, dur: 9.0, delay: 0.5 },
-  { src: "/audience/made-4.jpg", side: "right", topPct: 50, offsetPct: 6,  size: 480, rot: -5, dur: 7.8, delay: 1.8 },
-  { src: "/event/12.png", side: "left",  topPct: 84, offsetPct: 14, size: 420, rot: -3, dur: 8.5, delay: 0.3 },
-  { src: "/event/13.png", side: "right", topPct: 84, offsetPct: 14, size: 440, rot:  5, dur: 8.0, delay: 1.5 },
+  { src: "/audience/made-1.jpg", side: "left",  topPct: 24, offsetPct: 10, size: 300, rot: -7, dur: 7.5, delay: 0.0 },
+  { src: "/audience/made-2.jpg", side: "right", topPct: 26, offsetPct: 10, size: 290, rot:  5, dur: 8.2, delay: 1.2 },
+  { src: "/audience/made-3.jpg", side: "left",  topPct: 52, offsetPct: 8,  size: 340, rot:  4, dur: 9.0, delay: 0.5 },
+  { src: "/audience/made-4.jpg", side: "right", topPct: 50, offsetPct: 8,  size: 320, rot: -5, dur: 7.8, delay: 1.8 },
+  { src: "/event/12.png",        side: "left",  topPct: 78, offsetPct: 12, size: 300, rot: -3, dur: 8.5, delay: 0.3 },
+  { src: "/event/13.png",        side: "right", topPct: 78, offsetPct: 12, size: 310, rot:  5, dur: 8.0, delay: 1.5 },
 ];
 
 export function AudienceSection() {
@@ -130,7 +130,9 @@ export function AudienceSection() {
             style={{
               [tile.side]: `${tile.offsetPct}%`,
               top: `${tile.topPct}%`,
-              width: `clamp(140px, 22vw, ${tile.size}px)`,
+              /* Cap at ~17vw so tiles always leave plenty of room for the
+                 centred title even on laptop (1280–1440) screens. */
+              width: `clamp(130px, 17vw, ${tile.size}px)`,
               transform: "translateY(-50%)",
             }}
           >
@@ -169,14 +171,15 @@ export function AudienceSection() {
           {audience.eyebrow}
         </p>
 
-        {/* Headline — sized so it wraps to 2-3 lines, never explodes */}
+        {/* Headline — sized so it stays in 2 lines on laptops without
+            getting crowded by the orbit tiles. */}
         <WordReveal
           as="h2"
           text={audience.bigHeadline}
-          className="headline mt-7 max-w-[820px] leading-[1.02] text-ink lg:mt-10"
+          className="headline mt-7 max-w-[680px] leading-[1.05] text-ink lg:mt-10"
           style={{
-            fontSize: "clamp(2.25rem, 4.8vw, 80px)",
-            letterSpacing: "-2.4px",
+            fontSize: "clamp(2rem, 3.8vw, 62px)",
+            letterSpacing: "-1.8px",
             fontWeight: 600,
           }}
         />
@@ -184,7 +187,7 @@ export function AudienceSection() {
         {/* Titles stack */}
         <div
           ref={titlesRef}
-          className="mt-12 flex flex-col items-center gap-2 lg:mt-16 lg:gap-3"
+          className="mt-8 flex flex-col items-center gap-1 lg:mt-12 lg:gap-2"
         >
           {audience.titles.map((title, i) => {
             const words = title.split(" ");
@@ -200,10 +203,10 @@ export function AudienceSection() {
                   {words.map((word, j) => (
                     <span
                       key={j}
-                      className="rising-mask inline-flex overflow-hidden pb-4 leading-[1.15] lg:pb-6"
+                      className="rising-mask inline-flex overflow-hidden pb-3 leading-[1.15] lg:pb-4"
                     >
                       <span
-                        className="rising-word audience-title-word headline text-[34px] leading-[1.15] tracking-[-1.36px] lg:text-[60px] lg:tracking-[-2.4px]"
+                        className="rising-word audience-title-word headline text-[26px] leading-[1.15] tracking-[-1px] lg:text-[42px] lg:tracking-[-1.6px]"
                         style={{ display: "inline-block", fontWeight: 350 }}
                       >
                         {word}
@@ -216,7 +219,7 @@ export function AudienceSection() {
           })}
         </div>
 
-        <a href="#register" className="mt-14 lg:mt-20">
+        <a href="#register" className="mt-10 lg:mt-14">
           <Button variant="primary">{event.registerCta}</Button>
         </a>
       </Container>

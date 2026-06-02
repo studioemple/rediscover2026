@@ -437,9 +437,9 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
           ref={whatNowRef}
           data-reveal-item
           data-reveal-hero
-          className="headline font-semibold will-change-transform"
+          className="headline font-semibold whitespace-nowrap will-change-transform"
           style={{
-            fontSize: "clamp(4.5rem, 20vw, 18rem)",
+            fontSize: "clamp(3rem, 13vw, 12rem)",
             letterSpacing: "-0.05em",
             lineHeight: 0.92,
             opacity: 0,
