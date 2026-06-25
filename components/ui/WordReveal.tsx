@@ -57,18 +57,31 @@ export function WordReveal({
     return () => ctx.revert();
   }, [text, stagger, duration, delay, start]);
 
-  const words = text.split(" ");
+  // A literal "\n" in the text forces a hard line break (each line becomes
+  // its own block). Within each line, words wrap + animate as usual. Spaces
+  // between words are real text nodes so they never collapse, while each word
+  // stays an inline-block so the blur/opacity reveal applies cleanly.
+  const lines = text.split("\n");
+  let wordIndex = 0;
 
   return (
     <Tag ref={ref as never} className={cn(className)} style={style}>
-      {words.map((w, i) => (
-        <span key={i} className="inline-flex">
-          <span className="word-reveal-item">
-            {w}
-            {i < words.length - 1 ? " " : ""}
+      {lines.map((line, li) => {
+        const words = line.split(" ");
+        return (
+          <span key={li} className="block">
+            {words.map((w, i) => {
+              const k = wordIndex++;
+              return (
+                <span key={k}>
+                  <span className="word-reveal-item inline-block">{w}</span>
+                  {i < words.length - 1 ? " " : ""}
+                </span>
+              );
+            })}
           </span>
-        </span>
-      ))}
+        );
+      })}
     </Tag>
   );
 }

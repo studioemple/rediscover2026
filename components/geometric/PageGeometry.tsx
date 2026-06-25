@@ -23,8 +23,9 @@ const VERTICAL_LINES = [10.45, 30.6, 70.8, 89.55];
 const HORIZONTAL_LINES = [
   18, 92, 175, 260,
   // (Audience zone 320–600vh intentionally line-free)
-  640, 760, 900, 1030, 1190,
-  // (FAQ / footer zone 1300vh+ intentionally line-free)
+  640, 760, 900,
+  // (1030 + 1190 removed — they fell across the FAQ rows after the
+  //  WhyReturn section lengthened the page.)
 ];
 
 /* Scattered decorations — circles and diagonals spread across vertical
@@ -48,29 +49,28 @@ type Decor =
 
 const DECORATIONS: Decor[] = [
   // ───── Top zone (Hero / Aftermovie 0–200vh) ─────
-  // Hero left circle — size 900, ~60% visible (40% / 360px off the left edge),
-  // anchored at 38vh so it lives in the middle of the hero zone.
-  { kind: "circle",   left: "-360px",             topVh: 38,   size: 900 },
+  // Hero left circle — ~60% visible (40% off the left edge), anchored at
+  // 38vh so it lives in the middle of the hero zone.
+  { kind: "circle",   left: "-252px",             topVh: 38,   size: 630 },
   // Hero right circle — mirrors the left one, ~60% visible off the right edge,
   // slightly higher so the two read as a paired but not symmetric duo.
-  { kind: "circle",   left: "calc(100% - 540px)", topVh: 62,   size: 900 },
+  { kind: "circle",   left: "calc(100% - 378px)", topVh: 62,   size: 630 },
   { kind: "diagonal", topVh: 4 },
   { kind: "diagonal", topVh: 76, flip: true },
-  { kind: "circle",   left: "78%",                topVh: 145,  size: 380 },
+  { kind: "circle",   left: "78%",                topVh: 145,  size: 266 },
 
   // ───── Value-prop zone (200–320vh) ─────
   { kind: "diagonal", topVh: 215 },
-  // Value-prop left circle — doubled in size for stronger presence behind
-  // marquee; pinned at rot: 0 so the Rentlio "R" reads upright.
-  { kind: "circle",   left: "-6%",                topVh: 260,  size: 920, rot: 0 },
+  // Value-prop left circle — pinned at rot: 0 so the Rentlio "R" reads upright.
+  { kind: "circle",   left: "-6%",                topVh: 260,  size: 644, rot: 0 },
 
   // ───── Audience zone (≈320–700vh) intentionally CLEAR — no lines,
   //       circles or diagonals cross the centered title + titles list.
   //       Buffer extended on both sides because section heights vary. ─────
 
   // ───── Program / Speakers zone (≈700–860vh) ─────
-  { kind: "circle",   left: "8%",                 topVh: 720,  size: 500 },
-  { kind: "circle",   left: "80%",                topVh: 760,  size: 380 },
+  { kind: "circle",   left: "8%",                 topVh: 720,  size: 350 },
+  { kind: "circle",   left: "80%",                topVh: 760,  size: 266 },
   { kind: "diagonal", topVh: 800, flip: true },
   // (Speakers headline backdrops are rendered locally inside
   //  SpeakersSection.tsx, so they're guaranteed to sit in that section
@@ -80,7 +80,7 @@ const DECORATIONS: Decor[] = [
   { kind: "diagonal", topVh: 830 },
   // (Left circle removed — it was bleeding into the testimonials section.)
   { kind: "diagonal", topVh: 950, flip: true },
-  { kind: "circle",   left: "72%",                topVh: 1020, size: 440 },
+  { kind: "circle",   left: "72%",                topVh: 1020, size: 308 },
   { kind: "diagonal", topVh: 1080 },
 
   // ───── Partners / Register zone (1100–1400vh) ─────
@@ -88,7 +88,7 @@ const DECORATIONS: Decor[] = [
   // (Partners-left backdrop is rendered locally inside PartnersSection.tsx,
   //  so it's guaranteed to sit above the logo grid regardless of how the
   //  document's total height shifts.)
-  { kind: "circle",   left: "82%",                topVh: 1340, size: 460 },
+  { kind: "circle",   left: "82%",                topVh: 1340, size: 322 },
   // Diagonals at 1280 + 1390 removed — they bled down into the FAQ
   // accordion and clashed with its separators.
 
@@ -96,8 +96,8 @@ const DECORATIONS: Decor[] = [
   // Diagonal removed — it cut across the FAQ accordion separators and
   // looked like a clash. Circles stay since they sit behind the content
   // without crossing the hairline rows.
-  { kind: "circle",   left: "calc(70% - 224px)",  topVh: 1450, size: 448 },
-  { kind: "circle",   left: "20%",                topVh: 1560, size: 380 },
+  { kind: "circle",   left: "calc(70% - 224px)",  topVh: 1450, size: 314 },
+  { kind: "circle",   left: "20%",                topVh: 1560, size: 266 },
 ];
 
 export function PageGeometry() {

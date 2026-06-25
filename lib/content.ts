@@ -25,7 +25,7 @@ export const stats = [
 
 export const valueProp = {
   eyebrow: "More than just a hospitality conference",
-  bigHeadline: "The biggest hotel-tech event in the region.",
+  bigHeadline: "The biggest hotel-tech\nevent in the region.",
   body: "A unique 5-star experience for hospitality professionals. 2 days filled with practical keynotes, workshops and networking.",
   stats: [
     { value: 1100, suffix: "+", label: "hospitality\nprofessionals" },
@@ -59,6 +59,29 @@ export const audience = {
   ],
 };
 
+export const whyReturn = {
+  eyebrow: "More than a conference",
+  bigHeadline: "Why Hoteliers Keep Coming Back",
+  items: [
+    {
+      title: "Future-Proof Your Hotel",
+      body: "Gain insights into the trends and technologies that will define hospitality's next chapter.",
+    },
+    {
+      title: "Learn What Actually Works",
+      body: "No buzzwords. Just practical knowledge, real examples, and lessons you can apply immediately.",
+    },
+    {
+      title: "Meet the People Behind The Ideas",
+      body: "Connect directly with hotel owners, operators, technology providers, and hospitality professionals who are driving change across the industry.",
+    },
+    {
+      title: "Find Your Next Competitive Advantage",
+      body: "Discover new tools, strategies, and partnerships that can help your business grow faster and operate smarter.",
+    },
+  ],
+};
+
 export type Speaker = {
   slug: string;
   name: string;
@@ -70,7 +93,7 @@ export type Speaker = {
 
 export const speakers = {
   eyebrow: "Speakers through the years",
-  bigHeadline: "Voices That Shape the Hospitality Industry",
+  bigHeadline: "Voices That Shape the\nHospitality Industry",
   body: "Rediscover surfaces the operators, founders, and builders defining where hospitality goes next with their stories and stakes attached.",
   cardLabel: "5th Edition speakers",
   cardSubtitle: "Lineup announced throughout 2026",
@@ -260,7 +283,7 @@ export const partners = {
 };
 
 export const register = {
-  bigHeadline: "Join the waitlist for early access and updates about Rediscover.",
+  bigHeadline: "Join the waitlist\nfor early access\nand updates about\nRediscover.",
   cta: "Join the waiting list",
   altCta: "Watch the 2025 aftermovie",
   emailPlaceholder: "you@hotel.com",

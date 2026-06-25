@@ -29,8 +29,8 @@ export function PartnersSection() {
           style={{
             left: "-287px",
             top: "-180px",
-            width: 820,
-            height: 820,
+            width: 574,
+            height: 574,
             animation: "partnersLeftDrift 38s ease-in-out infinite",
             willChange: "transform",
           }}
@@ -57,8 +57,8 @@ export function PartnersSection() {
           style={{
             right: "-287px",
             top: "-100px",
-            width: 820,
-            height: 820,
+            width: 574,
+            height: 574,
             animation: "partnersRightDrift 44s ease-in-out infinite",
             willChange: "transform",
           }}
@@ -97,12 +97,7 @@ export function PartnersSection() {
           <WordReveal
             as="h2"
             text={partners.eyebrow}
-            className="headline leading-[1.05] text-ink"
-            style={{
-              fontSize: "clamp(2.25rem, 5.2vw, 80px)",
-              fontWeight: 600,
-              letterSpacing: "-2.4px",
-            }}
+            className="section-headline text-ink 2xl:whitespace-nowrap"
           />
           <p className="mt-6 max-w-[640px] text-[16px] leading-[1.5] text-ink-soft lg:mt-8 lg:text-[18px]">
             {partners.body}

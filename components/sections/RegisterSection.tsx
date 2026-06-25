@@ -23,12 +23,12 @@ type Tile = {
 };
 
 const ORBIT_IMAGES: Tile[] = [
-  { src: "/event/03.png", side: "left",  topPct: 24, offsetPct: 10, size: 300, rot: -6, dur: 7.5, delay: 0.0 },
-  { src: "/event/08.png", side: "right", topPct: 26, offsetPct: 10, size: 290, rot:  5, dur: 8.2, delay: 1.2 },
-  { src: "/event/07.png", side: "left",  topPct: 52, offsetPct: 8,  size: 340, rot:  4, dur: 9.0, delay: 0.5 },
-  { src: "/event/09.png", side: "right", topPct: 50, offsetPct: 8,  size: 320, rot: -5, dur: 7.8, delay: 1.8 },
-  { src: "/event/11.png", side: "left",  topPct: 78, offsetPct: 12, size: 300, rot: -3, dur: 8.5, delay: 0.3 },
-  { src: "/event/14.png", side: "right", topPct: 78, offsetPct: 12, size: 310, rot:  5, dur: 8.0, delay: 1.5 },
+  { src: "/register/reg-1.png", side: "left",  topPct: 24, offsetPct: 10, size: 300, rot: -6, dur: 7.5, delay: 0.0 },
+  { src: "/register/reg-2.png", side: "right", topPct: 26, offsetPct: 10, size: 290, rot:  5, dur: 8.2, delay: 1.2 },
+  { src: "/event/07.png",       side: "left",  topPct: 52, offsetPct: 8,  size: 340, rot:  4, dur: 9.0, delay: 0.5 },
+  { src: "/register/reg-3.png", side: "right", topPct: 50, offsetPct: 8,  size: 320, rot: -5, dur: 7.8, delay: 1.8 },
+  { src: "/register/reg-4.png", side: "left",  topPct: 78, offsetPct: 12, size: 300, rot: -3, dur: 8.5, delay: 0.3 },
+  { src: "/register/reg-5.png", side: "right", topPct: 78, offsetPct: 12, size: 310, rot:  5, dur: 8.0, delay: 1.5 },
 ];
 
 export function RegisterSection() {
@@ -157,12 +157,7 @@ export function RegisterSection() {
         <WordReveal
           as="h2"
           text={register.bigHeadline}
-          className="headline max-w-[680px] leading-[1.05] text-ink"
-          style={{
-            fontSize: "clamp(2rem, 3.8vw, 62px)",
-            fontWeight: 600,
-            letterSpacing: "-1.8px",
-          }}
+          className="section-headline max-w-[900px] text-ink"
         />
 
         {/* Big CTA pill */}

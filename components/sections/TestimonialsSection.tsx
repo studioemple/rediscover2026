@@ -36,12 +36,7 @@ export function TestimonialsSection() {
           <WordReveal
             as="h2"
             text={testimonials.bigHeadline}
-            className="headline mt-4 max-w-[900px] leading-[1.02] text-ink lg:mt-6"
-            style={{
-              fontSize: "clamp(2.5rem, 5.6vw, 88px)",
-              fontWeight: 600,
-              letterSpacing: "-2.4px",
-            }}
+            className="section-headline mt-4 text-ink lg:mt-6 2xl:whitespace-nowrap"
           />
         </div>
       </Container>

@@ -71,12 +71,8 @@ export function ValuePropSection() {
         <WordReveal
           as="h2"
           text={valueProp.bigHeadline}
-          className="headline mt-4 leading-[1.05] text-ink lg:mt-6 lg:whitespace-nowrap lg:leading-[1.0]"
-          style={{
-            fontSize: "clamp(2.25rem, 6vw, 96px)",
-            fontWeight: 600,
-            letterSpacing: "-2.2px",
-          }}
+          className="section-headline mt-4 text-center text-ink lg:mt-6"
+          style={{ width: "min(1340px, 94vw)" }}
         />
 
         {/* Body */}

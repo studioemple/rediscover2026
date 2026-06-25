@@ -4,14 +4,14 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
-type YearSpec = { value: number; col: number };
+type YearSpec = { value: number; col: number; ext?: string };
 
 // 4 columns across the viewport. Each year sits at the BOTTOM of its column.
 const YEARS: YearSpec[] = [
   { value: 22, col: 0 },
   { value: 23, col: 1 },
   { value: 24, col: 2 },
-  { value: 25, col: 3 },
+  { value: 25, col: 3, ext: "jpg" },
 ];
 
 const CHAPTER_TEXT = "The next chapter";
@@ -329,7 +329,7 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
           style={{ opacity: 0, visibility: "hidden" }}
         >
           <Image
-            src={`/intro/year-${spec.value}.png`}
+            src={`/intro/year-${spec.value}.${spec.ext ?? "png"}`}
             alt=""
             fill
             priority={i === 0}

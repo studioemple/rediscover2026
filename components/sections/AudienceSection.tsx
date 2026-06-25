@@ -179,12 +179,7 @@ export function AudienceSection() {
         <WordReveal
           as="h2"
           text={audience.bigHeadline}
-          className="headline mt-4 max-w-[680px] leading-[1.05] text-ink lg:mt-6"
-          style={{
-            fontSize: "clamp(2rem, 3.8vw, 62px)",
-            letterSpacing: "-1.8px",
-            fontWeight: 600,
-          }}
+          className="section-headline mt-4 text-ink lg:mt-6 2xl:whitespace-nowrap"
         />
 
         {/* Titles stack */}

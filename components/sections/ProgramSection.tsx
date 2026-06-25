@@ -23,13 +23,7 @@ export function ProgramSection() {
         <WordReveal
           as="h2"
           text={program.bigHeadline}
-          className="headline mt-4 leading-[1.0] text-ink lg:mt-6"
-          style={{
-            fontSize: "clamp(2.25rem, 5.8vw, 104px)",
-            fontWeight: 600,
-            letterSpacing: "-3px",
-            whiteSpace: "nowrap",
-          }}
+          className="section-headline mt-4 text-center text-ink lg:mt-6 2xl:whitespace-nowrap"
         />
 
         <WordReveal

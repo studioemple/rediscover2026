@@ -42,6 +42,19 @@ body {
   font-weight: 350;
 }
 
+/* Shared section headline — single source of truth so every section title
+   is the exact same size across the page. Letter-spacing is em-based so it
+   scales proportionally with the size.
+     • desktop / laptop / wide → 72px (clamp caps here)
+     • tablet / mobile         → scales down via the clamp (to be tuned). */
+.section-headline {
+  font-family: var(--font-sora), system-ui, sans-serif;
+  font-size: clamp(2.25rem, 6vw, 72px);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+}
+
 .headline-tight {
   font-family: var(--font-sora), system-ui, sans-serif;
   letter-spacing: -0.02em;

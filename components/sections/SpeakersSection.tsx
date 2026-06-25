@@ -87,8 +87,8 @@ export function SpeakersSection() {
           style={{
             left: "-260px",
             top: "8%",
-            width: 640,
-            height: 640,
+            width: 448,
+            height: 448,
             animation: "speakersLeftDrift 36s ease-in-out infinite",
             willChange: "transform",
           }}
@@ -113,8 +113,8 @@ export function SpeakersSection() {
           style={{
             right: "-260px",
             top: "22%",
-            width: 640,
-            height: 640,
+            width: 448,
+            height: 448,
             animation: "speakersRightDrift 42s ease-in-out infinite",
             willChange: "transform",
           }}
@@ -148,12 +148,8 @@ export function SpeakersSection() {
           <WordReveal
             as="h2"
             text={speakers.bigHeadline}
-            className="headline mt-4 max-w-[1100px] leading-[1.02] text-ink lg:mt-6"
-            style={{
-              fontSize: "clamp(2.5rem, 5.8vw, 92px)",
-              fontWeight: 600,
-              letterSpacing: "-2.6px",
-            }}
+            className="section-headline mt-4 text-center text-ink lg:mt-6"
+            style={{ width: "min(1340px, 94vw)" }}
           />
         </div>
 

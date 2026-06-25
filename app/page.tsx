@@ -7,6 +7,7 @@ import { PageGeometry } from "@/components/geometric/PageGeometry";
 import { AftermovieSection } from "@/components/sections/AftermovieSection";
 import { ValuePropSection } from "@/components/sections/ValuePropSection";
 import { AudienceSection } from "@/components/sections/AudienceSection";
+import { WhyReturnSection } from "@/components/sections/WhyReturnSection";
 import { SpeakersSection } from "@/components/sections/SpeakersSection";
 import { ProgramSection } from "@/components/sections/ProgramSection";
 import { EventGallerySection } from "@/components/sections/EventGallerySection";
@@ -45,6 +46,7 @@ export default function Home() {
       <AftermovieSection />
       <ValuePropSection />
       <AudienceSection />
+      <WhyReturnSection />
       <ProgramSection />
       <SpeakersSection />
       <EventGallerySection />

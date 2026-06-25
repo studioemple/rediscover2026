@@ -14,12 +14,7 @@ export function FAQSection() {
         <WordReveal
           as="h2"
           text="Frequently Asked Questions"
-          className="headline text-center leading-[1.02] text-ink"
-          style={{
-            fontSize: "clamp(2.5rem, 6vw, 96px)",
-            fontWeight: 600,
-            letterSpacing: "-2.8px",
-          }}
+          className="section-headline text-center text-ink 2xl:whitespace-nowrap"
         />
 
         <div className="mt-12 w-full max-w-[900px] lg:mt-16">
