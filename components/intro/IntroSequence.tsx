@@ -14,13 +14,18 @@ const YEARS: YearSpec[] = [
   { value: 25, col: 3 },
 ];
 
+const CHAPTER_TEXT = "The next chapter";
+
 export function IntroSequence({ onComplete }: { onComplete: () => void }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const yearBgRefs = useRef<(HTMLDivElement | null)[]>([]);
   const yearRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const headerRef = useRef<HTMLDivElement | null>(null);
-  const revealRef = useRef<HTMLDivElement | null>(null);
-  const whatNowRef = useRef<HTMLHeadingElement | null>(null);
+  // Slide A — "The next chapter" typewriter
+  const slideARef = useRef<HTMLDivElement | null>(null);
+  const chapterRef = useRef<HTMLSpanElement | null>(null);
+  const caretRef = useRef<HTMLSpanElement | null>(null);
+  // Slide B — "5th edition" card
+  const slideBRef = useRef<HTMLDivElement | null>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const [done, setDone] = useState(false);
 
@@ -51,7 +56,6 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
       yearEls.forEach((el, i) => {
         gsap.set(el, { autoAlpha: 0, filter: "blur(24px)", scale: 0.94 });
         setText(el, 0);
-        // ensure column position is locked from the start
         el.dataset.col = String(YEARS[i]?.col ?? i);
       });
 
@@ -67,9 +71,10 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
         transformOrigin: "50% 50%",
       });
 
-      if (revealRef.current) gsap.set(revealRef.current, { autoAlpha: 0 });
-      if (headerRef.current)
-        gsap.set(headerRef.current, { autoAlpha: 0, y: -8 });
+      // New slides start hidden.
+      if (slideARef.current) gsap.set(slideARef.current, { autoAlpha: 0 });
+      if (slideBRef.current) gsap.set(slideBRef.current, { autoAlpha: 0 });
+      if (caretRef.current) gsap.set(caretRef.current, { autoAlpha: 0 });
 
       const tl = gsap.timeline({
         onComplete: () => {
@@ -79,23 +84,14 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
       });
       tlRef.current = tl;
 
-      if (headerRef.current) {
-        tl.to(
-          headerRef.current,
-          { autoAlpha: 1, y: 0, duration: 0.5, ease: "expo.out" },
-          0,
-        );
-      }
-
       const enterDur = 0.28;
       const countDur = 0.5;
       const hold = 0.5; // longer hold so each year's photo can breathe
       const exitDur = 0.35;
-      // The next year STARTS its entrance the moment the current one starts
-      // exiting — no dead air between frames.
       const frameDur = enterDur + countDur + hold;
       const baseStart = 0.28;
 
+      // ───── Phase 1 — the 22 → 25 year counter ─────
       YEARS.forEach((spec, i) => {
         const el = yearEls[i];
         if (!el) return;
@@ -104,14 +100,8 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
 
         tl.call(() => setText(el, 0), [], frameStart);
 
-        // ── Background image morph + slow ken-burns zoom ──
-        // Each year's image starts blurred + slightly under, then fades in,
-        // sharpens, and very slowly zooms in (1.0 → 1.08) across the whole
-        // time it's visible. The previous image dissolves with blur for a
-        // soft "morph" feel instead of a hard cut.
         const bgEl = yearBgRefs.current[i];
         if (bgEl) {
-          // Fade-in + sharpen, slightly before this year's number appears.
           tl.to(
             bgEl,
             {
@@ -122,22 +112,13 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
             },
             Math.max(0, frameStart - (i === 0 ? 0.2 : 0.15)),
           );
-
-          // Very gentle, continuous zoom — duration is long enough that the
-          // motion is STILL progressing through the morph-out, so you never
-          // catch a static frame before the transition.
           tl.fromTo(
             bgEl,
             { scale: 1.0 },
-            {
-              scale: 1.07,
-              duration: frameDur + 1.6,
-              ease: "none",
-            },
+            { scale: 1.07, duration: frameDur + 1.6, ease: "none" },
             Math.max(0, frameStart - 0.2),
           );
         }
-        // Morph-out previous year's image: fade + grow + soften blur.
         if (i > 0) {
           const prevBg = yearBgRefs.current[i - 1];
           if (prevBg) {
@@ -154,7 +135,6 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
           }
         }
 
-        // 1. Enter — blur in.
         tl.to(
           el,
           {
@@ -166,8 +146,6 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
           },
           frameStart,
         );
-
-        // 2. Counter rolls from 00 → target.
         tl.to(
           counter,
           {
@@ -178,15 +156,11 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
           },
           frameStart + enterDur * 0.4,
         );
-
-        // 3. Sharpen.
         tl.to(
           el,
           { filter: "blur(0px)", duration: 0.22, ease: "expo.out" },
           frameStart + enterDur + countDur - 0.16,
         );
-
-        // 4. Exit (every frame, including the last — last one fades into phase 2).
         tl.to(
           el,
           {
@@ -202,14 +176,7 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
 
       const phase2Start = baseStart + YEARS.length * frameDur + 0.05;
 
-      if (headerRef.current) {
-        tl.to(
-          headerRef.current,
-          { autoAlpha: 0, y: -8, duration: 0.4, ease: "expo.in" },
-          phase2Start,
-        );
-      }
-
+      // ───── Phase 2 — dissolve the dark frame into clean cream paper ─────
       tl.to(
         rootRef.current,
         {
@@ -220,9 +187,6 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
         },
         phase2Start + 0.08,
       );
-
-      // Fade out the LAST year's background photo at phase 2 — image
-      // dissolves into the calm cream hero.
       const lastBg = yearBgRefs.current[YEARS.length - 1];
       if (lastBg) {
         tl.to(
@@ -232,96 +196,104 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
         );
       }
 
-      const phase3Start = phase2Start + 0.75;
+      // ───── Phase 3 — "The next chapter" typewriter ─────
+      const slideAStart = phase2Start + 0.95;
+      const typeDur = CHAPTER_TEXT.length * 0.04; // ~0.64s — brisk
 
-      if (revealRef.current) {
+      if (slideARef.current) {
+        tl.set(slideARef.current, { autoAlpha: 1 }, slideAStart - 0.01);
+        tl.fromTo(
+          slideARef.current,
+          { y: 14 },
+          { y: 0, duration: 0.7, ease: "expo.out" },
+          slideAStart,
+        );
+      }
+      if (caretRef.current) {
+        tl.set(caretRef.current, { autoAlpha: 1 }, slideAStart);
+      }
+      // The typewriter itself — reveal one character at a time.
+      const typer = { n: 0 };
+      tl.to(
+        typer,
+        {
+          n: CHAPTER_TEXT.length,
+          duration: typeDur,
+          ease: "none",
+          onUpdate: () => {
+            if (chapterRef.current) {
+              chapterRef.current.textContent = CHAPTER_TEXT.slice(
+                0,
+                Math.round(typer.n),
+              );
+            }
+          },
+        },
+        slideAStart,
+      );
+      // Caret fades once typing settles.
+      if (caretRef.current) {
         tl.to(
-          revealRef.current,
-          { autoAlpha: 1, duration: 0.5, ease: "expo.out" },
-          phase3Start,
+          caretRef.current,
+          { autoAlpha: 0, duration: 0.3 },
+          slideAStart + typeDur + 0.45,
         );
-
-        // Side items (eyebrow + venue) animate together; "What Now?" gets
-        // its own bombastic treatment.
-        const sideItems = revealRef.current.querySelectorAll<HTMLElement>(
-          "[data-reveal-item]:not([data-reveal-hero])",
-        );
-        if (sideItems.length > 0) {
-          gsap.set(sideItems, { autoAlpha: 0, filter: "blur(14px)", y: 16 });
-          tl.to(
-            sideItems,
-            {
-              autoAlpha: 1,
-              filter: "blur(0px)",
-              y: 0,
-              duration: 0.9,
-              ease: "expo.out",
-              stagger: 0.18,
-            },
-            phase3Start + 0.1,
-          );
-        }
-
-        // "What Now?" entrance — slightly slower, starts smaller and
-        // pushes forward as it sharpens.
-        if (whatNowRef.current) {
-          gsap.set(whatNowRef.current, {
-            autoAlpha: 0,
-            filter: "blur(28px)",
-            scale: 0.86,
-            transformOrigin: "50% 50%",
-          });
-          tl.to(
-            whatNowRef.current,
-            {
-              autoAlpha: 1,
-              filter: "blur(0px)",
-              scale: 1,
-              duration: 1.2,
-              ease: "expo.out",
-            },
-            phase3Start + 0.25,
-          );
-        }
       }
 
-      // ───── Phase 4 — "What Now?" zoom-out blast through the screen ─────
-      const blastStart = phase3Start + 1.9;
-
-      // Side items + header fade out first so What Now? owns the moment.
-      if (revealRef.current) {
-        const sideItems = revealRef.current.querySelectorAll<HTMLElement>(
-          "[data-reveal-item]:not([data-reveal-hero])",
-        );
-        if (sideItems.length > 0) {
-          tl.to(
-            sideItems,
-            {
-              autoAlpha: 0,
-              filter: "blur(8px)",
-              y: -8,
-              duration: 0.45,
-              ease: "expo.in",
-              stagger: 0.04,
-            },
-            blastStart,
-          );
-        }
-      }
-
-      // The main event — What Now? scales up massively and dissolves toward
-      // the camera, like the camera flies through the text.
-      if (whatNowRef.current) {
+      // Transform A → B: chapter line lifts + blurs away.
+      const aHold = 0.5;
+      const aOutStart = slideAStart + typeDur + aHold;
+      if (slideARef.current) {
         tl.to(
-          whatNowRef.current,
+          slideARef.current,
           {
-            scale: 4.2,
-            filter: "blur(48px)",
             autoAlpha: 0,
-            duration: 1.1,
+            filter: "blur(14px)",
+            y: -36,
+            scale: 0.96,
+            duration: 0.6,
+            ease: "expo.inOut",
+          },
+          aOutStart,
+        );
+      }
+
+      // ───── Phase 4 — "5th edition" card rises in ─────
+      const slideBStart = aOutStart + 0.25;
+      if (slideBRef.current) {
+        tl.set(slideBRef.current, { autoAlpha: 1 }, slideBStart - 0.01);
+        const bItems =
+          slideBRef.current.querySelectorAll<HTMLElement>("[data-b-item]");
+        gsap.set(bItems, { autoAlpha: 0, y: 38, filter: "blur(16px)" });
+        tl.to(
+          bItems,
+          {
+            autoAlpha: 1,
+            y: 0,
+            filter: "blur(0px)",
+            duration: 0.85,
+            ease: "expo.out",
+            stagger: 0.13,
+          },
+          slideBStart,
+        );
+      }
+
+      // Transition B → hero: the whole card pushes forward + dissolves so the
+      // real FinalHero (which animates itself in) is revealed behind it.
+      const bHold = 0.85;
+      const bOutStart = slideBStart + 0.85 + 0.26 + bHold;
+      if (slideBRef.current) {
+        tl.to(
+          slideBRef.current,
+          {
+            autoAlpha: 0,
+            filter: "blur(22px)",
+            scale: 1.06,
+            duration: 0.7,
             ease: "expo.in",
           },
-          blastStart + 0.15,
+          bOutStart,
         );
       }
     }, rootRef);
@@ -331,11 +303,7 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
 
   if (done) return null;
 
-  // 4 columns; each year locked to the bottom of its column.
-  // The horizontal alignment inside each column varies a bit so the
-  // composition feels editorial rather than a strict grid.
-  // Each year is centered horizontally inside its own quarter of the
-  // viewport — that yields even spacing between all four numbers.
+  // 4 columns; each year locked to the bottom of its quarter of the viewport.
   const COL_LAYOUT = [
     { left: "0%", width: "25%" },
     { left: "25%", width: "25%" },
@@ -350,8 +318,7 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
       style={{ backgroundColor: "#000000", color: "#ffffff" }}
       aria-label="Rediscover 2026 intro sequence"
     >
-      {/* Year-specific background photos — one layer per year, all stacked.
-          GSAP cross-fades between them as the intro advances. */}
+      {/* Year-specific background photos — one layer per year, all stacked. */}
       {YEARS.map((spec, i) => (
         <div
           key={`bg-${spec.value}`}
@@ -373,15 +340,6 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
           />
         </div>
       ))}
-
-      <div
-        ref={headerRef}
-        className="absolute top-8 left-6 z-10 flex flex-col gap-1 text-[10px] uppercase tracking-[0.32em] lg:top-12 lg:left-16 lg:text-xs"
-        style={{ opacity: 0, visibility: "hidden" }}
-      >
-        <p>Rediscover · 5th Edition</p>
-        <p>November 2026 · Zadar</p>
-      </div>
 
       {/* Year columns — each pinned to the bottom of its quarter of the screen */}
       {YEARS.map((spec, i) => {
@@ -420,41 +378,83 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
         );
       })}
 
-      {/* Phase 3 reveal */}
+      {/* ── Slide A — "The next chapter" (typewriter) ── */}
       <div
-        ref={revealRef}
+        ref={slideARef}
+        className="pointer-events-none absolute inset-0 flex items-center justify-center px-6 text-center"
+        style={{ opacity: 0, visibility: "hidden" }}
+      >
+        <h2
+          className="font-semibold"
+          style={{
+            fontFamily: "var(--font-sora), sans-serif",
+            fontSize: "clamp(2.25rem, 7.5vw, 7.5rem)",
+            letterSpacing: "-0.04em",
+            lineHeight: 1.02,
+            color: "#111111",
+          }}
+        >
+          <span ref={chapterRef} />
+          <span
+            ref={caretRef}
+            aria-hidden
+            className="intro-caret"
+            style={{
+              display: "inline-block",
+              marginLeft: "0.06em",
+              fontWeight: 200,
+              color: "#111111",
+            }}
+          >
+            |
+          </span>
+        </h2>
+      </div>
+
+      {/* ── Slide B — "5th edition" card ── */}
+      <div
+        ref={slideBRef}
         className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
         style={{ opacity: 0, visibility: "hidden" }}
       >
         <p
-          data-reveal-item
-          className="mb-8 text-xs uppercase tracking-[0.32em] opacity-70"
-          style={{ opacity: 0 }}
+          data-b-item
+          className="text-base uppercase tracking-[0.3em] md:text-xl"
+          style={{ color: "#303030", fontWeight: 500 }}
         >
-          5th Edition · November 2026
+          November, 2026
         </p>
-        <h1
-          ref={whatNowRef}
-          data-reveal-item
-          data-reveal-hero
-          className="headline font-semibold whitespace-nowrap will-change-transform"
+        <h2
+          data-b-item
+          className="mt-4 font-semibold md:mt-5"
           style={{
-            fontSize: "clamp(3rem, 13vw, 12rem)",
+            fontFamily: "var(--font-sora), sans-serif",
+            fontSize: "clamp(2.75rem, 9vw, 9rem)",
             letterSpacing: "-0.05em",
-            lineHeight: 0.92,
-            opacity: 0,
+            lineHeight: 0.95,
+            color: "#111111",
           }}
         >
-          What now?
-        </h1>
+          5th edition
+        </h2>
         <p
-          data-reveal-item
-          className="mt-8 text-sm uppercase tracking-[0.28em] opacity-70 md:text-base"
-          style={{ opacity: 0 }}
+          data-b-item
+          className="mt-5 text-sm uppercase tracking-[0.24em] md:mt-7 md:text-lg"
+          style={{ color: "#303030", fontWeight: 400 }}
         >
-          Rediscover · Zadar
+          Falkensteiner Punta Skala Resort&nbsp;&nbsp;•&nbsp;&nbsp;Zadar, Petrčane
         </p>
       </div>
+
+      <style>{`
+        @keyframes introCaretBlink {
+          0%, 49%  { opacity: 1; }
+          50%, 100% { opacity: 0; }
+        }
+        .intro-caret {
+          animation: introCaretBlink 0.9s steps(1) infinite;
+        }
+      `}</style>
     </div>
   );
 }

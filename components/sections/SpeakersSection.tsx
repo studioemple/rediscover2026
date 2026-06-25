@@ -140,15 +140,15 @@ export function SpeakersSection() {
         {/* Header — centered */}
         <div className="flex flex-col items-center text-center">
           <p
-            className="text-sm uppercase tracking-[0.18em] lg:text-base"
-            style={{ color: "#1C9DD9" }}
+            className="text-sm uppercase tracking-[0.12em] lg:text-base"
+            style={{ color: "#1C9DD9", fontWeight: 600 }}
           >
             {speakers.eyebrow}
           </p>
           <WordReveal
             as="h2"
             text={speakers.bigHeadline}
-            className="headline mt-4 max-w-[1100px] leading-[1.02] text-ink"
+            className="headline mt-4 max-w-[1100px] leading-[1.02] text-ink lg:mt-6"
             style={{
               fontSize: "clamp(2.5rem, 5.8vw, 92px)",
               fontWeight: 600,
@@ -390,8 +390,8 @@ function AllSpeakersModal({ onClose }: { onClose: () => void }) {
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-ink/8 bg-paper/95 px-6 py-5 backdrop-blur lg:px-10 lg:py-7">
           <div>
             <p
-              className="text-xs uppercase tracking-[0.22em] lg:text-sm"
-              style={{ color: "#1C9DD9", fontFamily: "var(--font-sora), sans-serif", fontWeight: 500 }}
+              className="text-xs uppercase tracking-[0.12em] lg:text-sm"
+              style={{ color: "#1C9DD9", fontFamily: "var(--font-sora), sans-serif", fontWeight: 600 }}
             >
               Every Rediscover speaker
             </p>
@@ -415,10 +415,14 @@ function AllSpeakersModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        {/* Body — scrollable */}
+        {/* Body — scrollable. overscroll-contain stops the scroll from
+            "chaining" to the page behind once you hit the top/bottom. */}
         <div
           className="overflow-y-auto px-6 pb-10 pt-8 lg:px-10 lg:pb-14 lg:pt-10"
-          style={{ maxHeight: "calc(100vh - 4rem - 100px)" }}
+          style={{
+            maxHeight: "calc(100vh - 4rem - 100px)",
+            overscrollBehavior: "contain",
+          }}
         >
           {[...YEARS].reverse().map((y) => {
             const list = speakers.byYear[y];

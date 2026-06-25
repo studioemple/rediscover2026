@@ -152,9 +152,9 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
           className="mb-10 flex flex-col items-center"
           style={{ color: "#303030", fontFamily: "var(--font-sora), sans-serif" }}
         >
-          <p style={{ fontSize: 20, fontWeight: 300, lineHeight: 1.2 }}>5th EDITION</p>
-          <p style={{ fontSize: 35, fontWeight: 300, letterSpacing: "-1.4px", lineHeight: 1.2 }}>
-            2026 November
+          <p style={{ fontSize: 26, fontWeight: 300, lineHeight: 1.2 }}>5th EDITION</p>
+          <p style={{ fontSize: 48, fontWeight: 300, letterSpacing: "-1.8px", lineHeight: 1.2 }}>
+            November, 2026
           </p>
         </div>
 
@@ -175,7 +175,7 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
           />
         </h1>
 
-        {/* What Now? */}
+        {/* The Next Chapter */}
         <p
           ref={questionRef}
           className="mt-6 lg:mt-10"
@@ -188,7 +188,7 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
             lineHeight: 1.2,
           }}
         >
-          What Now?
+          The Next Chapter
         </p>
 
         {/* Stars + location */}

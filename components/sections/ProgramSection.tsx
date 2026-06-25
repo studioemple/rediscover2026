@@ -14,8 +14,8 @@ export function ProgramSection() {
       {/* Header — centered eyebrow, big headline (one line), body in 2 lines */}
       <Container className="flex flex-col items-center px-4 text-center">
         <p
-          className="text-sm uppercase tracking-[0.2em] lg:text-base"
-          style={{ color: "#1C9DD9" }}
+          className="text-sm uppercase tracking-[0.12em] lg:text-base"
+          style={{ color: "#1C9DD9", fontWeight: 600 }}
         >
           {program.eyebrow}
         </p>

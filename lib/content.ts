@@ -24,9 +24,14 @@ export const stats = [
 ];
 
 export const valueProp = {
-  eyebrow: "The biggest hotel-tech event in the region",
-  bigHeadline: "Every edition opens new ground.",
-  body: "Rediscover is where independent hoteliers meet the technology shaping the next decade of hospitality. Real conversations, real outcomes no buzzwords.",
+  eyebrow: "More than just a hospitality conference",
+  bigHeadline: "The biggest hotel-tech event in the region.",
+  body: "A unique 5-star experience for hospitality professionals. 2 days filled with practical keynotes, workshops and networking.",
+  stats: [
+    { value: 1100, suffix: "+", label: "hospitality\nprofessionals" },
+    { value: 400, suffix: "+", label: "hotels and\ntech-companies" },
+    { value: 40, suffix: "+", label: "technology\npartners" },
+  ],
   topics: [
     "Digitalization",
     "Automation",
@@ -44,7 +49,7 @@ export const valueProp = {
 
 export const audience = {
   eyebrow: "Are you the one?",
-  bigHeadline: "Made for those shaping the future of hospitality.",
+  bigHeadline: "The Platform For",
   titles: [
     "Hotel Owners",
     "General Managers",
@@ -65,7 +70,7 @@ export type Speaker = {
 
 export const speakers = {
   eyebrow: "Speakers through the years",
-  bigHeadline: "Past Rediscover speakers: years of inspiration and change",
+  bigHeadline: "Voices That Shape the Hospitality Industry",
   body: "Rediscover surfaces the operators, founders, and builders defining where hospitality goes next with their stories and stakes attached.",
   cardLabel: "5th Edition speakers",
   cardSubtitle: "Lineup announced throughout 2026",
@@ -152,8 +157,8 @@ export const speakers = {
 /* "Voices That Shape the Industry" — 3 featured talks from past editions */
 export const program = {
   eyebrow: "No buzzwords. Just real insights",
-  bigHeadline: "Voices That Shape the Industry",
-  body: "Forget generic keynotes. Rediscover brings together speakers with real experience, sharp ideas, and valuable lessons you can apply the moment you leave the room.",
+  bigHeadline: "Learn What Actually Works",
+  body: "Every session is built around practical insights, real-world examples, and lessons learned in the field. Expect actionable takeaways, honest conversations, and ideas that can help you drive growth, profitability, and better guest experiences.",
   cards: [
     {
       image: "/voices/talk-1.png",
@@ -193,66 +198,18 @@ export const testimonials = {
   eyebrow: "What our community thinks",
   bigHeadline: "Hear It From the Hoteliers",
   quotes: [
-    {
-      text: "Beyond expectations and truly inspiring!",
-      author: "Past attendee",
-      role: "Rediscover 2024",
-    },
-    {
-      text: "All 5 stars, hope to see you next year!",
-      author: "Hotelier",
-      role: "Rediscover 2025",
-    },
-    {
-      text: "Flawless organization, I have no complaints.",
-      author: "General Manager",
-      role: "Rediscover 2024",
-    },
-    {
-      text: "Keep going, the event is getting better and better each year.",
-      author: "Returning guest",
-      role: "Rediscover 2025",
-    },
-    {
-      text: "Keep up the great work everything else will follow naturally.",
-      author: "Hotel Owner",
-      role: "Rediscover 2025",
-    },
-    {
-      text: "The entire organization is on an incredible level.",
-      author: "Revenue Manager",
-      role: "Rediscover 2024",
-    },
-    {
-      text: "Kudos to the team! See you next year.",
-      author: "Attendee",
-      role: "Rediscover 2025",
-    },
-    {
-      text: "Congrats to the host for excellent organization.",
-      author: "Hospitality Director",
-      role: "Rediscover 2024",
-    },
-    {
-      text: "Sve je bilo i više nego odlično jedva čekamo iduću godinu!! (PS Hvala :)",
-      author: "Hotelijer",
-      role: "Rediscover 2025",
-    },
-    {
-      text: "Hvala na svemu, posebno na velikoj dozi pozitivne energije. Jedva čekamo sljedeću godinu!",
-      author: "Direktor hotela",
-      role: "Rediscover 2024",
-    },
-    {
-      text: "Bilo je odlično. Meni osobno, bolje nego prošle godine. Hvala vam svima na svemu što ste napravili.",
-      author: "Hotelijer",
-      role: "Rediscover 2025",
-    },
-    {
-      text: "Organizacija kao i uvijek dovedena do savršenstva. Čestitamo, bravoo!",
-      author: "Vlasnik hotela",
-      role: "Rediscover 2024",
-    },
+    { text: "Beyond expectations and truly inspiring!" },
+    { text: "All 5 stars, hope to see you next year!" },
+    { text: "Flawless organization, I have no complaints." },
+    { text: "Keep going, the event is getting better and better each year." },
+    { text: "Keep up the great work, everything else will follow naturally." },
+    { text: "The entire organization is on an incredible level." },
+    { text: "Kudos to the team! See you next year." },
+    { text: "Congrats to the host for excellent organization." },
+    { text: "Everything was more than excellent, we can't wait for next year!! (PS Thank you :)" },
+    { text: "Thank you for everything, especially for the huge dose of positive energy. We can't wait for next year!" },
+    { text: "It was excellent. For me personally, even better than last year. Thank you all for everything you did." },
+    { text: "The organization was, as always, brought to perfection. Congratulations, bravo!" },
   ],
 };
 
@@ -282,10 +239,11 @@ export const partnerTierMeta: Record<PartnerTier, { label: string; dot: string }
 };
 
 export const partners = {
-  eyebrow: "Rediscover 2025 partners",
+  eyebrow: "Rediscover partners so far",
   body: "We're proud to collaborate with industry-leading partners who are shaping the future of hospitality & hotel-tech.",
   general: { name: "Mastercard", logo: "/partners/mastercard.svg" },
   list: [
+    { name: "Mastercard",   logo: "/partners/mastercard.svg", tier: "general"        as PartnerTier },
     { name: "Smartness",    logo: "/partners/smartness.png",  tier: "silver"         as PartnerTier },
     { name: "Worldline",    logo: "/partners/worldline.png",  tier: "bronze"         as PartnerTier },
     { name: "T-com",        logo: "/partners/tcom.png",       tier: "panel"          as PartnerTier },
@@ -313,7 +271,7 @@ export const register = {
 export const faqs = [
   {
     q: "What is Rentlio Rediscover?",
-    a: "Rentlio Rediscover is the first Croatian hotel-tech networking event, and the biggest one in the region. A one-day gathering where we explore the future of hotel operations and the inevitable intersection of modern tourism and technology.",
+    a: "Rentlio Rediscover is the first Croatian hotel-tech networking event, and the biggest one in the region. A 2-day gathering where we explore the future of hotel operations and the inevitable intersection of modern tourism and technology.",
   },
   {
     q: "Who organizes Rentlio Rediscover?",

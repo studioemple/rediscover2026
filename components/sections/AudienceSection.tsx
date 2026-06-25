@@ -167,7 +167,10 @@ export function AudienceSection() {
       </div>
 
       <Container className="relative z-10 flex flex-col items-center text-center">
-        <p className="text-xs uppercase tracking-[0.32em] text-ink-soft lg:text-sm">
+        <p
+          className="text-sm uppercase tracking-[0.12em] lg:text-base"
+          style={{ color: "#1C9DD9", fontWeight: 600 }}
+        >
           {audience.eyebrow}
         </p>
 
@@ -176,7 +179,7 @@ export function AudienceSection() {
         <WordReveal
           as="h2"
           text={audience.bigHeadline}
-          className="headline mt-7 max-w-[680px] leading-[1.05] text-ink lg:mt-10"
+          className="headline mt-4 max-w-[680px] leading-[1.05] text-ink lg:mt-6"
           style={{
             fontSize: "clamp(2rem, 3.8vw, 62px)",
             letterSpacing: "-1.8px",

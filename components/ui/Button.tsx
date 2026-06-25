@@ -3,8 +3,10 @@ import type { ButtonHTMLAttributes, AnchorHTMLAttributes } from "react";
 
 type Variant = "primary" | "ghost" | "outline";
 
+// Single source of truth for CTA sizing — every <Button> matches the hero
+// "Join the waiting list" pill. Tweak here to keep all CTAs uniform.
 const base =
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 text-sm font-medium transition-all duration-200 ease-premium cursor-pointer focus-ring";
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-9 py-4 text-base font-medium transition-all duration-200 ease-premium cursor-pointer focus-ring lg:px-11 lg:py-5 lg:text-lg";
 
 const variants: Record<Variant, string> = {
   primary:

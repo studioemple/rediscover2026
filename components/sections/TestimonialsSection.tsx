@@ -28,15 +28,15 @@ export function TestimonialsSection() {
         {/* Header — eyebrow + centered headline */}
         <div className="flex flex-col items-center text-center">
           <p
-            className="text-sm uppercase tracking-[0.18em] lg:text-base"
-            style={{ color: "#1C9DD9" }}
+            className="text-sm uppercase tracking-[0.12em] lg:text-base"
+            style={{ color: "#1C9DD9", fontWeight: 600 }}
           >
             {testimonials.eyebrow}
           </p>
           <WordReveal
             as="h2"
             text={testimonials.bigHeadline}
-            className="headline mt-4 max-w-[900px] leading-[1.02] text-ink"
+            className="headline mt-4 max-w-[900px] leading-[1.02] text-ink lg:mt-6"
             style={{
               fontSize: "clamp(2.5rem, 5.6vw, 88px)",
               fontWeight: 600,
@@ -220,18 +220,6 @@ function StaggerCard({
       >
         “{quote.text}”
       </h3>
-
-      {/* Author — bottom-pinned italic */}
-      <p
-        className="absolute bottom-7 left-7 right-7 mt-2 text-xs italic sm:bottom-9 sm:left-9 sm:right-9 sm:text-sm"
-        style={{
-          color: isCenter ? "rgba(243,243,243,0.7)" : "rgba(10,10,15,0.55)",
-          fontWeight: 400,
-        }}
-      >
-        {quote.author}
-        {quote.role ? `, ${quote.role}` : ""}
-      </p>
     </div>
   );
 }

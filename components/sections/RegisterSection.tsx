@@ -169,7 +169,7 @@ export function RegisterSection() {
         {!submitted ? (
           <form
             onSubmit={submit}
-            className="mt-12 flex w-full max-w-[640px] flex-col items-stretch gap-3 sm:flex-row sm:items-center lg:mt-16"
+            className="mt-12 flex w-full max-w-[460px] flex-col items-stretch gap-3 lg:mt-16"
           >
             <input
               type="email"
@@ -178,11 +178,11 @@ export function RegisterSection() {
               placeholder={register.emailPlaceholder}
               required
               aria-label="Email"
-              className="flex-1 rounded-full border border-ink/15 bg-paper-pure px-7 py-5 text-base text-ink placeholder:text-ink-muted focus:border-ink/40 focus:outline-none focus:ring-2 focus:ring-[#1C9DD9]/30 lg:text-lg"
+              className="w-full rounded-full border border-ink/15 bg-paper-pure px-7 py-4 text-center text-base text-ink placeholder:text-ink-muted focus:border-ink/40 focus:outline-none focus:ring-2 focus:ring-[#1C9DD9]/30 lg:py-5 lg:text-lg"
             />
             <button
               type="submit"
-              className="register-cta inline-flex items-center justify-center gap-2 rounded-full bg-ink px-8 py-5 text-base font-medium text-paper transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_20px_60px_-20px_rgba(28,157,217,0.6)] lg:text-lg"
+              className="register-cta flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-ink px-9 py-4 text-base font-medium text-paper transition-all duration-200 ease-premium hover:scale-[1.02] hover:shadow-[0_20px_60px_-20px_rgba(28,157,217,0.6)] lg:py-5 lg:text-lg"
               style={{ cursor: "pointer" }}
             >
               {register.cta}

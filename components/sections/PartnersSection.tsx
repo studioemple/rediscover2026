@@ -108,22 +108,6 @@ export function PartnersSection() {
             {partners.body}
           </p>
         </div>
-
-        {/* General partner — featured large logo */}
-        <div className="mt-16 flex flex-col items-center lg:mt-24">
-          <div className="relative h-[140px] w-[260px] lg:h-[180px] lg:w-[340px]">
-            <Image
-              src={partners.general.logo}
-              alt={partners.general.name}
-              fill
-              sizes="340px"
-              className="object-contain"
-            />
-          </div>
-          <div className="mt-8 lg:mt-12">
-            <TierBadge tier="general" />
-          </div>
-        </div>
       </Container>
 
       {/* Two-row partner marquee — full-width, no horizontal padding */}
@@ -197,10 +181,16 @@ function PartnerMarquee({
           } ${speed}s linear infinite`,
         }}
       >
-        {repeated.map((p, i) => (
+        {repeated.map((p, i) => {
+          // The General partner (Mastercard) keeps its brand colour so it
+          // stands out as the lead; the rest stay uniform monochrome grey.
+          const isGeneral = p.tier === "general";
+          return (
           <div
             key={`${p.name}-${i}`}
-            className="partner-tile flex shrink-0 flex-col items-center gap-3"
+            className={`partner-tile flex shrink-0 flex-col items-center gap-3${
+              isGeneral ? " partner-tile--general" : ""
+            }`}
           >
             <div className="relative h-[44px] w-[130px] sm:h-[56px] sm:w-[170px] lg:h-[68px] lg:w-[200px]">
               <Image
@@ -209,14 +199,17 @@ function PartnerMarquee({
                 fill
                 sizes="(min-width: 1024px) 200px, (min-width: 640px) 170px, 130px"
                 className="object-contain"
-                style={{
-                  filter: "brightness(0) saturate(100%) opacity(0.8)",
-                }}
+                style={
+                  isGeneral
+                    ? undefined
+                    : { filter: "brightness(0) saturate(100%) opacity(0.8)" }
+                }
               />
             </div>
             <TierBadge tier={p.tier} />
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <style>{`
@@ -227,6 +220,11 @@ function PartnerMarquee({
         }
         .partner-tile:hover img {
           filter: brightness(0) saturate(100%) opacity(1) !important;
+          transform: translateY(-2px);
+        }
+        /* General partner keeps full colour even on hover. */
+        .partner-tile--general:hover img {
+          filter: none !important;
           transform: translateY(-2px);
         }
       `}</style>

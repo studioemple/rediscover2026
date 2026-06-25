@@ -17,11 +17,14 @@ const VERTICAL_LINES = [10.45, 30.6, 70.8, 89.55];
 
 /* Horizontal hairlines — distributed across the whole document.
    Wider gap kept clear around the Audience section (≈320–600vh) so the
-   "Made for those shaping…" headline + titles list stay completely free. */
+   "Made for those shaping…" headline + titles list stay completely free.
+   FAQ zone (≈1400vh+) is also intentionally line-free — the FAQ accordion
+   already has its own item separators, so background hairlines clash. */
 const HORIZONTAL_LINES = [
   18, 92, 175, 260,
   // (Audience zone 320–600vh intentionally line-free)
-  640, 760, 900, 1030, 1190, 1320, 1460,
+  640, 760, 900, 1030, 1190,
+  // (FAQ / footer zone 1300vh+ intentionally line-free)
 ];
 
 /* Scattered decorations — circles and diagonals spread across vertical
@@ -85,13 +88,15 @@ const DECORATIONS: Decor[] = [
   // (Partners-left backdrop is rendered locally inside PartnersSection.tsx,
   //  so it's guaranteed to sit above the logo grid regardless of how the
   //  document's total height shifts.)
-  { kind: "diagonal", topVh: 1280 },
   { kind: "circle",   left: "82%",                topVh: 1340, size: 460 },
-  { kind: "diagonal", topVh: 1390, flip: true },
+  // Diagonals at 1280 + 1390 removed — they bled down into the FAQ
+  // accordion and clashed with its separators.
 
   // ───── FAQ / Footer zone (1400–1600vh) ─────
+  // Diagonal removed — it cut across the FAQ accordion separators and
+  // looked like a clash. Circles stay since they sit behind the content
+  // without crossing the hairline rows.
   { kind: "circle",   left: "calc(70% - 224px)",  topVh: 1450, size: 448 },
-  { kind: "diagonal", topVh: 1500 },
   { kind: "circle",   left: "20%",                topVh: 1560, size: 380 },
 ];
 
