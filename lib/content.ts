@@ -24,7 +24,7 @@ export const stats = [
 ];
 
 export const valueProp = {
-  eyebrow: "More than just a hospitality conference",
+  eyebrow: "Rediscover so far",
   bigHeadline: "The biggest hotel-tech\nevent in the region.",
   body: "A unique 5-star experience for hospitality professionals. 2 days filled with practical keynotes, workshops and networking.",
   stats: [
