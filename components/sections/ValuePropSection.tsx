@@ -6,6 +6,16 @@ import { WordReveal } from "@/components/ui/WordReveal";
 import { valueProp } from "@/lib/content";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
+/* Bottom marquee runs a scrambled order (a derangement — no index keeps
+   its original position) so the two rows never stack the same word in the
+   same column. Combined with opposite scroll directions + different speeds,
+   the two tracks always read as different text in the viewport. */
+const SCRAMBLE = [5, 8, 1, 10, 3, 6, 0, 9, 2, 7, 4];
+const topicsBottom =
+  SCRAMBLE.length === valueProp.topics.length
+    ? SCRAMBLE.map((i) => valueProp.topics[i])
+    : [...valueProp.topics].reverse();
+
 export function ValuePropSection() {
   const statsRef = useRef<HTMLDivElement>(null);
 
@@ -52,7 +62,7 @@ export function ValuePropSection() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden px-4 pt-44 pb-32 lg:pt-72 lg:pb-44">
+    <section className="relative overflow-hidden px-4 pt-20 pb-0 lg:pt-72 lg:pb-44">
       <Container className="flex flex-col items-center text-center">
         {/* Mission statement — replaces the years row */}
         <p
@@ -118,7 +128,7 @@ export function ValuePropSection() {
           className="relative -mx-[10vw]"
           style={{ transform: "rotate(-2.2deg)" }}
         >
-          <div className="bg-ink py-6 lg:py-9">
+          <div className="bg-ink py-4 lg:py-6">
             <TopicsRow
               direction="left"
               speed={75}
@@ -132,11 +142,11 @@ export function ValuePropSection() {
           className="relative -mx-[10vw] -mt-2 lg:-mt-3"
           style={{ transform: "rotate(2.2deg)" }}
         >
-          <div className="border-y border-hairline bg-paper-pure py-6 lg:py-9">
+          <div className="border-y border-hairline bg-paper-pure py-4 lg:py-6">
             <TopicsRow
               direction="right"
               speed={95}
-              topics={valueProp.topics}
+              topics={topicsBottom}
               textColor="#0A0A0F"
             />
           </div>
@@ -172,11 +182,11 @@ function TopicsRow({
         {repeated.map((topic, i) => (
           <span
             key={`${topic}-${i}`}
-            className="headline text-[36px] leading-[1.1] tracking-[-0.8px] lg:text-[68px] lg:tracking-[-2px]"
+            className="headline text-[22px] leading-[1.1] tracking-[-0.5px] lg:text-[48px] lg:tracking-[-1.4px]"
             style={{ fontWeight: 400 }}
           >
             {topic}
-            <span className="mx-6 opacity-40 lg:mx-10">/</span>
+            <span className="mx-4 opacity-40 lg:mx-8">/</span>
           </span>
         ))}
       </div>

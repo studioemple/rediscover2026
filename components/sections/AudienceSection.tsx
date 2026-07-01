@@ -108,7 +108,7 @@ export function AudienceSection() {
 
   return (
     <section
-      className="relative px-4 pt-30 pb-30 lg:pt-44 lg:pb-44"
+      className="relative px-4 pt-20 pb-20 lg:pt-44 lg:pb-44"
       style={{ overflowX: "clip", overflowY: "visible" }}
     >
 

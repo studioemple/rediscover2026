@@ -15,8 +15,18 @@ type FeaturedSpeaker = Speaker & { year: Year };
 export function SpeakersSection() {
   const stripRef = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const featured = speakers.featured as FeaturedSpeaker[];
+
+  // Mobile turns the fanned desktop strip into a big swipeable slider.
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   /* Entrance animation — cards enter from the right, staggered right → left. */
   useEffect(() => {
@@ -74,7 +84,7 @@ export function SpeakersSection() {
 
   return (
     <section
-      className="relative z-30 pt-20 pb-10 lg:pt-28 lg:pb-12"
+      className="relative z-30 pt-20 pb-20 lg:pt-28 lg:pb-12"
       style={{ overflowX: "clip", overflowY: "visible" }}
     >
       {/* Rentlio circle backdrops — section-local */}
@@ -149,7 +159,9 @@ export function SpeakersSection() {
             as="h2"
             text={speakers.bigHeadline}
             className="section-headline mt-4 text-center text-ink lg:mt-6"
-            style={{ width: "min(1340px, 94vw)" }}
+            /* Smaller on mobile so each line ("Voices That Shape the" /
+               "Hospitality Industry") fits without wrapping or clipping. */
+            style={{ width: "min(1340px, 94vw)", fontSize: "clamp(1.7rem, 6vw, 72px)" }}
           />
         </div>
 
@@ -185,9 +197,9 @@ export function SpeakersSection() {
           empty band when no card is being hovered. */}
       <div
         ref={stripRef}
-        className="speakers-strip-scroll relative z-10 mt-6 overflow-x-auto pb-10 pt-6 sm:mt-10 sm:pb-24 sm:pt-14 lg:mt-12 lg:pb-32 lg:pt-16"
+        className="speakers-strip-scroll relative z-10 mt-8 snap-x snap-mandatory scroll-pl-[5vw] overflow-x-auto pb-12 pt-4 sm:mt-10 sm:pb-24 sm:pt-14 lg:mt-12 lg:snap-none lg:scroll-pl-0 lg:pb-32 lg:pt-16"
       >
-        <div className="speakers-strip-inner mx-auto flex w-max items-start px-4 sm:px-6 lg:px-4">
+        <div className="speakers-strip-inner mx-auto flex w-max items-start gap-[3vw] pl-[5vw] pr-[42vw] lg:gap-0 lg:px-4">
           {featured.map((s, i) => (
             <SpeakerCard
               key={`${s.year}-${s.slug}-${i}`}
@@ -195,6 +207,7 @@ export function SpeakersSection() {
               year={s.year}
               index={i}
               total={featured.length}
+              isMobile={isMobile}
             />
           ))}
         </div>
@@ -231,11 +244,13 @@ function SpeakerCard({
   year,
   index,
   total,
+  isMobile,
 }: {
   speaker: Speaker;
   year: Year;
   index: number;
   total: number;
+  isMobile: boolean;
 }) {
   // Gentle fan-like rotation around the middle of the row.
   const middle = (total - 1) / 2;
@@ -248,6 +263,11 @@ function SpeakerCard({
     <div
       className="speaker-card-inner relative aspect-[3/4] h-full w-full overflow-hidden rounded-[20px] bg-ink shadow-[0_18px_40px_-16px_rgba(10,10,15,0.35)]"
       style={{
+        /* Mobile: a soft all-round shadow — cards are separate now, so this
+           just lifts each standalone card off the page. */
+        boxShadow: isMobile
+          ? "0 20px 44px -14px rgba(10,10,15,0.5)"
+          : undefined,
         transition:
           "transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.55s cubic-bezier(0.22, 1, 0.36, 1)",
       }}
@@ -270,13 +290,30 @@ function SpeakerCard({
         }}
       />
 
+      {/* Year badge — top-right (mobile only; there's room on the big card) */}
+      {isMobile && (
+        <span
+          className="absolute right-4 top-4 tabular-nums leading-none"
+          style={{
+            fontFamily: "var(--font-sora), sans-serif",
+            fontSize: "0.85rem",
+            fontWeight: 300,
+            letterSpacing: "-0.02em",
+            color: "rgba(255,255,255,0.75)",
+          }}
+        >
+          {year}
+        </span>
+      )}
+
       {/* Content */}
-      <div className="absolute inset-x-0 bottom-0 px-5 pb-5 text-left lg:px-6 lg:pb-6">
-        {/* Play button — visible on hover, only for cards with a video */}
+      <div className="absolute inset-x-0 bottom-0 px-4 pb-4 text-left lg:px-6 lg:pb-6">
+        {/* Play button — always shown on touch; hover-reveal on desktop.
+            Only for cards with a video. */}
         {speaker.video && (
           <div className="speaker-play mb-3 flex">
             <span className="flex size-11 items-center justify-center rounded-full border border-white text-white">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8 5v14l11-7z" />
               </svg>
             </span>
@@ -284,14 +321,14 @@ function SpeakerCard({
         )}
 
         <h3
-          className="headline text-[17px] leading-[1.2] text-white lg:text-[19px]"
-          style={{ fontWeight: 600, letterSpacing: "-0.6px" }}
+          className="headline text-[16px] leading-[1.2] text-white lg:text-[19px]"
+          style={{ fontWeight: 600, letterSpacing: "-0.4px" }}
         >
           {speaker.name}
         </h3>
         {speaker.role && (
           <p
-            className="mt-1 text-xs leading-[1.3] lg:text-sm"
+            className="mt-1 text-[12px] leading-[1.35] lg:text-sm"
             style={{ color: "#56C3E5", fontWeight: 300 }}
           >
             {speaker.role}
@@ -303,16 +340,16 @@ function SpeakerCard({
 
   return (
     <div
-      className="speaker-card-anim group relative shrink-0"
+      className="speaker-card-anim group relative shrink-0 snap-start"
       style={{
-        /* Card width is tuned so all 9 featured cards fit in a typical
-           laptop viewport (1280–1440 px) without horizontal scrolling.
-           Mobile keeps a 120 px floor; large desktops cap at 220 px so
-           the row never gets cartoonishly oversized. */
-        width: "clamp(120px, 12vw, 220px)",
-        marginLeft: overlap,
+        /* Mobile: upright cards side by side (gap handles spacing) in a
+           left-aligned swipe slider — no tilt, no overlap, so all content
+           stays readable. Desktop: narrow fanned cards that overlap and
+           scale on hover. */
+        width: isMobile ? "56vw" : "clamp(120px, 12vw, 220px)",
+        marginLeft: isMobile ? 0 : overlap,
         zIndex: 10 + index,
-        transform: `rotate(${baseRot}deg)`,
+        transform: isMobile ? "none" : `rotate(${baseRot}deg)`,
         transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
       }}
     >
@@ -330,27 +367,31 @@ function SpeakerCard({
       )}
 
       <style>{`
-        .speakers-strip-inner .speaker-card-anim:hover {
-          z-index: 60 !important;
-        }
-        .speakers-strip-inner .speaker-card-anim:hover .speaker-card-inner {
-          transform: scale(1.22) translateY(-24px);
-          box-shadow:
-            0 50px 90px -25px rgba(10, 10, 15, 0.55),
-            0 22px 45px -20px rgba(28, 157, 217, 0.25);
-        }
-        .speakers-strip-inner .speaker-card-anim:hover .speaker-card-img {
-          transform: scale(1.08);
-          transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .speakers-strip-inner .speaker-card-anim .speaker-play {
-          opacity: 0;
-          transform: translateY(6px);
-          transition: opacity 0.4s ease, transform 0.4s ease;
-        }
-        .speakers-strip-inner .speaker-card-anim:hover .speaker-play {
-          opacity: 1;
-          transform: translateY(0);
+        /* Hover interactions only on devices that truly hover (desktop).
+           On touch: cards stay flat, the play button is always visible. */
+        @media (hover: hover) {
+          .speakers-strip-inner .speaker-card-anim:hover {
+            z-index: 60 !important;
+          }
+          .speakers-strip-inner .speaker-card-anim:hover .speaker-card-inner {
+            transform: scale(1.22) translateY(-24px);
+            box-shadow:
+              0 50px 90px -25px rgba(10, 10, 15, 0.55),
+              0 22px 45px -20px rgba(28, 157, 217, 0.25);
+          }
+          .speakers-strip-inner .speaker-card-anim:hover .speaker-card-img {
+            transform: scale(1.08);
+            transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+          }
+          .speakers-strip-inner .speaker-card-anim .speaker-play {
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+          }
+          .speakers-strip-inner .speaker-card-anim:hover .speaker-play {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
       `}</style>
     </div>
@@ -478,6 +519,27 @@ function ModalSpeakerTile({ speaker, year }: { speaker: Speaker; year: Year }) {
           quality={90}
           className="object-cover transition-transform duration-500 group-hover/tile:scale-[1.06]"
         />
+        {/* Play overlay — only for speakers with a video, on hover */}
+        {speaker.video && (
+          <div
+            aria-hidden
+            className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover/tile:opacity-100"
+            style={{ background: "rgba(10,10,15,0.28)" }}
+          >
+            <span
+              className="flex size-11 items-center justify-center rounded-full border transition-transform duration-300 group-hover/tile:scale-100"
+              style={{
+                borderColor: "rgba(255,255,255,0.85)",
+                background: "rgba(255,255,255,0.18)",
+                transform: "scale(0.85)",
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#ffffff" style={{ marginLeft: 2 }}>
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </span>
+          </div>
+        )}
       </div>
       <p
         className="mt-2.5 text-center text-[13px] leading-[1.2] text-ink lg:text-sm"

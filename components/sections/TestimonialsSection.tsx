@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
 import { testimonials } from "@/lib/content";
@@ -23,7 +23,7 @@ const INITIAL: Quote[] = testimonials.quotes.map((q, i) => ({
 
 export function TestimonialsSection() {
   return (
-    <section className="relative pt-30 pb-30 lg:pt-44 lg:pb-44">
+    <section className="relative pt-20 pb-20 lg:pt-44 lg:pb-44">
       <Container className="relative px-4">
         {/* Header — eyebrow + centered headline */}
         <div className="flex flex-col items-center text-center">
@@ -42,7 +42,7 @@ export function TestimonialsSection() {
       </Container>
 
       {/* Stagger slider */}
-      <div className="mt-16 lg:mt-24">
+      <div className="mt-6 lg:mt-12">
         <StaggerTestimonials />
       </div>
     </section>
@@ -54,14 +54,16 @@ export function TestimonialsSection() {
 function StaggerTestimonials() {
   const [cardSize, setCardSize] = useState(365);
   const [list, setList] = useState<Quote[]>(INITIAL);
+  const dragStartX = useRef<number | null>(null);
+  const swipedRef = useRef(false);
 
   useEffect(() => {
     const updateSize = () => {
       // Three breakpoints — mobile shrinks the cards enough that 3 always
       // fit in the visible stagger (center + one on each side).
       if (window.matchMedia("(min-width: 1024px)").matches) setCardSize(365);
-      else if (window.matchMedia("(min-width: 640px)").matches) setCardSize(300);
-      else setCardSize(230);
+      else if (window.matchMedia("(min-width: 640px)").matches) setCardSize(260);
+      else setCardSize(195);
     };
     updateSize();
     window.addEventListener("resize", updateSize);
@@ -88,14 +90,46 @@ function StaggerTestimonials() {
     });
   };
 
-  /* Height scales with card size so the stage hugs the cards on mobile
-     instead of leaving a giant empty band. */
-  const stageHeight = cardSize + 220;
+  /* Cards are anchored to the TOP of the stage (small top pad) so the gap to
+     the headline stays tight, while the arrow gap below is controlled
+     separately — top and bottom spacing no longer fight each other. */
+  const lift = Math.round(cardSize * 0.15);
+  const sideY = Math.round(cardSize * 0.05);
+  const arrowH = cardSize >= 340 ? 48 : 40;
+  const arrowGap = cardSize >= 340 ? 52 : 40; // space between cards and arrows
+  const TOP_PAD = 6;
+  const stageHeight = TOP_PAD + lift + sideY + cardSize + arrowGap + arrowH + 8;
 
   return (
     <div
-      className="relative w-full"
+      className="relative w-full touch-pan-y select-none"
       style={{ height: stageHeight, overflowX: "clip", overflowY: "visible" }}
+      onTouchStart={(e) => {
+        dragStartX.current = e.touches[0].clientX;
+        swipedRef.current = false;
+      }}
+      onTouchMove={(e) => {
+        if (
+          dragStartX.current != null &&
+          Math.abs(e.touches[0].clientX - dragStartX.current) > 10
+        ) {
+          swipedRef.current = true;
+        }
+      }}
+      onTouchEnd={(e) => {
+        if (dragStartX.current == null) return;
+        const dx = e.changedTouches[0].clientX - dragStartX.current;
+        dragStartX.current = null;
+        if (Math.abs(dx) > 40) handleMove(dx < 0 ? 1 : -1);
+      }}
+      /* Swallow the click that follows a swipe so it doesn't also re-center a
+         card. Capture phase runs before the card's own onClick. */
+      onClickCapture={(e) => {
+        if (swipedRef.current) {
+          e.stopPropagation();
+          swipedRef.current = false;
+        }
+      }}
     >
       {list.map((q, index) => {
         const position =
@@ -139,6 +173,11 @@ function StaggerCard({
 }) {
   const isCenter = position === 0;
 
+  // Stagger offsets scale with the card so mobile stays tight, desktop keeps
+  // its original ~55 / ~18 lift.
+  const lift = Math.round(cardSize * 0.15);
+  const sideY = Math.round(cardSize * 0.05);
+
   return (
     <div
       onClick={() => handleMove(position)}
@@ -152,7 +191,7 @@ function StaggerCard({
         }
       }}
       className={cn(
-        "absolute left-1/2 top-1/2 cursor-pointer p-7 transition-all duration-500 ease-out sm:p-9",
+        "absolute left-1/2 top-0 cursor-pointer p-6 transition-all duration-500 ease-out sm:p-8",
         isCenter ? "z-10" : "z-0",
       )}
       style={{
@@ -166,9 +205,9 @@ function StaggerCard({
         clipPath:
           "polygon(50px 0%, calc(100% - 50px) 0%, 100% 50px, 100% 100%, calc(100% - 50px) 100%, 50px 100%, 0 100%, 0 0)",
         transform: `
-          translate(-50%, -50%)
+          translate(-50%, 0)
           translateX(${(cardSize / 1.5) * position}px)
-          translateY(${isCenter ? -55 : position % 2 ? 18 : -18}px)
+          translateY(${isCenter ? 6 : 6 + lift + (position % 2 ? sideY : -sideY)}px)
           rotate(${isCenter ? 0 : position % 2 ? 2.6 : -2.6}deg)
         `,
         boxShadow: isCenter
@@ -190,12 +229,12 @@ function StaggerCard({
       />
 
       {/* 5 stars (replaces avatar image from original) */}
-      <div className="mb-5 flex items-center gap-[2px]">
+      <div className="mb-4 flex items-center gap-[2px]">
         {[0, 1, 2, 3, 4].map((i) => (
           <svg
             key={i}
-            width="16"
-            height="16"
+            width="14"
+            height="14"
             viewBox="0 0 24 24"
             fill={isCenter ? "#F5D26B" : "#E8B948"}
             aria-hidden
@@ -207,7 +246,7 @@ function StaggerCard({
 
       {/* Quote */}
       <h3
-        className="headline text-[17px] leading-[1.35] sm:text-[20px]"
+        className="headline text-[15px] leading-[1.35] sm:text-[19px]"
         style={{
           fontWeight: 500,
           letterSpacing: "-0.4px",
@@ -233,7 +272,7 @@ function ArrowBtn({
       type="button"
       onClick={onClick}
       aria-label={dir === "left" ? "Previous testimonial" : "Next testimonial"}
-      className="group flex size-12 items-center justify-center border-2 transition-colors focus-ring sm:size-14"
+      className="group flex size-10 items-center justify-center border-2 transition-colors focus-ring sm:size-12"
       style={{
         background: "#FFFFFF",
         borderColor: "#E2E2E2",
@@ -251,7 +290,7 @@ function ArrowBtn({
         e.currentTarget.style.color = "#0A0A0F";
       }}
     >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         {dir === "left" ? (
           <path d="M15 18l-6-6 6-6" />
         ) : (

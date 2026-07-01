@@ -12,8 +12,11 @@
 
 const STROKE = "#D9D9D9";
 
-/* Vertical hairlines — span the full document height. */
-const VERTICAL_LINES = [10.45, 30.6, 70.8, 89.55];
+/* Vertical hairlines — span the full document height. Evenly spaced and
+   symmetric: outer pair at 10% / 90%, inner pair splitting the span into
+   three equal 26.67% gaps. The WhyReturn accordion aligns its box edges to
+   the outer pair (10vw / 90vw) on mobile. */
+const VERTICAL_LINES = [10, 36.6667, 63.3333, 90];
 
 /* Horizontal hairlines — distributed across the whole document.
    Wider gap kept clear around the Audience section (≈320–600vh) so the
@@ -39,6 +42,13 @@ type Decor =
       /** Optional override for base rotation in degrees. If omitted, a
        *  deterministic pseudo-random rotation is computed from the index. */
       rot?: number;
+      /** Mobile-only position override (<768px). When set, the desktop
+       *  circle becomes `hidden md:block` and a second, differently-placed
+       *  copy renders `md:hidden`. Lets a circle sit in a corner / white
+       *  space on phones instead of landing behind stacked content. */
+      mobile?: { left: string; topVh: number; size?: number; rot?: number };
+      /** Hide this circle entirely below md (no mobile replacement). */
+      mobileHide?: boolean;
     }
   | {
       kind: "diagonal";
@@ -54,7 +64,9 @@ const DECORATIONS: Decor[] = [
   { kind: "circle",   left: "-252px",             topVh: 38,   size: 630 },
   // Hero right circle — mirrors the left one, ~60% visible off the right edge,
   // slightly higher so the two read as a paired but not symmetric duo.
-  { kind: "circle",   left: "calc(100% - 378px)", topVh: 62,   size: 630 },
+  // On mobile it moves to a subtle top-left corner arc (out of the text).
+  { kind: "circle",   left: "calc(100% - 378px)", topVh: 62,   size: 630,
+    mobile: { left: "-42%", topVh: 7, size: 300 } },
   { kind: "diagonal", topVh: 4 },
   { kind: "diagonal", topVh: 76, flip: true },
   { kind: "circle",   left: "78%",                topVh: 145,  size: 266 },
@@ -62,7 +74,9 @@ const DECORATIONS: Decor[] = [
   // ───── Value-prop zone (200–320vh) ─────
   { kind: "diagonal", topVh: 215 },
   // Value-prop left circle — pinned at rot: 0 so the Rentlio "R" reads upright.
-  { kind: "circle",   left: "-6%",                topVh: 260,  size: 644, rot: 0 },
+  // On mobile it moves to the top-right white space of the section.
+  { kind: "circle",   left: "-6%",                topVh: 260,  size: 644, rot: 0,
+    mobile: { left: "75%", topVh: 214, size: 280 } },
 
   // ───── Audience zone (≈320–700vh) intentionally CLEAR — no lines,
   //       circles or diagonals cross the centered title + titles list.
@@ -108,7 +122,15 @@ export function PageGeometry() {
        centred content). Comes back from md (768px) upwards. */
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-0 hidden overflow-hidden md:block"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+      /* Gently fades the whole geometric backdrop in when it mounts (right as
+         the hero settles at the end of the intro), instead of hard-popping.
+         Shown on ALL sizes now — on mobile the horizontal hairlines +
+         diagonals are hidden (their vh positions are calibrated for the
+         desktop document height and would cut across stacked content), while
+         the vertical hairlines + circles (size-capped to a fraction of the
+         viewport) stay to softly fill the background. */
+      style={{ animation: "pageGeomFadeIn 1.1s ease-out both" }}
     >
       {/* Vertical hairlines — full document height */}
       {VERTICAL_LINES.map((pct, i) => (
@@ -125,11 +147,12 @@ export function PageGeometry() {
         />
       ))}
 
-      {/* Horizontal hairlines */}
+      {/* Horizontal hairlines — hidden on mobile (vh positions calibrated for
+          the desktop document height would cross stacked mobile content). */}
       {HORIZONTAL_LINES.map((topVh, i) => (
         <div
           key={`h-${i}-${topVh}`}
-          className="absolute left-0 right-0"
+          className="absolute left-0 right-0 hidden md:block"
           style={{
             top: `${topVh}vh`,
             height: 1,
@@ -152,39 +175,64 @@ export function PageGeometry() {
              The inner element also rotates very slowly forever, but the
              per-revolution time is huge so it reads as nearly-static
              "breathing" motion. */
-          const baseRot = d.rot ?? (i * 137 + 41) % 360;
           const breatheDur = 240 + (i % 6) * 40; // 240–440s — almost imperceptible
           const breatheDir = i % 2 === 0 ? 1 : -1; // alternate cw / ccw
-          return (
-            <div
-              key={`c-${i}`}
-              className="absolute"
-              style={{
-                left: d.left,
-                top: `calc(${d.topVh}vh - ${d.size / 2}px)`,
-                width: d.size,
-                height: d.size,
-                animation: driftAnim,
-                willChange: "transform",
-              }}
-            >
+
+          // Builds one circle element. Size is capped to a fraction of the
+          // viewport so the big desktop circles shrink to sensible blobs on
+          // phones; the vertical centring offset uses the SAME expression so
+          // it stays centred at any size.
+          const circleEl = (
+            subKey: string,
+            left: string,
+            topVh: number,
+            size: number,
+            rotOverride: number | undefined,
+            extraClass: string,
+          ) => {
+            const baseRot = rotOverride ?? d.rot ?? (i * 137 + 41) % 360;
+            const sz = `min(${size}px, 62vw)`;
+            return (
               <div
-                className="size-full"
+                key={subKey}
+                className={`absolute ${extraClass}`.trim()}
                 style={{
-                  ["--base-rot" as never]: `${baseRot}deg`,
-                  animation: `pageRentlioBreathe${breatheDir > 0 ? "Cw" : "Ccw"} ${breatheDur}s linear infinite`,
+                  left,
+                  top: `calc(${topVh}vh - ${sz} / 2)`,
+                  width: sz,
+                  height: sz,
+                  animation: driftAnim,
+                  willChange: "transform",
                 }}
               >
-                <img
-                  src="/rentlio-circle.svg"
-                  alt=""
-                  aria-hidden
-                  className="block size-full"
-                  style={{ objectFit: "contain" }}
-                />
+                <div
+                  className="size-full"
+                  style={{
+                    ["--base-rot" as never]: `${baseRot}deg`,
+                    animation: `pageRentlioBreathe${breatheDir > 0 ? "Cw" : "Ccw"} ${breatheDur}s linear infinite`,
+                  }}
+                >
+                  <img
+                    src="/rentlio-circle.svg"
+                    alt=""
+                    aria-hidden
+                    className="block size-full"
+                    style={{ objectFit: "contain" }}
+                  />
+                </div>
               </div>
-            </div>
-          );
+            );
+          };
+
+          // Mobile override → desktop copy hides below md, a repositioned
+          // copy shows below md. (React flattens the returned array.)
+          if (d.mobile) {
+            return [
+              circleEl(`c-${i}-d`, d.left, d.topVh, d.size, d.rot, "hidden md:block"),
+              circleEl(`c-${i}-m`, d.mobile.left, d.mobile.topVh, d.mobile.size ?? d.size, d.mobile.rot, "md:hidden"),
+            ];
+          }
+          return circleEl(`c-${i}`, d.left, d.topVh, d.size, d.rot, d.mobileHide ? "hidden md:block" : "");
         }
 
         // Diagonal — oversized so endpoints clip OFF the visible page.
@@ -193,7 +241,7 @@ export function PageGeometry() {
         return (
           <svg
             key={`d-${i}`}
-            className="absolute"
+            className="absolute hidden md:block"
             preserveAspectRatio="none"
             fill="none"
             viewBox="0 0 1400 480"
@@ -220,13 +268,20 @@ export function PageGeometry() {
       })}
 
       <style>{`
+        @keyframes pageGeomFadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        /* Small amplitude so the vertical hairlines stay visually centred
+           around the content they frame (e.g. the WhyReturn boxes) — a big
+           drift made the box look off-centre between its two outer lines. */
         @keyframes pageDriftX0 {
           0%, 100% { transform: translateX(0); }
-          50%      { transform: translateX(7px); }
+          50%      { transform: translateX(2px); }
         }
         @keyframes pageDriftX1 {
           0%, 100% { transform: translateX(0); }
-          50%      { transform: translateX(-6px); }
+          50%      { transform: translateX(-2px); }
         }
         @keyframes pageDriftY0 {
           0%, 100% { transform: translateY(0); }

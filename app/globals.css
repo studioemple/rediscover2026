@@ -42,6 +42,18 @@ body {
   font-weight: 350;
 }
 
+/* Hero "The Next Chapter" — big & 2-line on mobile, one line on desktop.
+   Separate clamps per breakpoint: mobile pushes the size up (18vw) while
+   desktop keeps the 11vw→130px that fits on a single line. */
+.hero-headline {
+  font-size: clamp(3.5rem, 18vw, 4.75rem);
+}
+@media (min-width: 768px) {
+  .hero-headline {
+    font-size: clamp(4rem, 11vw, 130px);
+  }
+}
+
 /* Shared section headline — single source of truth so every section title
    is the exact same size across the page. Letter-spacing is em-based so it
    scales proportionally with the size.

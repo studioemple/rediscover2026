@@ -30,6 +30,14 @@ export default function Home() {
     return () => cancelAnimationFrame(id);
   }, [introDone]);
 
+  // Safety net: if the intro sequence never reports completion (error, tab
+  // backgrounded during the GSAP timeline, etc.), force the page into its
+  // final state so the hero can never be left permanently hidden.
+  useEffect(() => {
+    const t = setTimeout(() => setIntroDone(true), 12000);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <main
       className={`relative bg-paper ${introDone ? "" : "overflow-hidden"}`}

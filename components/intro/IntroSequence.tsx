@@ -14,27 +14,31 @@ const YEARS: YearSpec[] = [
   { value: 25, col: 3, ext: "jpg" },
 ];
 
-const CHAPTER_TEXT = "The next chapter";
+const CHAPTER_TEXT = "The Next Chapter";
 
 export function IntroSequence({ onComplete }: { onComplete: () => void }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const yearBgRefs = useRef<(HTMLDivElement | null)[]>([]);
   const yearRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  // Slide A — "The next chapter" typewriter
+  // Slide A — "The next chapter" (soft fade)
   const slideARef = useRef<HTMLDivElement | null>(null);
-  const chapterRef = useRef<HTMLSpanElement | null>(null);
-  const caretRef = useRef<HTMLSpanElement | null>(null);
   // Slide B — "5th edition" card
   const slideBRef = useRef<HTMLDivElement | null>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const [done, setDone] = useState(false);
+
+  // Keep the latest onComplete without re-triggering the effect. Passing an
+  // inline arrow as onComplete changes identity every parent render, so if we
+  // depended on it the whole intro would rebuild + REPLAY on any re-render.
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     ensureGsap();
 
     if (prefersReducedMotion()) {
       setDone(true);
-      onComplete();
+      onCompleteRef.current();
       return;
     }
 
@@ -43,7 +47,7 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
     );
     if (yearEls.length === 0) {
       setDone(true);
-      onComplete();
+      onCompleteRef.current();
       return;
     }
 
@@ -74,15 +78,168 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
       // New slides start hidden.
       if (slideARef.current) gsap.set(slideARef.current, { autoAlpha: 0 });
       if (slideBRef.current) gsap.set(slideBRef.current, { autoAlpha: 0 });
-      if (caretRef.current) gsap.set(caretRef.current, { autoAlpha: 0 });
 
-      const tl = gsap.timeline({
-        onComplete: () => {
-          setDone(true);
-          onComplete();
-        },
-      });
+      const tl = gsap.timeline();
       tlRef.current = tl;
+
+      const finish = () => {
+        setDone(true);
+        onCompleteRef.current();
+      };
+
+      /* Reveal the real (hidden) hero instantly and finish — used as the
+         safety fallback if the shared-element morph can't run. */
+      const revealHeroInstant = () => {
+        try {
+          document
+            .querySelectorAll<HTMLElement>("#hero [data-hero]")
+            .forEach((el) => gsap.set(el, { autoAlpha: 1, clearProps: "transform,filter" }));
+        } catch {
+          /* noop */
+        }
+        finish();
+      };
+
+      /* ───── Shared-element morph: the Slide-B lines travel to their hero
+         positions while the rest of the hero assembles, then hand off to the
+         real hero elements. Runs at RUN time (positions/fonts settled). ───── */
+      const runMorph = () => {
+        try {
+          const q = (s: string) => document.querySelector<HTMLElement>(s);
+          const slideB = slideBRef.current;
+          if (!slideB) return revealHeroInstant();
+
+          const mDate = slideB.querySelector<HTMLElement>('[data-shared="date"]');
+          const mEdition = slideB.querySelector<HTMLElement>('[data-shared="edition"]');
+          const mVenue = slideB.querySelector<HTMLElement>('[data-shared="venue"]');
+
+          const tEdition = q('[data-hero="edition"]');
+          const tDate = q('[data-hero="date"]');
+          const tVenue = q('[data-hero="venue"]');
+          const heroHeader = q('[data-hero="header"]');
+          const heroHeadline = q('[data-hero="headline"]');
+          const heroLogo = q('[data-hero="logo"]');
+          const heroStars = q('[data-hero="stars"]');
+          const heroCta = q('[data-hero="cta"]');
+          const heroScroll = q('[data-hero="scroll"]');
+          const heroBrand = q('[data-hero="brand"]');
+
+          if (!mDate || !mEdition || !mVenue || !tEdition || !tDate || !tVenue) {
+            return revealHeroInstant();
+          }
+
+          // Make the overlay transparent so the real hero behind it shows
+          // through (the page underneath is the same cream — no visual change).
+          gsap.set(rootRef.current, { backgroundColor: "rgba(243,243,243,0)" });
+
+          // FLIP-style deltas: center→center translate + font-size ratio scale.
+          // We tween ONLY transforms (x/y/scale) — those are compositor-only,
+          // so the shrink+travel is buttery smooth with no per-frame text
+          // reflow/repaint (the old letter-spacing/color tweens caused that
+          // "wobble"). Colour already matches (#303030); the tiny residual
+          // letter-spacing delta is covered invisibly by the atomic swap.
+          const compute = (mover: HTMLElement, target: HTMLElement) => {
+            const f = mover.getBoundingClientRect();
+            const l = target.getBoundingClientRect();
+            const fSize = parseFloat(getComputedStyle(mover).fontSize) || 1;
+            const lSize = parseFloat(getComputedStyle(target).fontSize) || 1;
+            return {
+              dx: l.left + l.width / 2 - (f.left + f.width / 2),
+              dy: l.top + l.height / 2 - (f.top + f.height / 2),
+              scale: lSize / fSize,
+            };
+          };
+
+          // Promote the movers to their own compositor layers for a clean tween.
+          gsap.set([mEdition, mDate, mVenue], {
+            willChange: "transform",
+            transformOrigin: "50% 50%",
+            force3D: true,
+          });
+
+          const mt = gsap.timeline({ onComplete: finish });
+
+          // Smooth, even ease-in-out (gentler than expo — no whip). All three
+          // land together at ~1.05s. blur stays 0 so they read as sharp anchors.
+          const EASE = "power3.inOut";
+          const e = compute(mEdition, tEdition);
+          mt.to(mEdition, { x: e.dx, y: e.dy, scale: e.scale, duration: 1.05, ease: EASE }, 0);
+          const d = compute(mDate, tDate);
+          mt.to(mDate, { x: d.dx, y: d.dy, scale: d.scale, duration: 1.02, ease: EASE }, 0.03);
+          const v = compute(mVenue, tVenue);
+          mt.to(mVenue, { x: v.dx, y: v.dy, scale: v.scale, duration: 1.0, ease: EASE }, 0.05);
+
+          // Stars "crown" in above the venue line just before it lands.
+          if (heroStars) {
+            mt.fromTo(
+              heroStars,
+              { autoAlpha: 0, y: 8, scale: 0.85 },
+              { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.6)" },
+              0.85,
+            );
+          }
+
+          // Rentlio brand mark at the very top fades in early.
+          if (heroBrand) {
+            mt.fromTo(
+              heroBrand,
+              { autoAlpha: 0, y: -8 },
+              { autoAlpha: 1, y: 0, duration: 0.7, ease: "expo.out" },
+              0.3,
+            );
+          }
+
+          // Hero-only elements assemble (real nodes, revealed through the now
+          // transparent overlay). "The Next Chapter" surfaces through the
+          // shrinking edition word, timed to breathe with the ~1.05s morph.
+          if (heroHeadline) {
+            mt.fromTo(
+              heroHeadline,
+              { autoAlpha: 0, filter: "blur(24px)", y: 18, scale: 0.94 },
+              { autoAlpha: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.0, ease: "expo.out" },
+              0.5,
+            );
+          }
+          if (heroLogo) {
+            mt.fromTo(
+              heroLogo,
+              { autoAlpha: 0, filter: "blur(14px)", y: 16 },
+              { autoAlpha: 1, filter: "blur(0px)", y: 0, duration: 0.8, ease: "expo.out" },
+              0.66,
+            );
+          }
+          if (heroCta) {
+            mt.fromTo(
+              heroCta,
+              { autoAlpha: 0, filter: "blur(8px)", y: 12 },
+              { autoAlpha: 1, filter: "blur(0px)", y: 0, duration: 0.55, ease: "expo.out" },
+              0.98,
+            );
+          }
+
+          // Atomic swap for all three glyph-identical shared lines (edition,
+          // date AND venue — the hero venue text now matches the mover). Exactly
+          // when they land (~1.05), reveal the real weight-300 hero elements +
+          // hide the movers in the SAME frame — pixel-coincident, zero jump.
+          mt.add(() => {
+            if (heroHeader) gsap.set(heroHeader, { autoAlpha: 1, clearProps: "filter" });
+            if (tVenue) gsap.set(tVenue, { autoAlpha: 1, clearProps: "filter" });
+            gsap.set([mEdition, mDate, mVenue], { autoAlpha: 0, willChange: "auto" });
+          }, 1.05);
+
+          // Scroll hint arrives last.
+          if (heroScroll) {
+            mt.fromTo(
+              heroScroll,
+              { autoAlpha: 0 },
+              { autoAlpha: 1, duration: 0.5, ease: "power2.out" },
+              1.18,
+            );
+          }
+        } catch {
+          revealHeroInstant();
+        }
+      };
 
       const enterDur = 0.28;
       const countDur = 0.5;
@@ -196,62 +353,36 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
         );
       }
 
-      // ───── Phase 3 — "The next chapter" typewriter ─────
+      // ───── Phase 3 — "The next chapter" soft fade in ─────
       const slideAStart = phase2Start + 0.95;
-      const typeDur = CHAPTER_TEXT.length * 0.04; // ~0.64s — brisk
+      const fadeInDur = 0.9;
 
       if (slideARef.current) {
-        tl.set(slideARef.current, { autoAlpha: 1 }, slideAStart - 0.01);
         tl.fromTo(
           slideARef.current,
-          { y: 14 },
-          { y: 0, duration: 0.7, ease: "expo.out" },
+          { autoAlpha: 0, filter: "blur(16px)", y: 14 },
+          {
+            autoAlpha: 1,
+            filter: "blur(0px)",
+            y: 0,
+            duration: fadeInDur,
+            ease: "expo.out",
+          },
           slideAStart,
         );
       }
-      if (caretRef.current) {
-        tl.set(caretRef.current, { autoAlpha: 1 }, slideAStart);
-      }
-      // The typewriter itself — reveal one character at a time.
-      const typer = { n: 0 };
-      tl.to(
-        typer,
-        {
-          n: CHAPTER_TEXT.length,
-          duration: typeDur,
-          ease: "none",
-          onUpdate: () => {
-            if (chapterRef.current) {
-              chapterRef.current.textContent = CHAPTER_TEXT.slice(
-                0,
-                Math.round(typer.n),
-              );
-            }
-          },
-        },
-        slideAStart,
-      );
-      // Caret fades once typing settles.
-      if (caretRef.current) {
-        tl.to(
-          caretRef.current,
-          { autoAlpha: 0, duration: 0.3 },
-          slideAStart + typeDur + 0.45,
-        );
-      }
 
-      // Transform A → B: chapter line lifts + blurs away.
-      const aHold = 0.5;
-      const aOutStart = slideAStart + typeDur + aHold;
+      // Hold, then fade "The next chapter" back out (soft blur + lift).
+      const aHold = 1.5;
+      const aOutStart = slideAStart + fadeInDur + aHold;
       if (slideARef.current) {
         tl.to(
           slideARef.current,
           {
             autoAlpha: 0,
             filter: "blur(14px)",
-            y: -36,
-            scale: 0.96,
-            duration: 0.6,
+            y: -30,
+            duration: 0.7,
             ease: "expo.inOut",
           },
           aOutStart,
@@ -279,27 +410,18 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
         );
       }
 
-      // Transition B → hero: the whole card pushes forward + dissolves so the
-      // real FinalHero (which animates itself in) is revealed behind it.
+      // Transition B → hero: instead of dissolving the card, the shared lines
+      // morph to their hero positions and the hero assembles around them.
       const bHold = 0.85;
       const bOutStart = slideBStart + 0.85 + 0.26 + bHold;
-      if (slideBRef.current) {
-        tl.to(
-          slideBRef.current,
-          {
-            autoAlpha: 0,
-            filter: "blur(22px)",
-            scale: 1.06,
-            duration: 0.7,
-            ease: "expo.in",
-          },
-          bOutStart,
-        );
-      }
+      tl.call(runMorph, [], bOutStart);
     }, rootRef);
 
     return () => ctx.revert();
-  }, [onComplete]);
+    // Run ONCE on mount — onComplete is read through a ref so a changing
+    // prop identity can't restart the intro.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (done) return null;
 
@@ -335,7 +457,11 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
             priority={i === 0}
             quality={80}
             sizes="100vw"
-            className="object-cover"
+            /* Mobile crop framing: 22 nudged left, 23/24/25 nudged right.
+               Desktop keeps the centred crop. */
+            className={`object-cover lg:object-center ${
+              i === 0 ? "object-[35%_50%]" : "object-[65%_50%]"
+            }`}
             style={{ filter: "grayscale(1)" }}
           />
         </div>
@@ -378,7 +504,7 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
         );
       })}
 
-      {/* ── Slide A — "The next chapter" (typewriter) ── */}
+      {/* ── Slide A — "The next chapter" (soft fade) ── */}
       <div
         ref={slideARef}
         className="pointer-events-none absolute inset-0 flex items-center justify-center px-6 text-center"
@@ -394,20 +520,7 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
             color: "#111111",
           }}
         >
-          <span ref={chapterRef} />
-          <span
-            ref={caretRef}
-            aria-hidden
-            className="intro-caret"
-            style={{
-              display: "inline-block",
-              marginLeft: "0.06em",
-              fontWeight: 200,
-              color: "#111111",
-            }}
-          >
-            |
-          </span>
+          {CHAPTER_TEXT}
         </h2>
       </div>
 
@@ -417,44 +530,55 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
         className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
         style={{ opacity: 0, visibility: "hidden" }}
       >
+        {/* Mirrors the hero header exactly (small "5th EDITION" over a big
+            "November, 2026", both Sora weight 300, same case + tracking),
+            just enlarged — so the morph into the hero is a pure scale, no
+            weight/case jump. */}
         <p
           data-b-item
-          className="text-base uppercase tracking-[0.3em] md:text-xl"
-          style={{ color: "#303030", fontWeight: 500 }}
+          data-shared="edition"
+          style={{
+            fontFamily: "var(--font-sora), sans-serif",
+            fontSize: "clamp(1.5rem, 3.6vw, 2.75rem)",
+            fontWeight: 300,
+            letterSpacing: "0.02em",
+            lineHeight: 1.2,
+            color: "#303030",
+          }}
+        >
+          5th EDITION
+        </p>
+        <p
+          data-b-item
+          data-shared="date"
+          className="mt-2 whitespace-nowrap md:mt-3"
+          style={{
+            fontFamily: "var(--font-sora), sans-serif",
+            fontSize: "clamp(2.1rem, 8.8vw, 7.5rem)",
+            fontWeight: 300,
+            letterSpacing: "-0.035em",
+            lineHeight: 1.1,
+            color: "#303030",
+          }}
         >
           November, 2026
         </p>
-        <h2
-          data-b-item
-          className="mt-4 font-semibold md:mt-5"
-          style={{
-            fontFamily: "var(--font-sora), sans-serif",
-            fontSize: "clamp(2.75rem, 9vw, 9rem)",
-            letterSpacing: "-0.05em",
-            lineHeight: 0.95,
-            color: "#111111",
-          }}
-        >
-          5th edition
-        </h2>
         <p
           data-b-item
-          className="mt-5 text-sm uppercase tracking-[0.24em] md:mt-7 md:text-lg"
-          style={{ color: "#303030", fontWeight: 400 }}
+          data-shared="venue"
+          className="mt-7 max-w-[280px] uppercase sm:max-w-none md:mt-9"
+          style={{
+            fontFamily: "var(--font-inter), sans-serif",
+            fontSize: "clamp(0.72rem, 1.6vw, 1.25rem)",
+            fontWeight: 400,
+            letterSpacing: "0.02em",
+            lineHeight: 1.5,
+            color: "#303030",
+          }}
         >
           Falkensteiner Punta Skala Resort&nbsp;&nbsp;•&nbsp;&nbsp;Zadar, Petrčane
         </p>
       </div>
-
-      <style>{`
-        @keyframes introCaretBlink {
-          0%, 49%  { opacity: 1; }
-          50%, 100% { opacity: 0; }
-        }
-        .intro-caret {
-          animation: introCaretBlink 0.9s steps(1) infinite;
-        }
-      `}</style>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { heroCopy, event } from "@/lib/content";
-import { gsap, ensureGsap } from "@/lib/animations";
+import { gsap, ensureGsap, prefersReducedMotion } from "@/lib/animations";
 
 /* ─── Background geometry ─── */
 function HeroGeometry() {
@@ -54,83 +54,51 @@ function StarRow() {
 /* ─── FinalHero ─── */
 export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string; shouldAnimate?: boolean }) {
   const sectionRef   = useRef<HTMLDivElement>(null);
+  const brandRef     = useRef<HTMLDivElement>(null);
   const rediscoverRef = useRef<HTMLHeadingElement>(null);
   const headerRef    = useRef<HTMLDivElement>(null);
-  const questionRef  = useRef<HTMLParagraphElement>(null);
-  const venueRef     = useRef<HTMLDivElement>(null);
+  const questionRef  = useRef<HTMLDivElement>(null);
+  const starsRef     = useRef<HTMLDivElement>(null);
+  const venueLineRef = useRef<HTMLParagraphElement>(null);
   const ctasRef      = useRef<HTMLDivElement>(null);
   const scrollRef    = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    ensureGsap();
-    const els = [
+  // The venue wrapper itself stays visible (layout container); its stars +
+  // line are hidden/animated individually so the intro can morph the venue
+  // line into place and pop the stars in above it.
+  const hiddenEls = () =>
+    [
+      brandRef.current,
       rediscoverRef.current,
       headerRef.current,
       questionRef.current,
-      venueRef.current,
+      starsRef.current,
+      venueLineRef.current,
       ctasRef.current,
       scrollRef.current,
     ].filter(Boolean);
 
-    // Keep everything hidden until we animate in
-    gsap.set(els, { autoAlpha: 0 });
+  useEffect(() => {
+    ensureGsap();
+    // Reduced motion → hero is fully formed on first paint (no morph plays).
+    // Otherwise start hidden; the IntroSequence's shared-element morph is the
+    // single source of truth that reveals these elements.
+    if (prefersReducedMotion()) {
+      gsap.set(hiddenEls(), { autoAlpha: 1, clearProps: "transform,filter" });
+    } else {
+      gsap.set(hiddenEls(), { autoAlpha: 0 });
+    }
   }, []);
 
+  // Safety net: once the intro finishes (introDone), guarantee the hero is
+  // visible. The intro's morph already revealed these nodes during play, so
+  // this is idempotent — it just snaps any residual state / covers the case
+  // where the morph bailed out.
   useEffect(() => {
     if (!shouldAnimate) return;
     ensureGsap();
-
-    const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
-
-    // 1. Rediscover — big blur reveal (the main event)
-    tl.fromTo(
-      rediscoverRef.current,
-      { autoAlpha: 0, filter: "blur(24px)", y: 20 },
-      { autoAlpha: 1, filter: "blur(0px)", y: 0, duration: 1.1 },
-      0.05,
-    );
-
-    // 2. Header (5th EDITION / 2026 November) — slides in from above
-    tl.fromTo(
-      headerRef.current,
-      { autoAlpha: 0, filter: "blur(10px)", y: -14 },
-      { autoAlpha: 1, filter: "blur(0px)", y: 0, duration: 0.75 },
-      0.55,
-    );
-
-    // 3. "What Now?" — blurs in below
-    tl.fromTo(
-      questionRef.current,
-      { autoAlpha: 0, filter: "blur(14px)", y: 12 },
-      { autoAlpha: 1, filter: "blur(0px)", y: 0, duration: 0.75 },
-      0.75,
-    );
-
-    // 4. Stars + location
-    tl.fromTo(
-      venueRef.current,
-      { autoAlpha: 0, y: 10 },
-      { autoAlpha: 1, y: 0, duration: 0.6 },
-      0.95,
-    );
-
-    // 5. CTAs
-    tl.fromTo(
-      ctasRef.current,
-      { autoAlpha: 0, y: 10 },
-      { autoAlpha: 1, y: 0, duration: 0.55 },
-      1.1,
-    );
-
-    // 6. Scroll hint — last, after everything settles
-    tl.fromTo(
-      scrollRef.current,
-      { autoAlpha: 0 },
-      { autoAlpha: 1, duration: 0.5 },
-      1.35,
-    );
-
-    return () => { tl.kill(); };
+    const els = hiddenEls();
+    gsap.set(els, { autoAlpha: 1 });
   }, [shouldAnimate]);
 
   return (
@@ -144,25 +112,66 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
       {/* HeroGeometry removed — page-wide PageGeometry now provides the
           geometric backdrop across the entire site. */}
 
+      {/* Small Rentlio brand mark, pinned near the top of the hero */}
+      <div
+        ref={brandRef}
+        data-hero="brand"
+        aria-label="Rentlio"
+        className="absolute left-1/2 top-7 z-10 -translate-x-1/2 lg:top-10"
+      >
+        <Image
+          src="/rentlio-logo.svg"
+          alt="Rentlio"
+          width={336}
+          height={76}
+          className="h-[22px] w-auto lg:h-6"
+        />
+      </div>
+
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center px-6 text-center">
 
         {/* Header — 5th EDITION / 2026 November */}
         <div
           ref={headerRef}
-          className="mb-10 flex flex-col items-center"
+          data-hero="header"
+          className="mb-8 flex flex-col items-center lg:mb-10"
           style={{ color: "#303030", fontFamily: "var(--font-sora), sans-serif" }}
         >
-          <p style={{ fontSize: 26, fontWeight: 300, lineHeight: 1.2 }}>5th EDITION</p>
-          <p style={{ fontSize: 48, fontWeight: 300, letterSpacing: "-1.8px", lineHeight: 1.2 }}>
+          <p data-hero="edition" style={{ fontSize: "clamp(15px, 4.3vw, 26px)", fontWeight: 300, lineHeight: 1.2 }}>5th EDITION</p>
+          <p
+            data-hero="date"
+            className="whitespace-nowrap"
+            style={{ fontSize: "clamp(26px, 7vw, 48px)", fontWeight: 300, letterSpacing: "-0.038em", lineHeight: 1.2 }}
+          >
             November, 2026
           </p>
         </div>
 
-        {/* Rediscover — main wordmark, blurs in first */}
+        {/* The Next Chapter — main headline, blurs in first.
+            whitespace-nowrap keeps it on ONE line; the 11vw clamp scales the
+            size so the single line always fits the container (≈8.4em wide). */}
         <h1
           ref={rediscoverRef}
+          data-hero="headline"
+          className="hero-headline leading-[1.0] md:whitespace-nowrap"
+          style={{
+            fontFamily: "var(--font-sora), sans-serif",
+            fontWeight: 600,
+            letterSpacing: "-0.04em",
+            color: "#0A0A0F",
+          }}
+        >
+          {/* Mobile: breaks to "The Next" / "Chapter". Desktop: one line. */}
+          <span className="block md:inline">The Next</span>{" "}
+          <span className="block md:inline">Chapter</span>
+        </h1>
+
+        {/* Rediscover — wordmark below the headline */}
+        <div
+          ref={questionRef}
+          data-hero="logo"
           aria-label="Rediscover"
-          className="relative w-full max-w-[1200px]"
+          className="relative mt-8 w-full max-w-[200px] sm:max-w-[300px] lg:mt-12 lg:max-w-[440px]"
           style={{ aspectRatio: "1199 / 181" }}
         >
           <Image
@@ -170,47 +179,36 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
             alt="Rediscover"
             fill
             priority
-            sizes="(min-width: 1280px) 1200px, 90vw"
+            sizes="(min-width: 1280px) 440px, 60vw"
             className="object-contain"
           />
-        </h1>
-
-        {/* The Next Chapter */}
-        <p
-          ref={questionRef}
-          className="mt-6 lg:mt-10"
-          style={{
-            fontFamily: "var(--font-sora), sans-serif",
-            fontSize: "clamp(2rem, 3.5vw, 50px)",
-            fontWeight: 300,
-            letterSpacing: "-0.04em",
-            color: "#303030",
-            lineHeight: 1.2,
-          }}
-        >
-          The Next Chapter
-        </p>
+        </div>
 
         {/* Stars + location */}
-        <div ref={venueRef} className="mt-16 flex flex-col items-center gap-3">
-          <StarRow />
+        <div data-hero="venue-wrap" className="mt-16 flex flex-col items-center gap-3">
+          <div ref={starsRef} data-hero="stars">
+            <StarRow />
+          </div>
           <p
+            ref={venueLineRef}
+            data-hero="venue"
+            className="max-w-[280px] sm:max-w-none"
             style={{
               fontFamily: "var(--font-inter), sans-serif",
-              fontSize: 18,
+              fontSize: "clamp(11.5px, 3.6vw, 18px)",
               fontWeight: 400,
-              lineHeight: 2,
+              lineHeight: 1.5,
               textTransform: "uppercase",
               color: "#303030",
               letterSpacing: "0.02em",
             }}
           >
-            Falkensteiner Punta Skala Resort • Zadar
+            Falkensteiner Punta Skala Resort&nbsp;&nbsp;•&nbsp;&nbsp;Zadar, Petrčane
           </p>
         </div>
 
         {/* CTAs */}
-        <div ref={ctasRef} className="mt-12 flex justify-center">
+        <div ref={ctasRef} data-hero="cta" className="mt-12 flex justify-center">
           <a href="#register">
             <Button variant="primary">{event.registerCta}</Button>
           </a>
@@ -220,6 +218,7 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
       {/* Scroll hint — floats gently */}
       <div
         ref={scrollRef}
+        data-hero="scroll"
         className="absolute bottom-10 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-3 md:flex"
         style={{ animation: "heroFloat 3s ease-in-out infinite" }}
       >

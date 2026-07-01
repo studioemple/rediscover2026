@@ -1,16 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
 import { program } from "@/lib/content";
 
 export function ProgramSection() {
+  // Desktop uses hover to expand; mobile uses tap (tracked in `active`).
   const [hovered, setHovered] = useState<number | null>(null);
+  const [active, setActive] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   return (
-    <section className="relative pt-30 pb-30 lg:pt-44 lg:pb-44">
+    <section className="relative pt-20 pb-20 lg:pt-44 lg:pb-44">
       {/* Header — centered eyebrow, big headline (one line), body in 2 lines */}
       <Container className="flex flex-col items-center px-4 text-center">
         <p
@@ -33,20 +44,35 @@ export function ProgramSection() {
         />
       </Container>
 
-      {/* Expanding cards — full-bleed (no Container) so they fill the screen */}
+      {/* Expanding cards — horizontal accordion on BOTH mobile and desktop.
+          On mobile this keeps the row compact (one expanded, the rest as thin
+          strips) instead of four tall stacked cards that eat the scroll. */}
       <div
-        className="mt-16 flex w-full flex-col gap-3 px-3 lg:mt-24 lg:h-[82vh] lg:flex-row lg:gap-2 lg:px-3"
+        className="mt-14 flex h-[62vh] max-h-[560px] w-full flex-row gap-2 px-3 lg:mt-24 lg:h-[82vh] lg:max-h-none lg:gap-2"
         onMouseLeave={() => setHovered(null)}
       >
-        {program.cards.map((card, i) => (
-          <ProgramCard
-            key={card.author}
-            card={card}
-            isHovered={hovered === i}
-            isOtherHovered={hovered !== null && hovered !== i}
-            onEnter={() => setHovered(i)}
-          />
-        ))}
+        {program.cards.map((card, i) => {
+          const isActive = isMobile ? active === i : hovered === i;
+          const isOther = isMobile ? active !== i : hovered !== null && hovered !== i;
+          return (
+            <ProgramCard
+              key={card.author}
+              card={card}
+              isMobile={isMobile}
+              isActive={isActive}
+              isOther={isOther}
+              onEnter={() => setHovered(i)}
+              onTap={(e) => {
+                // Mobile: first tap expands the card; a second tap on the
+                // already-expanded card follows the link to YouTube.
+                if (isMobile && active !== i) {
+                  e.preventDefault();
+                  setActive(i);
+                }
+              }}
+            />
+          );
+        })}
       </div>
 
       {/* Watch playlists CTAs */}
@@ -76,17 +102,33 @@ export function ProgramSection() {
 
 function ProgramCard({
   card,
-  isHovered,
-  isOtherHovered,
+  isMobile,
+  isActive,
+  isOther,
   onEnter,
+  onTap,
 }: {
   card: typeof program.cards[number];
-  isHovered: boolean;
-  isOtherHovered: boolean;
+  isMobile: boolean;
+  isActive: boolean;
+  isOther: boolean;
   onEnter: () => void;
+  onTap: (e: React.MouseEvent) => void;
 }) {
-  // Flex grow controls width: hovered → 1.7, others → 0.7, rest → 1.
-  const flexValue = isHovered ? 1.7 : isOtherHovered ? 0.72 : 1;
+  // Width via flex-grow. Mobile is a more dramatic ratio (active wide, the
+  // others as thin strips); desktop keeps the gentle 1.7 / 0.72 spread.
+  const flexValue = isMobile
+    ? isActive
+      ? 5
+      : 1
+    : isActive
+      ? 1.7
+      : isOther
+        ? 0.72
+        : 1;
+
+  // On mobile the full text block only shows on the expanded card.
+  const collapsed = isMobile && !isActive;
 
   return (
     <a
@@ -94,10 +136,11 @@ function ProgramCard({
       target="_blank"
       rel="noopener noreferrer"
       onMouseEnter={onEnter}
-      className="relative block aspect-[3/4] min-h-[480px] w-full overflow-hidden rounded-[24px] bg-ink lg:aspect-auto lg:min-h-0 lg:h-full"
+      onClick={onTap}
+      className="relative block h-full min-w-0 overflow-hidden rounded-[18px] bg-ink lg:rounded-[24px]"
       style={{
         flex: flexValue,
-        transition: "flex 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
+        transition: "flex 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
       }}
     >
       {/* Background image */}
@@ -105,9 +148,8 @@ function ProgramCard({
         src={card.image}
         alt={card.author}
         fill
-        sizes="(min-width: 1024px) 50vw, 100vw"
+        sizes="(min-width: 1024px) 34vw, 60vw"
         className="program-card-image object-cover"
-        priority
       />
 
       {/* Bottom gradient overlay for text readability */}
@@ -120,33 +162,103 @@ function ProgramCard({
         }}
       />
 
-      {/* Content — play button + title + name + role */}
-      <div className="absolute inset-x-0 bottom-0 flex flex-col px-7 pb-9 lg:px-10 lg:pb-12">
+      {/* Dim collapsed strips so the expanded card pops */}
+      {collapsed && (
+        <div aria-hidden className="absolute inset-0" style={{ background: "rgba(0,0,0,0.4)" }} />
+      )}
+
+      {/* Full content — text block (bottom-left). Fades out when collapsed. */}
+      <div
+        className="absolute inset-x-0 bottom-0 flex flex-col px-4 pb-6 lg:px-8 lg:pb-10"
+        style={{
+          opacity: collapsed ? 0 : 1,
+          transition: "opacity 0.35s ease",
+          pointerEvents: "none",
+        }}
+      >
         {/* Big play button */}
         <span
-          className="program-card-play mb-7 flex size-[68px] items-center justify-center rounded-full border-2 border-white lg:size-[76px]"
+          className="program-card-play mb-4 flex size-[44px] items-center justify-center rounded-full border-2 border-white lg:mb-6 lg:size-[64px]"
           aria-hidden
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style={{ color: "white", marginLeft: 3 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ color: "white", marginLeft: 3 }}>
             <path d="M8 5v14l11-7z" />
           </svg>
         </span>
 
         <h3
-          className="headline text-[26px] leading-[1.15] text-white lg:text-[36px] lg:leading-[1.1]"
-          style={{ fontWeight: 600, letterSpacing: "-1.2px" }}
+          className="headline text-[15px] leading-[1.16] text-white lg:text-[29px] lg:leading-[1.12]"
+          style={{ fontWeight: 600, letterSpacing: "-0.4px" }}
         >
           {card.title}
         </h3>
 
-        <p className="mt-5 text-lg text-white lg:text-xl">{card.author}</p>
+        <p className="mt-3 text-sm text-white lg:mt-4 lg:text-lg">{card.author}</p>
         <p
-          className="mt-1 text-sm lg:text-base"
+          className="mt-1 text-xs lg:text-[15px]"
           style={{ color: "#56C3E5", fontWeight: 300 }}
         >
           {card.role}
         </p>
+
+        {/* Year — desktop only, baseline bottom-right (unchanged desktop look). */}
+        <span
+          className="absolute bottom-10 right-8 hidden shrink-0 tabular-nums leading-none lg:block"
+          style={{
+            fontFamily: "var(--font-sora), sans-serif",
+            fontSize: "clamp(1.25rem, 1.5vw, 1.6rem)",
+            fontWeight: 300,
+            letterSpacing: "-0.02em",
+            color: "rgba(255,255,255,0.6)",
+          }}
+        >
+          {card.year}
+        </span>
       </div>
+
+      {/* Year — mobile, top-right corner of the expanded card. */}
+      {isMobile && isActive && (
+        <span
+          className="absolute right-4 top-4 tabular-nums leading-none lg:hidden"
+          style={{
+            fontFamily: "var(--font-sora), sans-serif",
+            fontSize: "1.05rem",
+            fontWeight: 300,
+            letterSpacing: "-0.02em",
+            color: "rgba(255,255,255,0.7)",
+          }}
+        >
+          {card.year}
+        </span>
+      )}
+
+      {/* Collapsed strip indicator (mobile) — small play + vertical year. */}
+      {collapsed && (
+        <div
+          aria-hidden
+          className="absolute inset-0 flex flex-col items-center justify-center gap-4"
+          style={{ pointerEvents: "none" }}
+        >
+          <span className="flex size-8 items-center justify-center rounded-full border border-white/70">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="white" style={{ marginLeft: 2 }}>
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </span>
+          <span
+            style={{
+              writingMode: "vertical-rl",
+              transform: "rotate(180deg)",
+              fontFamily: "var(--font-sora), sans-serif",
+              fontSize: 13,
+              fontWeight: 400,
+              letterSpacing: "0.12em",
+              color: "rgba(255,255,255,0.9)",
+            }}
+          >
+            {card.year}
+          </span>
+        </div>
+      )}
 
       <style>{`
         .program-card-image {

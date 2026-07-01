@@ -24,7 +24,7 @@ const ROW_B = ALL.slice(7, 15).reverse().map((src, i) => ({
 export function EventGallerySection() {
   return (
     <section
-      className="relative py-28 lg:py-40"
+      className="relative py-20 lg:py-40"
       style={{ overflowX: "clip", overflowY: "visible" }}
     >
       {/* Subtle blue glow underneath */}

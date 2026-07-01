@@ -9,7 +9,7 @@ export function FAQSection() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="relative px-4 pt-30 pb-30 lg:pt-44 lg:pb-44">
+    <section className="relative px-4 pt-20 pb-20 lg:pt-44 lg:pb-44">
       <Container className="flex flex-col items-center">
         <WordReveal
           as="h2"

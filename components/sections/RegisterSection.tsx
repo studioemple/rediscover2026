@@ -77,7 +77,7 @@ export function RegisterSection() {
   return (
     <section
       id="register"
-      className="relative z-30 px-4 pt-28 pb-28 lg:pt-40 lg:pb-40"
+      className="relative z-30 px-4 pt-20 pb-20 lg:pt-40 lg:pb-40"
       style={{ overflowX: "clip", overflowY: "visible" }}
     >
       {/* Layered soft blue glows reminiscent of rediscover's blurred form */}
@@ -158,6 +158,9 @@ export function RegisterSection() {
           as="h2"
           text={register.bigHeadline}
           className="section-headline max-w-[900px] text-ink"
+          /* Widen past the container padding on mobile + size up so each of
+             the 4 hard-break lines fills the width on one row (4 rows max). */
+          style={{ fontSize: "clamp(2rem, 9vw, 72px)", width: "min(900px, 94vw)" }}
         />
 
         {/* Big CTA pill */}
@@ -210,7 +213,7 @@ export function RegisterSection() {
         {/* Alt CTA */}
         <a
           href="#aftermovie"
-          className="mt-8 inline-flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-ink-soft transition-colors duration-300 hover:text-ink lg:mt-10"
+          className="mt-8 inline-flex items-center gap-2 whitespace-nowrap text-[13px] uppercase tracking-[0.12em] text-ink-soft transition-colors duration-300 hover:text-ink lg:mt-10 lg:text-sm lg:tracking-[0.18em]"
         >
           {register.altCta}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>

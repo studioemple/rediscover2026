@@ -106,7 +106,7 @@ export function AftermovieSection() {
     >
       <div
         ref={labelRef}
-        className="pointer-events-none absolute top-10 left-1/2 z-20 -translate-x-1/2 rounded-full border border-hairline bg-paper/80 px-5 py-2 text-xs uppercase tracking-[0.28em] text-ink-soft backdrop-blur-md lg:top-16"
+        className="pointer-events-none absolute top-10 left-1/2 z-20 max-w-[calc(100vw-2rem)] -translate-x-1/2 whitespace-nowrap rounded-full border border-hairline bg-paper/80 px-5 py-2 text-[11px] uppercase tracking-[0.18em] text-ink-soft backdrop-blur-md lg:top-16 lg:text-xs lg:tracking-[0.28em]"
       >
         Rediscover 2025 Aftermovie
       </div>

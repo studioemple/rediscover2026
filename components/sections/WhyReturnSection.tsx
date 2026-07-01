@@ -49,7 +49,7 @@ export function WhyReturnSection() {
   }, []);
 
   return (
-    <section className="relative px-4 pt-30 pb-30 lg:pt-44 lg:pb-44">
+    <section className="relative px-4 pt-20 pb-20 lg:pt-44 lg:pb-44">
       <Container className="flex flex-col items-center">
         {/* Header */}
         <div className="flex flex-col items-center text-center">
@@ -69,7 +69,11 @@ export function WhyReturnSection() {
         {/* Accordion tiles */}
         <div
           ref={listRef}
-          className="mt-12 flex w-full max-w-[920px] flex-col gap-3 lg:mt-16 lg:gap-4"
+          /* Mobile: boxes sit just INSIDE the outer vertical bg lines (lines at
+             10vw / 90vw; width 74vw centred → edges at ~13vw / 87vw, a small
+             inset so the lines stay visible just outside the boxes).
+             Desktop: revert to the max-width column. */
+          className="mt-12 flex w-[74vw] flex-col gap-3 lg:mt-16 lg:w-full lg:max-w-[920px] lg:gap-4"
         >
           {whyReturn.items.map((item, i) => {
             const isActive = active === i;
@@ -100,7 +104,7 @@ export function WhyReturnSection() {
                 <button
                   type="button"
                   aria-expanded={isActive}
-                  className="flex w-full items-center gap-5 px-6 py-5 text-left lg:gap-7 lg:px-9 lg:py-7"
+                  className="flex w-full items-center gap-4 px-5 py-5 text-left lg:gap-7 lg:px-9 lg:py-7"
                   style={{ cursor: "pointer" }}
                 >
                   {/* Index */}
@@ -122,7 +126,7 @@ export function WhyReturnSection() {
                   <h3
                     className="headline flex-1 leading-[1.2] text-ink"
                     style={{
-                      fontSize: "clamp(1.15rem, 2.2vw, 1.75rem)",
+                      fontSize: "clamp(1rem, 2.2vw, 1.75rem)",
                       fontWeight: 600,
                       letterSpacing: "-0.01em",
                     }}

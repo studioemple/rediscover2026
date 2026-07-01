@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
@@ -12,9 +12,25 @@ import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 const ROW_A = partners.list.slice(0, 6);
 const ROW_B = partners.list.slice(6);
 
+/* Mobile splits the same partners into THREE shorter tracks so more logos
+   are on screen at once. */
+const M_THIRD = Math.ceil(partners.list.length / 3);
+const ROW_M1 = partners.list.slice(0, M_THIRD);
+const ROW_M2 = partners.list.slice(M_THIRD, M_THIRD * 2);
+const ROW_M3 = partners.list.slice(M_THIRD * 2);
+
 export function PartnersSection() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
   return (
-    <section className="relative pt-30 pb-30 lg:pt-44 lg:pb-44" style={{ overflowX: "clip", overflowY: "visible" }}>
+    <section className="relative pt-20 pb-20 lg:pt-44 lg:pb-44" style={{ overflowX: "clip", overflowY: "visible" }}>
       {/* Rentlio circle backdrops — section-local pair.
           • LEFT main : 820px, ~65% visible (~287px off-screen), rot 270°
           • RIGHT mirror : 820px, ~65% visible from the right, rot 200° so
@@ -105,11 +121,24 @@ export function PartnersSection() {
         </div>
       </Container>
 
-      {/* Two-row partner marquee — full-width, no horizontal padding */}
+      {/* Partner marquee — 2 rows on desktop; 3 shorter rows on mobile so
+          more logos are visible at once. */}
       <div className="mt-16 lg:mt-24">
-        <PartnerMarquee items={ROW_A} direction="left" speed={70} />
-        <div className="mt-10 lg:mt-14" />
-        <PartnerMarquee items={ROW_B} direction="right" speed={85} />
+        {isMobile ? (
+          <>
+            <PartnerMarquee items={ROW_M1} direction="left" speed={52} />
+            <div className="mt-8" />
+            <PartnerMarquee items={ROW_M2} direction="right" speed={58} />
+            <div className="mt-8" />
+            <PartnerMarquee items={ROW_M3} direction="left" speed={46} />
+          </>
+        ) : (
+          <>
+            <PartnerMarquee items={ROW_A} direction="left" speed={70} />
+            <div className="mt-10 lg:mt-14" />
+            <PartnerMarquee items={ROW_B} direction="right" speed={85} />
+          </>
+        )}
       </div>
     </section>
   );
