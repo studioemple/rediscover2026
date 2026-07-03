@@ -120,19 +120,19 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
         ref={brandRef}
         data-hero="brand"
         aria-label="Rentlio"
-        className="absolute left-4 top-5 z-10 flex h-9 items-center lg:left-1/2 lg:top-8 lg:-translate-x-1/2"
+        className="absolute left-4 top-5 z-10 flex h-9 items-center lg:left-1/2 lg:top-8 lg:h-11 lg:-translate-x-1/2"
       >
         <Image
           src="/rentlio-logo.svg"
           alt="Rentlio"
           width={336}
           height={76}
-          className="h-[22px] w-auto lg:h-6"
+          className="h-[22px] w-auto lg:h-[30px]"
         />
       </div>
 
       {/* Language switcher — same top-band as the brand mark (top-right). */}
-      <div className="absolute right-4 top-5 z-20 flex h-9 items-center lg:right-8 lg:top-8">
+      <div className="absolute right-4 top-5 z-20 flex h-9 items-center lg:right-8 lg:top-8 lg:h-11">
         <LanguageSwitcher />
       </div>
 
