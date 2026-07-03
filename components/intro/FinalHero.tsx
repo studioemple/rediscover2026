@@ -105,9 +105,14 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
     <section
       id={id}
       ref={sectionRef}
-      className="relative flex min-h-screen w-full items-center justify-center overflow-hidden"
+      className="relative flex min-h-screen w-full flex-col items-center"
       /* No explicit bg — cream comes from the page-level <main>, so the
-         PageGeometry behind it is visible through the hero. */
+         PageGeometry behind it is visible through the hero.
+         overflow-x clipped (headline whitespace-nowrap can run wide) but
+         overflow-y VISIBLE so that when the viewport is short (browser zoom,
+         small laptops) the content grows the section + scrolls instead of
+         being vertically centered up UNDER the fixed top brand/switcher. */
+      style={{ overflowX: "clip", overflowY: "visible" }}
     >
       {/* HeroGeometry removed — page-wide PageGeometry now provides the
           geometric backdrop across the entire site. */}
@@ -136,7 +141,11 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
         <LanguageSwitcher />
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center px-6 text-center">
+      {/* my-auto centers the block vertically like justify-center did, BUT when
+          the block is taller than the viewport the auto margins collapse to 0
+          and it top-aligns (overflowing DOWNWARD) instead of rising up under
+          the brand mark. pt reserves the top brand/switcher band. */}
+      <div className="relative z-10 mx-auto my-auto flex w-full max-w-6xl flex-col items-center px-6 pt-24 pb-16 text-center lg:pt-28">
 
         {/* Header — 5th EDITION / 2026 November */}
         <div
