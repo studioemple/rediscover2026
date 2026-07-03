@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
-import { program } from "@/lib/content";
+import { useContent } from "@/components/i18n/LanguageProvider";
 
 export function ProgramSection() {
+  const { program } = useContent();
   // Desktop uses hover to expand; mobile uses tap (tracked in `active`).
   const [hovered, setHovered] = useState<number | null>(null);
   const [active, setActive] = useState(0);
@@ -84,7 +85,7 @@ export function ProgramSection() {
               href={p.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center gap-3 rounded-full border border-ink/15 bg-paper-pure px-7 py-4 text-sm uppercase tracking-[0.18em] text-ink transition-all duration-500 hover:border-ink/40 hover:bg-ink hover:text-paper lg:text-base"
+              className="group inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-ink/15 bg-paper-pure px-6 py-3.5 text-[11px] uppercase tracking-[0.08em] text-ink transition-all duration-500 hover:border-ink/40 hover:bg-ink hover:text-paper sm:gap-3 sm:px-7 sm:py-4 sm:text-sm sm:tracking-[0.18em] lg:text-base"
             >
               {p.label}
               <span className="flex size-6 items-center justify-center transition-transform duration-500 group-hover:translate-x-1">
@@ -108,7 +109,7 @@ function ProgramCard({
   onEnter,
   onTap,
 }: {
-  card: typeof program.cards[number];
+  card: { image: string; title: string; author: string; role: string; year: string; video: string; imgFocus?: string };
   isMobile: boolean;
   isActive: boolean;
   isOther: boolean;
@@ -150,6 +151,7 @@ function ProgramCard({
         fill
         sizes="(min-width: 1024px) 34vw, 60vw"
         className="program-card-image object-cover"
+        style={card.imgFocus ? { objectPosition: card.imgFocus } : undefined}
       />
 
       {/* Bottom gradient overlay for text readability */}
@@ -169,7 +171,7 @@ function ProgramCard({
 
       {/* Full content — text block (bottom-left). Fades out when collapsed. */}
       <div
-        className="absolute inset-x-0 bottom-0 flex flex-col px-4 pb-6 lg:px-8 lg:pb-10"
+        className="absolute inset-x-0 bottom-0 flex flex-col px-4 pb-6 lg:px-6 lg:pb-10"
         style={{
           opacity: collapsed ? 0 : 1,
           transition: "opacity 0.35s ease",
@@ -187,33 +189,38 @@ function ProgramCard({
         </span>
 
         <h3
-          className="headline text-[15px] leading-[1.16] text-white lg:text-[29px] lg:leading-[1.12]"
+          className="headline text-[15px] leading-[1.16] text-white lg:text-[19px] lg:leading-[1.18]"
           style={{ fontWeight: 600, letterSpacing: "-0.4px" }}
         >
           {card.title}
         </h3>
 
-        <p className="mt-3 text-sm text-white lg:mt-4 lg:text-lg">{card.author}</p>
-        <p
-          className="mt-1 text-xs lg:text-[15px]"
-          style={{ color: "#56C3E5", fontWeight: 300 }}
-        >
-          {card.role}
-        </p>
+        <p className="mt-3 text-sm text-white lg:mt-3 lg:text-base">{card.author}</p>
 
-        {/* Year — desktop only, baseline bottom-right (unchanged desktop look). */}
-        <span
-          className="absolute bottom-10 right-8 hidden shrink-0 tabular-nums leading-none lg:block"
-          style={{
-            fontFamily: "var(--font-sora), sans-serif",
-            fontSize: "clamp(1.25rem, 1.5vw, 1.6rem)",
-            fontWeight: 300,
-            letterSpacing: "-0.02em",
-            color: "rgba(255,255,255,0.6)",
-          }}
-        >
-          {card.year}
-        </span>
+        {/* Role + year on one baseline-aligned row so the (long) role text
+            can never run underneath the year — the year reserves its space. */}
+        <div className="mt-1 flex items-end justify-between gap-3">
+          <p
+            className="min-w-0 text-xs lg:text-[15px]"
+            style={{ color: "#56C3E5", fontWeight: 300 }}
+          >
+            {card.role}
+          </p>
+
+          {/* Year — desktop only */}
+          <span
+            className="hidden shrink-0 translate-y-[1px] tabular-nums leading-none lg:block"
+            style={{
+              fontFamily: "var(--font-sora), sans-serif",
+              fontSize: "clamp(1.05rem, 1.2vw, 1.35rem)",
+              fontWeight: 300,
+              letterSpacing: "-0.02em",
+              color: "rgba(255,255,255,0.6)",
+            }}
+          >
+            {card.year}
+          </span>
+        </div>
       </div>
 
       {/* Year — mobile, top-right corner of the expanded card. */}

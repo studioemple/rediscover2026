@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useContent } from "@/components/i18n/LanguageProvider";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
 type YearSpec = { value: number; col: number; ext?: string };
@@ -17,6 +18,7 @@ const YEARS: YearSpec[] = [
 const CHAPTER_TEXT = "The Next Chapter";
 
 export function IntroSequence({ onComplete }: { onComplete: () => void }) {
+  const { heroCopy } = useContent();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const yearBgRefs = useRef<(HTMLDivElement | null)[]>([]);
   const yearRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -209,11 +211,12 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
             );
           }
           if (heroCta) {
+            // Clear fade-in-up as the final beat (slides up + fades in).
             mt.fromTo(
               heroCta,
-              { autoAlpha: 0, filter: "blur(8px)", y: 12 },
-              { autoAlpha: 1, filter: "blur(0px)", y: 0, duration: 0.55, ease: "expo.out" },
-              0.98,
+              { autoAlpha: 0, filter: "blur(6px)", y: 34 },
+              { autoAlpha: 1, filter: "blur(0px)", y: 0, duration: 0.7, ease: "expo.out" },
+              1.0,
             );
           }
 
@@ -460,7 +463,7 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
             /* Mobile crop framing: 22 nudged left, 23/24/25 nudged right.
                Desktop keeps the centred crop. */
             className={`object-cover lg:object-center ${
-              i === 0 ? "object-[35%_50%]" : "object-[65%_50%]"
+              i === 0 ? "object-[20%_50%]" : "object-[65%_50%]"
             }`}
             style={{ filter: "grayscale(1)" }}
           />
@@ -546,7 +549,7 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
             color: "#303030",
           }}
         >
-          5th EDITION
+          {heroCopy.edition}
         </p>
         <p
           data-b-item
@@ -561,7 +564,7 @@ export function IntroSequence({ onComplete }: { onComplete: () => void }) {
             color: "#303030",
           }}
         >
-          November, 2026
+          {heroCopy.date}
         </p>
         <p
           data-b-item

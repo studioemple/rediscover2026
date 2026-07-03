@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useContent } from "@/components/i18n/LanguageProvider";
 import {
   ensureGsap,
   gsap,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/animations";
 
 export function AftermovieSection() {
+  const { heroCopy } = useContent();
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -108,7 +110,7 @@ export function AftermovieSection() {
         ref={labelRef}
         className="pointer-events-none absolute top-10 left-1/2 z-20 max-w-[calc(100vw-2rem)] -translate-x-1/2 whitespace-nowrap rounded-full border border-hairline bg-paper/80 px-5 py-2 text-[11px] uppercase tracking-[0.18em] text-ink-soft backdrop-blur-md lg:top-16 lg:text-xs lg:tracking-[0.28em]"
       >
-        Rediscover 2025 Aftermovie
+        {heroCopy.aftermovieLabel}
       </div>
 
       <div

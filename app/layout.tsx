@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Sora, Inter } from "next/font/google";
+import { LanguageProvider } from "@/components/i18n/LanguageProvider";
 import "./globals.css";
 
 const sora = Sora({
@@ -16,15 +17,17 @@ const inter = Inter({
   display: "swap",
 });
 
+// Default (English) metadata for first paint / crawlers. The language switcher
+// updates document.title + meta description client-side for HR / SLO.
 export const metadata: Metadata = {
-  title: "Rediscover 2026 The Biggest Hotel-Tech Event in the Region",
+  title: "Rentlio Rediscover 2026 | Regional Hotel-Tech Event",
   description:
-    "Where leaders meet technology. The 5th edition of Rediscover takes place in November 2026 at Falkensteiner Punta Skala Resort, Zadar.",
+    "The 5th Rediscover, the region's biggest hotel-tech event. November 2026, Falkensteiner Punta Skala.",
   metadataBase: new URL("https://rediscover.rentl.io"),
   openGraph: {
-    title: "Rediscover 2026 What now?",
+    title: "Rentlio Rediscover 2026 | Regional Hotel-Tech Event",
     description:
-      "The biggest hotel-tech event in the region. November 2026 · Falkensteiner Punta Skala Resort, Zadar.",
+      "The 5th Rediscover, the region's biggest hotel-tech event. November 2026, Falkensteiner Punta Skala.",
     type: "website",
   },
 };
@@ -36,7 +39,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${sora.variable} ${inter.variable}`}>
-      <body className="bg-paper text-ink antialiased" suppressHydrationWarning>{children}</body>
+      <body className="bg-paper text-ink antialiased" suppressHydrationWarning>
+        <LanguageProvider>{children}</LanguageProvider>
+      </body>
     </html>
   );
 }

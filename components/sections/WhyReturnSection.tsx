@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
-import { whyReturn } from "@/lib/content";
+import { useContent } from "@/components/i18n/LanguageProvider";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
 // Diagonal cut at the bottom-right corner (notch like the testimonial cards).
@@ -11,6 +11,7 @@ const WHY_CUT = 30; // px
 const WHY_CUT_CLIP = `polygon(0 0, 100% 0, 100% calc(100% - ${WHY_CUT}px), calc(100% - ${WHY_CUT}px) 100%, 0 100%)`;
 
 export function WhyReturnSection() {
+  const { whyReturn } = useContent();
   // One tile is always open; first one by default.
   const [active, setActive] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
@@ -104,7 +105,7 @@ export function WhyReturnSection() {
                 <button
                   type="button"
                   aria-expanded={isActive}
-                  className="flex w-full items-center gap-4 px-5 py-5 text-left lg:gap-7 lg:px-9 lg:py-7"
+                  className="flex w-full items-center gap-4 px-5 py-4 text-left lg:gap-7 lg:px-9 lg:py-7"
                   style={{ cursor: "pointer" }}
                 >
                   {/* Index */}
@@ -169,7 +170,7 @@ export function WhyReturnSection() {
                 >
                   <div className="min-h-0 overflow-hidden">
                     <p
-                      className="pb-6 pl-[calc(clamp(1.5rem,2.4vw,2.25rem)+1.25rem)] pr-12 text-[16px] leading-[1.55] text-ink-soft lg:pb-8 lg:pl-[calc(clamp(1.5rem,2.4vw,2.25rem)+1.75rem)] lg:pr-16 lg:text-[18px]"
+                      className="pb-5 pl-5 pr-5 text-[15px] leading-[1.5] text-ink-soft lg:pb-8 lg:pl-[calc(clamp(1.5rem,2.4vw,2.25rem)+1.75rem)] lg:pr-16 lg:text-[18px] lg:leading-[1.55]"
                       style={{
                         opacity: isActive ? 1 : 0,
                         transform: isActive

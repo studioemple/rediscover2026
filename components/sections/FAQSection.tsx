@@ -3,9 +3,10 @@
 import { useRef, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
-import { faqs } from "@/lib/content";
+import { useContent } from "@/components/i18n/LanguageProvider";
 
 export function FAQSection() {
+  const { faqs, faqHeading } = useContent();
   const [open, setOpen] = useState<number | null>(0);
 
   return (
@@ -13,7 +14,7 @@ export function FAQSection() {
       <Container className="flex flex-col items-center">
         <WordReveal
           as="h2"
-          text="Frequently Asked Questions"
+          text={faqHeading}
           className="section-headline text-center text-ink 2xl:whitespace-nowrap"
         />
 
@@ -57,11 +58,11 @@ function FAQItem({
         type="button"
         onClick={onToggle}
         aria-expanded={isOpen}
-        className="flex w-full items-center justify-between gap-6 py-6 text-left transition-colors duration-300 hover:opacity-70 lg:py-8"
+        className="flex w-full items-center justify-between gap-4 py-6 text-left transition-colors duration-300 hover:opacity-70 lg:gap-6 lg:py-8"
         style={{ cursor: "pointer" }}
       >
         <span
-          className="headline text-[20px] leading-[1.3] text-ink lg:text-[26px]"
+          className="headline text-[17px] leading-[1.25] text-ink lg:text-[26px] lg:leading-[1.3]"
           style={{ fontWeight: 500, letterSpacing: "-0.01em" }}
         >
           {q}
@@ -92,7 +93,7 @@ function FAQItem({
       >
         <div className="min-h-0 overflow-hidden">
           <p
-            className="pb-7 pr-12 text-[17px] leading-[1.55] text-ink-soft lg:pb-9 lg:text-[19px]"
+            className="pb-7 pr-4 text-[15px] leading-[1.5] text-ink-soft lg:pb-9 lg:pr-12 lg:text-[19px] lg:leading-[1.55]"
             style={{
               opacity: isOpen ? 1 : 0,
               transform: isOpen ? "translateY(0)" : "translateY(-8px)",

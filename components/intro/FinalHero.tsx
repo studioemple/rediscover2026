@@ -3,7 +3,8 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
-import { heroCopy, event } from "@/lib/content";
+import { useContent } from "@/components/i18n/LanguageProvider";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { gsap, ensureGsap, prefersReducedMotion } from "@/lib/animations";
 
 /* ─── Background geometry ─── */
@@ -53,6 +54,7 @@ function StarRow() {
 
 /* ─── FinalHero ─── */
 export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string; shouldAnimate?: boolean }) {
+  const { heroCopy, event } = useContent();
   const sectionRef   = useRef<HTMLDivElement>(null);
   const brandRef     = useRef<HTMLDivElement>(null);
   const rediscoverRef = useRef<HTMLHeadingElement>(null);
@@ -61,7 +63,6 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
   const starsRef     = useRef<HTMLDivElement>(null);
   const venueLineRef = useRef<HTMLParagraphElement>(null);
   const ctasRef      = useRef<HTMLDivElement>(null);
-  const scrollRef    = useRef<HTMLDivElement>(null);
 
   // The venue wrapper itself stays visible (layout container); its stars +
   // line are hidden/animated individually so the intro can morph the venue
@@ -75,7 +76,6 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
       starsRef.current,
       venueLineRef.current,
       ctasRef.current,
-      scrollRef.current,
     ].filter(Boolean);
 
   useEffect(() => {
@@ -112,12 +112,15 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
       {/* HeroGeometry removed — page-wide PageGeometry now provides the
           geometric backdrop across the entire site. */}
 
-      {/* Small Rentlio brand mark, pinned near the top of the hero */}
+      {/* Rentlio brand mark. Shares a fixed-height band (h-9) with the language
+          switcher so both sit on the exact same horizontal line regardless of
+          their differing intrinsic heights. Mobile: pinned LEFT. Desktop:
+          centered. */}
       <div
         ref={brandRef}
         data-hero="brand"
         aria-label="Rentlio"
-        className="absolute left-1/2 top-7 z-10 -translate-x-1/2 lg:top-10"
+        className="absolute left-4 top-5 z-10 flex h-9 items-center lg:left-1/2 lg:top-8 lg:-translate-x-1/2"
       >
         <Image
           src="/rentlio-logo.svg"
@@ -126,6 +129,11 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
           height={76}
           className="h-[22px] w-auto lg:h-6"
         />
+      </div>
+
+      {/* Language switcher — same top-band as the brand mark (top-right). */}
+      <div className="absolute right-4 top-5 z-20 flex h-9 items-center lg:right-8 lg:top-8">
+        <LanguageSwitcher />
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center px-6 text-center">
@@ -137,13 +145,13 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
           className="mb-8 flex flex-col items-center lg:mb-10"
           style={{ color: "#303030", fontFamily: "var(--font-sora), sans-serif" }}
         >
-          <p data-hero="edition" style={{ fontSize: "clamp(15px, 4.3vw, 26px)", fontWeight: 300, lineHeight: 1.2 }}>5th EDITION</p>
+          <p data-hero="edition" style={{ fontSize: "clamp(15px, 4.3vw, 26px)", fontWeight: 300, lineHeight: 1.2 }}>{heroCopy.edition}</p>
           <p
             data-hero="date"
             className="whitespace-nowrap"
             style={{ fontSize: "clamp(26px, 7vw, 48px)", fontWeight: 300, letterSpacing: "-0.038em", lineHeight: 1.2 }}
           >
-            November, 2026
+            {heroCopy.date}
           </p>
         </div>
 
@@ -215,30 +223,6 @@ export function FinalHero({ id = "hero", shouldAnimate = false }: { id?: string;
         </div>
       </div>
 
-      {/* Scroll hint — floats gently */}
-      <div
-        ref={scrollRef}
-        data-hero="scroll"
-        className="absolute bottom-10 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-3 md:flex"
-        style={{ animation: "heroFloat 3s ease-in-out infinite" }}
-      >
-        <span style={{
-          fontFamily: "var(--font-inter), sans-serif",
-          fontSize: 11, fontWeight: 400,
-          letterSpacing: "0.3em", textTransform: "uppercase",
-          color: "#303030", opacity: 0.45,
-        }}>
-          {heroCopy.scrollHint}
-        </span>
-        <span className="block h-16 w-px" style={{ background: "#D9D9D9" }} aria-hidden />
-      </div>
-
-      <style>{`
-        @keyframes heroFloat {
-          0%, 100% { transform: translateX(-50%) translateY(0px); }
-          50%       { transform: translateX(-50%) translateY(10px); }
-        }
-      `}</style>
     </section>
   );
 }

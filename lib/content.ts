@@ -11,10 +11,12 @@ export const event = {
 export const introYears = ["2022", "2023", "2024", "2025"] as const;
 
 export const heroCopy = {
-  edition: "5th Edition · November 2026",
-  question: "What now?",
-  location: "Falkensteiner Punta Skala Resort · Zadar",
+  edition: "5th EDITION",
+  date: "November 2026",
+  headline: "The Next Chapter",
+  venue: "Falkensteiner Punta Skala Resort  •  Zadar, Petrčane",
   scrollHint: "Scroll to discover",
+  aftermovieLabel: "Rediscover 2025 Aftermovie",
 };
 
 export const stats = [
@@ -25,12 +27,12 @@ export const stats = [
 
 export const valueProp = {
   eyebrow: "Rediscover so far",
-  bigHeadline: "The biggest hotel-tech\nevent in the region.",
-  body: "A unique 5-star experience for hospitality professionals. 2 days filled with practical keynotes, workshops and networking.",
+  bigHeadline: "The largest hotel tech\nevent in the region",
+  body: "A unique five-star experience for hospitality professionals. Two days of practical keynotes, workshops, and networking.",
   stats: [
     { value: 1100, suffix: "+", label: "hospitality\nprofessionals" },
-    { value: 400, suffix: "+", label: "hotels and\ntech-companies" },
-    { value: 40, suffix: "+", label: "technology\npartners" },
+    { value: 300, suffix: "+", label: "hotels and\ntech companies" },
+    { value: 20, suffix: "+", label: "technology\npartners" },
   ],
   topics: [
     "Digitalization",
@@ -72,11 +74,11 @@ export const whyReturn = {
       body: "No buzzwords. Just practical knowledge, real examples, and lessons you can apply immediately.",
     },
     {
-      title: "Meet the People Behind The Ideas",
+      title: "Meet the People Behind the Ideas",
       body: "Connect directly with hotel owners, operators, technology providers, and hospitality professionals who are driving change across the industry.",
     },
     {
-      title: "Find Your Next Competitive Advantage",
+      title: "Gain Your Next Competitive Advantage",
       body: "Discover new tools, strategies, and partnerships that can help your business grow faster and operate smarter.",
     },
   ],
@@ -86,6 +88,10 @@ export type Speaker = {
   slug: string;
   name: string;
   role?: string;
+  /** Featured cards split the role into position + company (each on its
+   *  own line). Falls back to `role` when these are absent. */
+  position?: string;
+  company?: string;
   session?: string;
   sessionTitle?: string;
   video?: string;
@@ -94,7 +100,8 @@ export type Speaker = {
 export const speakers = {
   eyebrow: "Speakers through the years",
   bigHeadline: "Voices That Shape the\nHospitality Industry",
-  body: "Rediscover surfaces the operators, founders, and builders defining where hospitality goes next with their stories and stakes attached.",
+  body: "Meet the operators, founders, and builders shaping the future of hospitality through real stories and hands-on experience.",
+  viewAllCta: "View All Speakers",
   cardLabel: "5th Edition speakers",
   cardSubtitle: "Lineup announced throughout 2026",
   byYear: {
@@ -112,14 +119,14 @@ export const speakers = {
       { slug: "mladen-fernezir", name: "Mladen Fernežir", role: "Co-Founder & Lead Data Scientist, Velebit AI", video: "https://youtu.be/9SYzZJkdyok" },
       { slug: "ivan-brezak-brkan", name: "Ivan Brezak Brkan", role: "Director of Developer Content, Infobip", video: "https://youtu.be/9SYzZJkdyok" },
       { slug: "roberto-gobo", name: "Roberto Gobo", role: "Director of Digitalization, Valamar Riviera", video: "https://youtu.be/9SYzZJkdyok" },
-      { slug: "paul-jeszenszky", name: "Paul Jeszenszky", role: "Founder, Advisor, ex Airbnb, Google, Ebay", video: "https://youtu.be/cuXeyMYCNJo" },
+      { slug: "paul-jeszenszky", name: "Paul Jeszenszky", role: "Founder, Advisor, ex Airbnb, Google, eBay", video: "https://youtu.be/cuXeyMYCNJo" },
     ] as Speaker[],
     "2024": [
       { slug: "marko-misulic", name: "Marko Mišulić", role: "CEO, Rentlio", video: "https://youtu.be/MITcRT-CBas" },
       { slug: "chris-willette", name: "Chris Willette", role: "Business Development, Worldline", video: "https://youtu.be/E0SkDW-2QCs" },
       { slug: "damir-knezevic", name: "Damir Knežević", role: "CEO, Hoteza Europe", video: "https://youtu.be/E0SkDW-2QCs" },
       { slug: "filip-gerin", name: "Filip Gerin", role: "Product Manager, Rentlio", video: "https://youtu.be/E0SkDW-2QCs" },
-      { slug: "diana-rubic-radman", name: "Diana Rubić Radman", role: "General Manager, hotel Marvie", video: "https://youtu.be/ul4PtX0MQJs" },
+      { slug: "diana-rubic-radman", name: "Diana Rubić Radman", role: "General Manager, Hotel Marvie", video: "https://youtu.be/ul4PtX0MQJs" },
       { slug: "pankracije-barac", name: "Pankracije Barać", role: "Head of Engineering, Rentlio", video: "https://youtu.be/ul4PtX0MQJs" },
       { slug: "elena-klouda", name: "Elena Klouda", role: "Market Director, The Hotels Network", video: "https://youtu.be/WHj1Pj5Up7U" },
       { slug: "ivan-brezak-brkan", name: "Ivan Brezak Brkan", role: "Director of Developer Content, Infobip", video: "https://youtu.be/yx-E7G7kV_g" },
@@ -144,7 +151,7 @@ export const speakers = {
       { slug: "neven-matas", name: "Neven Matas", role: "Cybersecurity Director, Infinum", video: "https://youtu.be/5siTFe_V4Go" },
       { slug: "filip-gerin", name: "Filip Gerin", role: "Product Manager, Rentlio", video: "https://youtu.be/5siTFe_V4Go" },
       { slug: "mario-kostelac", name: "Mario Kostelac", role: "Principal Machine Learning Engineer, Intercom", video: "https://youtu.be/i-eGGjkb2d8" },
-      { slug: "sanja-sudar", name: "Sanja Sudar", role: "Head of Sales, Rentlio", video: "https://youtu.be/MTn4CiOhme0" },
+      { slug: "sanja-sudar", name: "Sanja Sudar", role: "Head of Business Development, Rentlio", video: "https://youtu.be/MTn4CiOhme0" },
       { slug: "marko-henrik-marinsek", name: "Marko Henrik Marinšek", role: "Country Manager, Worldline", video: "https://youtu.be/MTn4CiOhme0" },
     ] as Speaker[],
   },
@@ -152,15 +159,15 @@ export const speakers = {
      Each item points at the (year, slug) pair so the existing image lookup
      under /public/speakers/{year}/{slug}.png keeps working. */
   featured: [
-    { year: "2025", slug: "marko-misulic",          name: "Marko Mišulić",         role: "CEO, Rentlio",                              video: "https://youtu.be/i_ePFwcxflw" },
-    { year: "2025", slug: "tommaso-centonze",       name: "Tommaso Centonze",      role: "COO & Co-Founder, Smartness",               video: "https://youtu.be/8FaYD4ldVoQ" },
-    { year: "2025", slug: "lisa-hartley",           name: "Lisa Hartley",          role: "Strategic Account Manager, SiteMinder",     video: "https://youtu.be/X6FoXKgk77Y" },
-    { year: "2025", slug: "mario-kostelac",         name: "Mario Kostelac",        role: "Principal ML Engineer, Intercom",           video: "https://youtu.be/i-eGGjkb2d8" },
-    { year: "2024", slug: "chris-willette",         name: "Chris Willette",        role: "Business Development, Worldline",           video: "https://youtu.be/E0SkDW-2QCs" },
-    { year: "2024", slug: "elena-klouda",           name: "Elena Klouda",          role: "Market Director, The Hotels Network",       video: "https://youtu.be/WHj1Pj5Up7U" },
-    { year: "2024", slug: "joana-pires-coelho",     name: "Joana Pires Coelho",    role: "Solutions Consultant",                      video: "https://youtu.be/4oyKwecs9Pg" },
-    { year: "2023", slug: "erlendur-steinn-gudnason", name: "Erlendur Steinn Gudnason", role: "Co-Founder & COO, Sweeply",           video: "https://youtu.be/Y1voTXyBkp8" },
-    { year: "2023", slug: "paul-jeszenszky",        name: "Paul Jeszenszky",       role: "Founder · ex Airbnb, Google, Ebay",         video: "https://youtu.be/cuXeyMYCNJo" },
+    { year: "2025", slug: "marko-misulic",          name: "Marko Mišulić",         position: "CEO",                        company: "Rentlio",              video: "https://youtu.be/i_ePFwcxflw" },
+    { year: "2025", slug: "tommaso-centonze",       name: "Tommaso Centonze",      position: "COO & Co-Founder",           company: "Smartness",            video: "https://youtu.be/8FaYD4ldVoQ" },
+    { year: "2025", slug: "lisa-hartley",           name: "Lisa Hartley",          position: "Strategic Account Manager",  company: "SiteMinder",           video: "https://youtu.be/X6FoXKgk77Y" },
+    { year: "2025", slug: "mario-kostelac",         name: "Mario Kostelac",        position: "Principal ML Engineer",      company: "Intercom",             video: "https://youtu.be/i-eGGjkb2d8" },
+    { year: "2024", slug: "chris-willette",         name: "Chris Willette",        position: "Business Development",       company: "Worldline",            video: "https://youtu.be/E0SkDW-2QCs" },
+    { year: "2024", slug: "elena-klouda",           name: "Elena Klouda",          position: "Market Director",            company: "The Hotels Network",   video: "https://youtu.be/WHj1Pj5Up7U" },
+    { year: "2024", slug: "joana-pires-coelho",     name: "Joana Pires Coelho",    position: "Solutions Consultant",       company: "PriceLabs",            video: "https://youtu.be/4oyKwecs9Pg" },
+    { year: "2023", slug: "erlendur-steinn-gudnason", name: "Erlendur Steinn Gudnason", position: "Co-Founder & COO",       company: "Sweeply",              video: "https://youtu.be/Y1voTXyBkp8" },
+    { year: "2023", slug: "paul-jeszenszky",        name: "Paul Jeszenszky",       position: "Founder · Advisor",          company: "ex Airbnb, Google, eBay", video: "https://youtu.be/cuXeyMYCNJo" },
   ] as Array<{ year: "2022" | "2023" | "2024" | "2025" } & Speaker>,
 };
 
@@ -168,7 +175,7 @@ export const speakers = {
 export const program = {
   eyebrow: "No buzzwords. Just real insights",
   bigHeadline: "Learn What Actually Works",
-  body: "Every session is built around practical insights, real-world examples, and lessons learned in the field. Expect actionable takeaways, honest conversations, and ideas that can help you drive growth, profitability, and better guest experiences.",
+  body: "Every session is built around practical insights, real-world examples, and lessons learned in the field. You'll leave with practical ideas, honest conversations, and examples you can apply in your own hotel.",
   cards: [
     {
       image: "/voices/talk-1.png",
@@ -179,22 +186,6 @@ export const program = {
       video: "https://www.youtube.com/watch?v=i_ePFwcxflw",
     },
     {
-      image: "/voices/talk-2.png",
-      title: "Tech-Driven Direct Channel Growth",
-      author: "Elena Klouda",
-      role: "Market Director · The Hotels Network",
-      year: "2024",
-      video: "https://www.youtube.com/watch?v=WHj1Pj5Up7U",
-    },
-    {
-      image: "/voices/talk-3.png",
-      title: "Learnings from a $500M budget",
-      author: "Paul Jeszenszky",
-      role: "Founder · Advisor ex Airbnb, Google, Ebay",
-      year: "2023",
-      video: "https://www.youtube.com/watch?v=cuXeyMYCNJo",
-    },
-    {
       image: "/voices/talk-4.png",
       title: "Turning 2026 Traveler Data into Revenue Opportunities",
       author: "Lisa Hartley",
@@ -202,14 +193,33 @@ export const program = {
       year: "2025",
       video: "https://www.youtube.com/watch?v=X6FoXKgk77Y",
     },
+    {
+      image: "/voices/talk-2.png",
+      title: "Tech-Driven Direct Channel Growth",
+      author: "Elena Klouda",
+      role: "Market Director · The Hotels Network",
+      year: "2024",
+      video: "https://www.youtube.com/watch?v=WHj1Pj5Up7U",
+      // Elena stands on the right of the photo — shift the crop right so she
+      // stays in frame instead of being cut by the default centre crop.
+      imgFocus: "70% 50%",
+    },
+    {
+      image: "/voices/talk-3.png",
+      title: "Learnings from a $500M budget",
+      author: "Paul Jeszenszky",
+      role: "Founder · Former advisor at Airbnb, Google, eBay",
+      year: "2023",
+      video: "https://www.youtube.com/watch?v=cuXeyMYCNJo",
+    },
   ],
   watchPlaylists: [
     {
-      label: "Watch 2025 sessions",
+      label: "Watch the 2025 sessions",
       href: "https://www.youtube.com/playlist?list=PL6IGyxnXxgH13uj0XDGU4DgjZ28Pi2T0i",
     },
     {
-      label: "Watch 2024 sessions",
+      label: "Watch the 2024 sessions",
       href: "https://www.youtube.com/playlist?list=PL6IGyxnXxgH0uaKKwJs-Ct-49CCLbOtwn",
     },
   ],
@@ -220,7 +230,7 @@ export const testimonials = {
   bigHeadline: "Hear It From the Hoteliers",
   quotes: [
     { text: "Beyond expectations and truly inspiring!" },
-    { text: "All 5 stars, hope to see you next year!" },
+    { text: "Five stars across the board. Hope to see you next year!" },
     { text: "Flawless organization, I have no complaints." },
     { text: "Keep going, the event is getting better and better each year." },
     { text: "Keep up the great work, everything else will follow naturally." },
@@ -281,13 +291,15 @@ export const partners = {
 };
 
 export const register = {
-  bigHeadline: "Join the waitlist\nfor early access\nand updates about\nRediscover.",
+  bigHeadline: "Join the\nwaitlist to get\nearly access and\nRediscover updates.",
   cta: "Join the waiting list",
   altCta: "Watch the 2025 aftermovie",
   emailPlaceholder: "you@hotel.com",
   rolePlaceholder: "Your role",
   success: "You're on the list.",
 };
+
+export const faqHeading = "Frequently Asked Questions";
 
 export const faqs = [
   {
@@ -296,19 +308,19 @@ export const faqs = [
   },
   {
     q: "Who organizes Rentlio Rediscover?",
-    a: "Rentlio Rediscover is organized by Rentlio a tech company based in Zadar that has been successfully digitalizing tourism for over a decade by developing its own Property Management, Channel Management, and Booking Engine system, and many other tools.",
+    a: "Rentlio Rediscover is organized by Rentlio, a tech company based in Zadar. We have been successfully digitizing the regional hospitality industry for over a decade by developing modern cloud solutions - Rentlio Pro PMS, Channel Manager, Booking Engine, and many other tools.",
   },
   {
     q: "When and where is Rentlio Rediscover held?",
-    a: "Rentlio Rediscover takes place in November at the Fortis Club, located within the Falkensteiner Punta Skala Resort in Petrčane, near Zadar.",
+    a: "Rentlio Rediscover takes place in November at the Fortis Club, located within the Falkensteiner Punta Skala Resort in Petrčane, near Zadar. The exact date of this year's event will be announced soon.",
   },
   {
     q: "How do I register and what's the cost?",
-    a: "Rentlio Rediscover is an invite-only event with a limited number of guests. Participation and accommodation are free of charge for all invited attendees. If you haven't received an invitation but would like to attend the event, please join the waiting list and we will get back to you with more information.",
+    a: "Rentlio Rediscover is an invite-only event with a limited number of guests. We send invitations to specific audiences - primarily the independent hoteliers from the region. If you haven't received an invitation but would like to get an opportunity to attend the event, please join the waiting list and we will get back to you with more information as the event approaches.",
   },
   {
     q: "What is the Rentlio Pop-Up Office?",
-    a: "Modern guests and technology go hand in hand, so we've prepared a dedicated space where you'll have the opportunity to meet with members of the Rentlio team and our technology partners.",
+    a: "Technology is now an essential part of the guest experience, which is why we've created a dedicated space where attendees can meet the Rentlio team and our technology partners. The Pop-Up Office is located in the Fortis Club lobby, right at the heart of the event, making it easy to stop by for conversations, product demos, and expert advice throughout the day.",
   },
   {
     q: "How can my company participate?",
@@ -318,6 +330,8 @@ export const faqs = [
 
 export const footer = {
   email: "rediscover@rentl.io",
-  website: "rentl.io",
+  website: "www.rentl.io",
   websiteUrl: "https://www.rentl.io",
+  rights: "All rights reserved.",
+  privacy: "Privacy Policy",
 };

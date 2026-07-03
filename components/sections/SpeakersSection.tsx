@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
-import { speakers, type Speaker } from "@/lib/content";
+import { type Speaker } from "@/lib/content";
+import { useContent } from "@/components/i18n/LanguageProvider";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
 const YEARS = ["2022", "2023", "2024", "2025"] as const;
@@ -13,6 +14,7 @@ type Year = (typeof YEARS)[number];
 type FeaturedSpeaker = Speaker & { year: Year };
 
 export function SpeakersSection() {
+  const { speakers } = useContent();
   const stripRef = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -44,18 +46,15 @@ export function SpeakersSection() {
     }
 
     const ctx = gsap.context(() => {
-      gsap.set(cards, {
-        autoAlpha: 0,
-        x: 90,
-        filter: "blur(10px)",
-      });
+      // Fade + gentle rise (no blur / no horizontal move — both janked the
+      // entrance on the horizontal strip).
+      gsap.set(cards, { autoAlpha: 0, y: 26, force3D: true });
       gsap.to(cards, {
         autoAlpha: 1,
-        x: 0,
-        filter: "blur(0px)",
-        duration: 0.95,
-        ease: "expo.out",
-        stagger: { each: 0.08, from: "end" },
+        y: 0,
+        duration: 0.7,
+        ease: "power3.out",
+        stagger: { each: 0.06, from: "end" },
         scrollTrigger: {
           trigger: stripRef.current,
           start: "top 82%",
@@ -177,7 +176,7 @@ export function SpeakersSection() {
               cursor: "pointer",
             }}
           >
-            Check all speakers
+            {speakers.viewAllCta}
             <svg
               width="14"
               height="14"
@@ -306,8 +305,10 @@ function SpeakerCard({
         </span>
       )}
 
-      {/* Content */}
-      <div className="absolute inset-x-0 bottom-0 px-4 pb-4 text-left lg:px-6 lg:pb-6">
+      {/* Content — extra right padding on desktop so the text wraps within the
+          visible part of each (overlapping) card instead of being clipped by
+          the next card. */}
+      <div className="absolute inset-x-0 bottom-0 px-4 pb-4 text-left lg:pb-6 lg:pl-6 lg:pr-9">
         {/* Play button — always shown on touch; hover-reveal on desktop.
             Only for cards with a video. */}
         {speaker.video && (
@@ -320,18 +321,30 @@ function SpeakerCard({
           </div>
         )}
 
+        {/* Name — always two lines (first name / surname) for a uniform grid */}
         <h3
-          className="headline text-[16px] leading-[1.2] text-white lg:text-[19px]"
+          className="headline text-[17px] leading-[1.14] text-white lg:text-[16px]"
           style={{ fontWeight: 600, letterSpacing: "-0.4px" }}
         >
-          {speaker.name}
+          <span className="block">{speaker.name.split(" ")[0]}</span>
+          <span className="block">{speaker.name.split(" ").slice(1).join(" ")}</span>
         </h3>
-        {speaker.role && (
+
+        {/* Position, then company underneath */}
+        {(speaker.position ?? speaker.role) && (
           <p
-            className="mt-1 text-[12px] leading-[1.35] lg:text-sm"
-            style={{ color: "#56C3E5", fontWeight: 300 }}
+            className="mt-1.5 text-[12px] leading-[1.22] lg:mt-2 lg:text-[11px]"
+            style={{ color: "#56C3E5", fontWeight: 400 }}
           >
-            {speaker.role}
+            {speaker.position ?? speaker.role}
+          </p>
+        )}
+        {speaker.company && (
+          <p
+            className="text-[12px] leading-[1.22] lg:text-[11px]"
+            style={{ color: "rgba(255,255,255,0.62)", fontWeight: 300 }}
+          >
+            {speaker.company}
           </p>
         )}
       </div>
@@ -401,6 +414,7 @@ function SpeakerCard({
 /* ──────────────────── All-speakers modal ──────────────────── */
 
 function AllSpeakersModal({ onClose }: { onClose: () => void }) {
+  const { speakers } = useContent();
   return (
     <div
       role="dialog"

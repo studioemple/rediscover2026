@@ -4,22 +4,23 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
-import { partners, partnerTierMeta, type PartnerTier } from "@/lib/content";
+import { type PartnerTier } from "@/lib/content";
+import { useContent } from "@/components/i18n/LanguageProvider";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
-/* Split the 12 partners into two rows — first 6 in row A (scrolls left),
-   last 6 in row B (scrolls right). */
-const ROW_A = partners.list.slice(0, 6);
-const ROW_B = partners.list.slice(6);
-
-/* Mobile splits the same partners into THREE shorter tracks so more logos
-   are on screen at once. */
-const M_THIRD = Math.ceil(partners.list.length / 3);
-const ROW_M1 = partners.list.slice(0, M_THIRD);
-const ROW_M2 = partners.list.slice(M_THIRD, M_THIRD * 2);
-const ROW_M3 = partners.list.slice(M_THIRD * 2);
+type PartnerItem = { name: string; logo: string; tier: PartnerTier };
 
 export function PartnersSection() {
+  const { partners } = useContent();
+
+  // Two rows on desktop; three shorter rows on mobile (more logos visible).
+  const ROW_A = partners.list.slice(0, 6);
+  const ROW_B = partners.list.slice(6);
+  const M_THIRD = Math.ceil(partners.list.length / 3);
+  const ROW_M1 = partners.list.slice(0, M_THIRD);
+  const ROW_M2 = partners.list.slice(M_THIRD, M_THIRD * 2);
+  const ROW_M3 = partners.list.slice(M_THIRD * 2);
+
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 1023px)");
@@ -126,17 +127,17 @@ export function PartnersSection() {
       <div className="mt-16 lg:mt-24">
         {isMobile ? (
           <>
-            <PartnerMarquee items={ROW_M1} direction="left" speed={52} />
+            <PartnerMarquee items={ROW_M1} direction="left" speed={52} delay={0} />
             <div className="mt-8" />
-            <PartnerMarquee items={ROW_M2} direction="right" speed={58} />
+            <PartnerMarquee items={ROW_M2} direction="right" speed={58} delay={0.18} />
             <div className="mt-8" />
-            <PartnerMarquee items={ROW_M3} direction="left" speed={46} />
+            <PartnerMarquee items={ROW_M3} direction="left" speed={46} delay={0.36} />
           </>
         ) : (
           <>
-            <PartnerMarquee items={ROW_A} direction="left" speed={70} />
+            <PartnerMarquee items={ROW_A} direction="left" speed={70} delay={0} />
             <div className="mt-10 lg:mt-14" />
-            <PartnerMarquee items={ROW_B} direction="right" speed={85} />
+            <PartnerMarquee items={ROW_B} direction="right" speed={85} delay={0.15} />
           </>
         )}
       </div>
@@ -148,47 +149,50 @@ function PartnerMarquee({
   items,
   direction,
   speed,
+  delay = 0,
 }: {
-  items: typeof partners.list;
+  items: readonly PartnerItem[];
   direction: "left" | "right";
   speed: number;
+  delay?: number;
 }) {
   // Triple the array to keep the marquee seamless on wide viewports.
   const repeated = [...items, ...items, ...items];
   const ref = useRef<HTMLDivElement>(null);
 
-  /* Entrance animation — logos fade in with stagger from END (DOM-rightmost
-     first), so visually the row reveals from RIGHT → LEFT before the
-     marquee scroll takes over. */
+  /* Entrance — the WHOLE row fades up as one unit (not per-tile, which
+     flickered against the marquee scroll). `delay` staggers the rows so they
+     appear one after another (first, then second, then third). */
   useEffect(() => {
     ensureGsap();
     if (!ref.current) return;
-    const tiles = ref.current.querySelectorAll<HTMLElement>(".partner-tile");
-    if (!tiles.length) return;
 
     if (prefersReducedMotion()) {
-      gsap.set(tiles, { autoAlpha: 1, x: 0 });
+      gsap.set(ref.current, { autoAlpha: 1 });
       return;
     }
 
     const ctx = gsap.context(() => {
-      gsap.set(tiles, { autoAlpha: 0, x: 40 });
-      gsap.to(tiles, {
-        autoAlpha: 1,
-        x: 0,
-        duration: 0.85,
-        ease: "expo.out",
-        stagger: { each: 0.04, from: "end" },
-        scrollTrigger: {
-          trigger: ref.current,
-          start: "top 88%",
-          once: true,
+      gsap.fromTo(
+        ref.current,
+        { autoAlpha: 0, y: 22 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.7,
+          ease: "power2.out",
+          delay,
+          scrollTrigger: {
+            trigger: ref.current,
+            start: "top 90%",
+            once: true,
+          },
         },
-      });
+      );
     }, ref);
 
     return () => ctx.revert();
-  }, []);
+  }, [delay]);
 
   return (
     <div
@@ -257,6 +261,7 @@ function PartnerMarquee({
 }
 
 function TierBadge({ tier }: { tier: PartnerTier }) {
+  const { partnerTierMeta } = useContent();
   const meta = partnerTierMeta[tier];
   return (
     <div className="flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-ink lg:text-sm">

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
 import { Button } from "@/components/ui/Button";
-import { audience, event } from "@/lib/content";
+import { useContent } from "@/components/i18n/LanguageProvider";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
 /* 6 large event photos positioned in the SIDE GUTTERS of the section.
@@ -31,7 +31,15 @@ const ORBIT_IMAGES: Tile[] = [
   { src: "/event/13.png",        side: "right", topPct: 78, offsetPct: 12, size: 310, rot:  5, dur: 8.0, delay: 1.5 },
 ];
 
+/* Mobile only — the same photos as a single-row marquee below the CTA, so the
+   section isn't empty on phones. Smaller than the gallery marquee. */
+const MOBILE_MARQUEE = ORBIT_IMAGES.map((t, i) => ({
+  src: t.src,
+  rot: i % 2 === 0 ? -2.5 : 2,
+}));
+
 export function AudienceSection() {
+  const { audience, event } = useContent();
   const titlesRef = useRef<HTMLDivElement>(null);
   const titleEls = useRef<(HTMLDivElement | null)[]>([]);
   const orbitRef = useRef<HTMLDivElement>(null);
@@ -221,6 +229,45 @@ export function AudienceSection() {
           <Button variant="primary">{event.registerCta}</Button>
         </a>
       </Container>
+
+      {/* Mobile-only photo marquee — fills the empty space below the CTA using
+          the same photos shown in the desktop side gutters. Single row, small
+          thumbs (smaller than the gallery marquee). */}
+      <div
+        aria-hidden
+        className="-mx-4 mt-12 md:hidden"
+        style={{ overflowX: "clip", overflowY: "visible" }}
+      >
+        <div
+          className="flex w-max shrink-0 gap-3 py-3"
+          style={{ animation: "marquee-left 38s linear infinite" }}
+        >
+          {[...MOBILE_MARQUEE, ...MOBILE_MARQUEE].map((item, i) => (
+            <div
+              key={`${item.src}-${i}`}
+              className="relative size-[148px] shrink-0"
+              style={{ transform: `rotate(${item.rot}deg)` }}
+            >
+              <div
+                className="absolute inset-0 overflow-hidden bg-surface"
+                style={{
+                  borderRadius: 16,
+                  boxShadow:
+                    "0 24px 50px -22px rgba(10,10,15,0.32), 0 8px 20px -10px rgba(10,10,15,0.16)",
+                }}
+              >
+                <Image
+                  src={item.src}
+                  alt=""
+                  fill
+                  sizes="148px"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <style>{`
         @keyframes orbitFloat0 {

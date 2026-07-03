@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
-import { valueProp } from "@/lib/content";
+import { useContent, useLang } from "@/components/i18n/LanguageProvider";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
 /* Bottom marquee runs a scrambled order (a derangement — no index keeps
@@ -11,12 +11,14 @@ import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
    same column. Combined with opposite scroll directions + different speeds,
    the two tracks always read as different text in the viewport. */
 const SCRAMBLE = [5, 8, 1, 10, 3, 6, 0, 9, 2, 7, 4];
-const topicsBottom =
-  SCRAMBLE.length === valueProp.topics.length
-    ? SCRAMBLE.map((i) => valueProp.topics[i])
-    : [...valueProp.topics].reverse();
 
 export function ValuePropSection() {
+  const { valueProp } = useContent();
+  const { lang } = useLang();
+  const topicsBottom =
+    SCRAMBLE.length === valueProp.topics.length
+      ? SCRAMBLE.map((i) => valueProp.topics[i])
+      : [...valueProp.topics].reverse();
   const statsRef = useRef<HTMLDivElement>(null);
 
   /* Count-up — all three numbers tick from 0 to their target together,
@@ -59,7 +61,10 @@ export function ValuePropSection() {
     }, statsRef);
 
     return () => ctx.revert();
-  }, []);
+    // Re-arm on language switch: the section re-renders (new labels shift the
+    // layout) so the count-up needs to reset + re-fire, otherwise the numbers
+    // get stuck at 0 after switching.
+  }, [lang]);
 
   return (
     <section className="relative overflow-hidden px-4 pt-20 pb-0 lg:pt-72 lg:pb-44">
@@ -82,7 +87,12 @@ export function ValuePropSection() {
           as="h2"
           text={valueProp.bigHeadline}
           className="section-headline mt-4 text-center text-ink lg:mt-6"
-          style={{ width: "min(1340px, 94vw)" }}
+          /* Slovenian headline is the longest — nudge the mobile size down so
+             it lands in 3 rows instead of 4 (desktop stays 72px). */
+          style={{
+            width: "min(1340px, 94vw)",
+            ...(lang === "sl" ? { fontSize: "clamp(2.05rem, 6vw, 72px)" } : {}),
+          }}
         />
 
         {/* Body */}

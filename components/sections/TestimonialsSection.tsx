@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
-import { testimonials } from "@/lib/content";
+import { useContent, useLang } from "@/components/i18n/LanguageProvider";
 import { cn } from "@/lib/cn";
 
 /* ─────────────────────────────────────────────────────────────────
@@ -14,14 +14,11 @@ import { cn } from "@/lib/cn";
    testimonials are anonymous attendee quotes.
    ───────────────────────────────────────────────────────────────── */
 
-type Quote = (typeof testimonials.quotes)[number] & { tempId: number };
-
-const INITIAL: Quote[] = testimonials.quotes.map((q, i) => ({
-  ...q,
-  tempId: i,
-}));
+type Quote = { text: string; tempId: number };
 
 export function TestimonialsSection() {
+  const { testimonials } = useContent();
+  const { lang } = useLang();
   return (
     <section className="relative pt-20 pb-20 lg:pt-44 lg:pb-44">
       <Container className="relative px-4">
@@ -41,9 +38,9 @@ export function TestimonialsSection() {
         </div>
       </Container>
 
-      {/* Stagger slider */}
+      {/* Stagger slider — keyed by language so it re-seeds on switch */}
       <div className="mt-6 lg:mt-12">
-        <StaggerTestimonials />
+        <StaggerTestimonials key={lang} quotes={testimonials.quotes} />
       </div>
     </section>
   );
@@ -51,9 +48,11 @@ export function TestimonialsSection() {
 
 /* ──────────────────── Stagger slider ──────────────────── */
 
-function StaggerTestimonials() {
+function StaggerTestimonials({ quotes }: { quotes: { text: string }[] }) {
   const [cardSize, setCardSize] = useState(365);
-  const [list, setList] = useState<Quote[]>(INITIAL);
+  const [list, setList] = useState<Quote[]>(() =>
+    quotes.map((q, i) => ({ ...q, tempId: i })),
+  );
   const dragStartX = useRef<number | null>(null);
   const swipedRef = useRef(false);
 
@@ -93,12 +92,13 @@ function StaggerTestimonials() {
   /* Cards are anchored to the TOP of the stage (small top pad) so the gap to
      the headline stays tight, while the arrow gap below is controlled
      separately — top and bottom spacing no longer fight each other. */
+  const cardHeight = Math.round(cardSize * 1.18); // taller than wide so quotes breathe
   const lift = Math.round(cardSize * 0.15);
   const sideY = Math.round(cardSize * 0.05);
   const arrowH = cardSize >= 340 ? 48 : 40;
   const arrowGap = cardSize >= 340 ? 52 : 40; // space between cards and arrows
   const TOP_PAD = 6;
-  const stageHeight = TOP_PAD + lift + sideY + cardSize + arrowGap + arrowH + 8;
+  const stageHeight = TOP_PAD + lift + sideY + cardHeight + arrowGap + arrowH + 8;
 
   return (
     <div
@@ -196,7 +196,7 @@ function StaggerCard({
       )}
       style={{
         width: cardSize,
-        height: cardSize,
+        height: Math.round(cardSize * 1.18),
         background: isCenter ? "#0A0A0F" : "#FFFFFF",
         color: isCenter ? "#F3F3F3" : "#0A0A0F",
         borderWidth: 2,

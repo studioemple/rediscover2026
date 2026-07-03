@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
-import { register } from "@/lib/content";
+import { useContent, useLang } from "@/components/i18n/LanguageProvider";
 import { ensureGsap, gsap, prefersReducedMotion } from "@/lib/animations";
 
 /* 6 large event photos in the side gutters around the title + form —
@@ -32,6 +32,8 @@ const ORBIT_IMAGES: Tile[] = [
 ];
 
 export function RegisterSection() {
+  const { register } = useContent();
+  const { lang } = useLang();
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const orbitRef = useRef<HTMLDivElement>(null);
@@ -159,8 +161,17 @@ export function RegisterSection() {
           text={register.bigHeadline}
           className="section-headline max-w-[900px] text-ink"
           /* Widen past the container padding on mobile + size up so each of
-             the 4 hard-break lines fills the width on one row (4 rows max). */
-          style={{ fontSize: "clamp(2rem, 9vw, 72px)", width: "min(900px, 94vw)" }}
+             the 4 hard-break lines fills the width on one row (4 rows max).
+             Slovenian words are longer (its last line "novosti o Rediscoverju."
+             is the widest of any language), so nudge the mobile size down for
+             SL only — desktop stays capped at 72px for every language. */
+          style={{
+            width: "min(900px, 94vw)",
+            fontSize:
+              lang === "sl"
+                ? "clamp(1.6rem, 7.1vw, 72px)"
+                : "clamp(2rem, 9vw, 72px)",
+          }}
         />
 
         {/* Big CTA pill */}
