@@ -69,12 +69,8 @@ const SL_TIER_LABELS: Record<C.PartnerTier, string> = {
 };
 
 // SLO program-card titles + roles (structural data reused from English).
-const SL_CARDS = [
-  { title: "Današnji tehnološki ponudnik oblikuje jutrišnji hotel", role: "CEO · Rentlio" }, // Marko
-  { title: "Kako podatke o potnikih za leto 2026 spremeniti v prihodkovne priložnosti", role: "Strategic Account Manager · SiteMinder" }, // Lisa
-  { title: "Rast neposrednega kanala s pomočjo tehnologije", role: "Market Director · The Hotels Network" }, // Elena
-  { title: "Lekcije iz proračuna v višini 500 milijonov USD", role: "Founder · nekdanji svetovalec pri Airbnbju, Googlu in eBayu" }, // Paul
-];
+// Program card video titles + speaker roles stay in the original English on
+// the Slovenian site too (per client), same as the Croatian version.
 const SL_WATCH = ["Oglejte si predavanja iz leta 2025", "Oglejte si predavanja iz leta 2024"];
 
 const sl: Dict = {
@@ -125,7 +121,7 @@ const sl: Dict = {
     eyebrow: "Brez praznih fraz. Samo resnični vpogledi",
     bigHeadline: "Spoznajte, kaj zares deluje",
     body: "Vsako predavanje temelji na praktičnih vpogledih, primerih iz prakse in izkušnjah s terena. Domov boste odšli s konkretnimi idejami, iskrenimi pogovori in primeri, ki jih lahko uporabite v svojem hotelu.",
-    cards: C.program.cards.map((c, i) => ({ ...c, title: SL_CARDS[i].title, role: SL_CARDS[i].role })),
+    // cards stay in English (inherited from ...C.program)
     watchPlaylists: C.program.watchPlaylists.map((p, i) => ({ ...p, label: SL_WATCH[i] })),
   },
   speakers: {
@@ -167,9 +163,10 @@ const sl: Dict = {
   ) as typeof C.partnerTierMeta,
   register: {
     ...C.register,
-    bigHeadline: "Vpišite se na\nčakalni seznam za\nzgodnji dostop in\nnovosti o Rediscoverju.",
+    bigHeadline: "Vpišite se na\nčakalni seznam za\nzgodnji dostop in\nnovosti o Rediscoverju",
     cta: "Vpišite se na čakalni seznam",
     altCta: "Oglejte si aftermovie 2025",
+    emailPlaceholder: "matej.novak@hotelvista.com",
     rolePlaceholder: "Vaša vloga",
     success: "Ste na seznamu.",
   },
@@ -184,6 +181,7 @@ const sl: Dict = {
   ],
   footer: {
     ...C.footer,
+    websiteUrl: "https://rentl.io/si",
     rights: "Vse pravice pridržane.",
     privacy: "Politika zasebnosti",
   },
@@ -235,12 +233,12 @@ const hr: Dict = {
     ...C.audience,
     eyebrow: "Jeste li vi među odabranima?",
     bigHeadline: "Rediscover je za",
-    titles: ["Vlasnike hotela", "Direktore hotela", "Revenue managere", "Voditelje recepcije", "IT menadžere"],
+    titles: ["Vlasnike hotela", "Direktore hotela", "Revenue managere", "Voditelje recepcije", "IT managere"],
   },
   whyReturn: {
     ...C.whyReturn,
     eyebrow: "Više od konferencije",
-    bigHeadline: "Zašto se hotelijeri uvijek vraćaju",
+    bigHeadline: "Zašto se hotelijeri vraćaju",
     items: [
       { title: "Pripremite hotel za ono što dolazi", body: "Saznajte koji će trendovi i tehnologije oblikovati sljedeće poglavlje hotelijerstva." },
       { title: "Saznajte što zaista funkcionira", body: "Bez praznih fraza. Samo praktično znanje, konkretni primjeri i lekcije koje možete odmah primijeniti." },
@@ -250,23 +248,23 @@ const hr: Dict = {
   },
   program: {
     ...C.program,
-    eyebrow: "Pričamo o tome što je važno, što se događa i koji su vam sljedeći koraci.",
+    eyebrow: "Pričamo o onome što je važno, što se mijenja i što donosi rezultate",
     bigHeadline: "Saznajte što zaista funkcionira",
-    body: "Razgovori s ljudima koji vode hotele. Što su digitalizirali, gdje su pogriješili, i što bi napravili drugačije. Dovoljno konkretno da primijenite čim se vratite.",
+    body: "Od digitalizacije i revenue managementa do umjetne inteligencije i operativne izvrsnosti - poslušajte ljude koji svakodnevno stvaraju promjene u hospitality industriji.",
     // card titles + roles stay in English (as delivered in the HR doc)
     watchPlaylists: C.program.watchPlaylists.map((p, i) => ({ ...p, label: HR_WATCH[i] })),
   },
   speakers: {
     ...C.speakers,
     eyebrow: "Predavači kroz godine",
-    bigHeadline: "Glasovi koji mijenjaju\nhotelijersku industriju",
+    bigHeadline: "Glasovi koji mijenjaju\nhotelsku industriju",
     body: "Upoznajte direktore, osnivače i ljude koji osmišljavaju proizvode, procese i usluge koje mijenjaju hotelijerstvo.",
     viewAllCta: "Pogledajte sve predavače",
     // byYear + featured roles stay in English (job titles), same as source
   },
   testimonials: {
     ...C.testimonials,
-    eyebrow: "Što kažu oni koji su već bili na Rediscoveru",
+    eyebrow: "Što kažu dosadašnji sudionici Rediscovera",
     bigHeadline: "Iz prve ruke, od hotelijera",
     quotes: [
       { text: "Iznad svih očekivanja i zaista inspirativno!" },
@@ -286,7 +284,7 @@ const hr: Dict = {
   partners: {
     ...C.partners,
     eyebrow: "Rediscover partneri do sada",
-    body: "Ponosni smo na suradnju s vodećim partnerima iz industrije koji razvijaju hotel-tech rješenja.",
+    body: "Rediscover okuplja vodeće regionalne i globalne kompanije koje ulažu u hotelsku industriju i oblikuju njenu budućnost. Kroz godine su nam se pridružili partneri koji razvijaju tehnologije, usluge i rješenja na koja se hoteli svakodnevno oslanjaju.",
   },
   partnerTierMeta: Object.fromEntries(
     (Object.keys(C.partnerTierMeta) as C.PartnerTier[]).map((k) => [
@@ -295,10 +293,10 @@ const hr: Dict = {
   ) as typeof C.partnerTierMeta,
   register: {
     ...C.register,
-    bigHeadline: "Prijavite se na\nlistu čekanja\ni prvi doznajte\nRediscover novosti.",
+    bigHeadline: "Prijavite se na\nlistu čekanja\ni prvi doznajte\nRediscover novosti",
     cta: "Prijavite se na listu čekanja",
     altCta: "Pogledajte aftermovie 2025.",
-    emailPlaceholder: "vi@hotel.com",
+    emailPlaceholder: "ivan.horvat@hoteluvala.com",
     rolePlaceholder: "Vaša uloga",
     success: "Na listi ste.",
   },
@@ -313,6 +311,7 @@ const hr: Dict = {
   ],
   footer: {
     ...C.footer,
+    websiteUrl: "https://rentl.io",
     rights: "Sva prava pridržana.",
     privacy: "Pravila privatnosti",
   },

@@ -291,10 +291,10 @@ export const partners = {
 };
 
 export const register = {
-  bigHeadline: "Join the\nwaitlist to get\nearly access and\nRediscover updates.",
+  bigHeadline: "Join the\nwaitlist to get\nearly access and\nRediscover updates",
   cta: "Join the waiting list",
   altCta: "Watch the 2025 aftermovie",
-  emailPlaceholder: "you@hotel.com",
+  emailPlaceholder: "john.smith@hotelarena.com",
   rolePlaceholder: "Your role",
   success: "You're on the list.",
 };
@@ -331,7 +331,8 @@ export const faqs = [
 export const footer = {
   email: "rediscover@rentl.io",
   website: "www.rentl.io",
-  websiteUrl: "https://www.rentl.io",
+  // EN edition links to the English Rentlio site. HR/SL override this in i18n.ts.
+  websiteUrl: "https://rentl.io/en",
   rights: "All rights reserved.",
   privacy: "Privacy Policy",
 };
