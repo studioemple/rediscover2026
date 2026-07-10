@@ -102,6 +102,7 @@ export const speakers = {
   bigHeadline: "Voices That Shape the\nHospitality Industry",
   body: "Meet the operators, founders, and builders shaping the future of hospitality through real stories and hands-on experience.",
   viewAllCta: "View All Speakers",
+  applyCta: "Apply to Be a Speaker",
   cardLabel: "5th Edition speakers",
   cardSubtitle: "Lineup announced throughout 2026",
   byYear: {
@@ -208,7 +209,7 @@ export const program = {
       image: "/voices/talk-3.png",
       title: "Learnings from a $500M budget",
       author: "Paul Jeszenszky",
-      role: "Founder · Former advisor at Airbnb, Google, eBay",
+      role: "Founder, Ex-Airbnb, Google, eBay",
       year: "2023",
       video: "https://www.youtube.com/watch?v=cuXeyMYCNJo",
     },

@@ -190,7 +190,9 @@ function ProgramCard({
 
         <h3
           className="headline text-[15px] leading-[1.16] text-white lg:text-[19px] lg:leading-[1.18]"
-          style={{ fontWeight: 600, letterSpacing: "-0.4px" }}
+          /* text-wrap: balance evens the two-line split on laptop widths so
+             titles like Elena's / Paul's don't leave a lone orphan word. */
+          style={{ fontWeight: 600, letterSpacing: "-0.4px", textWrap: "balance" }}
         >
           {card.title}
         </h3>

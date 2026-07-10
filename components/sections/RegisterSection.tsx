@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { WordReveal } from "@/components/ui/WordReveal";
@@ -31,11 +31,13 @@ const ORBIT_IMAGES: Tile[] = [
   { src: "/register/reg-5.png", side: "right", topPct: 78, offsetPct: 12, size: 310, rot:  5, dur: 8.0, delay: 1.5 },
 ];
 
+// External waitlist destination for the CTA. The on-page email form was
+// removed; TODO: swap this placeholder for the real external URL.
+const WAITLIST_URL = "#register";
+
 export function RegisterSection() {
   const { register } = useContent();
   const { lang } = useLang();
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const orbitRef = useRef<HTMLDivElement>(null);
 
   /* Orbit tiles — stagger entrance on scroll-in */
@@ -69,12 +71,6 @@ export function RegisterSection() {
 
     return () => ctx.revert();
   }, []);
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    setSubmitted(true);
-  };
 
   return (
     <section
@@ -174,52 +170,27 @@ export function RegisterSection() {
           }}
         />
 
-        {/* Big CTA pill */}
-        {!submitted ? (
-          <form
-            onSubmit={submit}
-            className="mt-12 flex w-full max-w-[460px] flex-col items-stretch gap-3 lg:mt-16"
+        {/* Waitlist CTA — the on-page email capture form was removed; this
+            single dark button links out to the external waitlist.
+            TODO: replace WAITLIST_URL with the real external URL (client will
+            provide). */}
+        <a
+          href={WAITLIST_URL}
+          className="register-cta mt-12 inline-flex w-full max-w-[460px] items-center justify-center gap-2 whitespace-nowrap rounded-full bg-ink px-9 py-4 text-base font-medium text-paper transition-all duration-200 ease-premium hover:scale-[1.02] hover:shadow-[0_20px_60px_-20px_rgba(28,157,217,0.6)] lg:mt-16 lg:py-5 lg:text-lg"
+        >
+          {register.cta}
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            aria-hidden
           >
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={register.emailPlaceholder}
-              required
-              aria-label="Email"
-              className="w-full rounded-full border border-ink/15 bg-paper-pure px-7 py-4 text-center text-base text-ink placeholder:text-ink-muted focus:border-ink/40 focus:outline-none focus:ring-2 focus:ring-[#1C9DD9]/30 lg:py-5 lg:text-lg"
-            />
-            <button
-              type="submit"
-              className="register-cta flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-ink px-9 py-4 text-base font-medium text-paper transition-all duration-200 ease-premium hover:scale-[1.02] hover:shadow-[0_20px_60px_-20px_rgba(28,157,217,0.6)] lg:py-5 lg:text-lg"
-              style={{ cursor: "pointer" }}
-            >
-              {register.cta}
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                aria-hidden
-              >
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </button>
-          </form>
-        ) : (
-          <div
-            role="status"
-            aria-live="polite"
-            className="mt-12 inline-flex items-center gap-3 rounded-full bg-ink px-8 py-5 text-base text-paper lg:mt-16 lg:text-lg"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 13l4 4L19 7" />
-            </svg>
-            {register.success}
-          </div>
-        )}
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </a>
 
         {/* Alt CTA */}
         <a

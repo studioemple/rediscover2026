@@ -130,6 +130,7 @@ const sl: Dict = {
     bigHeadline: "Glasovi, ki oblikujejo\nprihodnost hotelirstva",
     body: "Spoznajte operaterje, ustanovitelje in ustvarjalce, ki prihodnost hotelirstva oblikujejo z resničnimi zgodbami in praktičnimi izkušnjami.",
     viewAllCta: "Oglejte si vse govornike",
+    applyCta: "Prijavite se kot predavatelj",
     // byYear + featured roles stay in English (job titles), same as source
   },
   testimonials: {
@@ -260,6 +261,7 @@ const hr: Dict = {
     bigHeadline: "Glasovi koji mijenjaju\nhotelsku industriju",
     body: "Upoznajte direktore, osnivače i ljude koji osmišljavaju proizvode, procese i usluge koje mijenjaju hotelijerstvo.",
     viewAllCta: "Pogledajte sve predavače",
+    applyCta: "Prijavite se kao predavač",
     // byYear + featured roles stay in English (job titles), same as source
   },
   testimonials: {

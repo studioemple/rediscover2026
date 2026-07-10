@@ -164,12 +164,14 @@ export function SpeakersSection() {
           />
         </div>
 
-        {/* CTA — replaces the year tabs */}
-        <div className="mt-12 flex justify-center lg:mt-16">
+        {/* CTA — replaces the year tabs. Two buttons: an outlined "view all"
+            and a solid dark "apply to speak". Stacked (equal width) on mobile,
+            side by side from sm upwards. */}
+        <div className="mt-12 flex w-full max-w-[360px] flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center sm:gap-4 lg:mt-16">
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="group inline-flex items-center gap-3 whitespace-nowrap rounded-full border border-ink/15 bg-paper px-6 py-3 text-xs uppercase tracking-[0.18em] text-ink transition-all duration-300 hover:bg-ink hover:text-paper hover:border-ink focus-ring sm:px-7 sm:py-3.5 sm:text-sm sm:tracking-[0.22em] lg:px-9 lg:py-4 lg:text-base"
+            className="group inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full border border-ink/15 bg-paper px-6 py-3 text-xs uppercase tracking-[0.18em] text-ink transition-all duration-300 hover:bg-ink hover:text-paper hover:border-ink focus-ring sm:w-auto sm:px-7 sm:py-3.5 sm:text-sm sm:tracking-[0.22em] lg:px-9 lg:py-4 lg:text-base"
             style={{
               fontFamily: "var(--font-sora), sans-serif",
               fontWeight: 500,
@@ -187,6 +189,26 @@ export function SpeakersSection() {
               <path d="M2 1L7 5L2 9" stroke="currentColor" strokeWidth="1.4" />
             </svg>
           </button>
+
+          <a
+            href="mailto:rediscover@rentl.io"
+            className="group inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-full border border-ink bg-ink px-6 py-3 text-xs uppercase tracking-[0.18em] text-paper transition-all duration-300 hover:shadow-[0_18px_50px_-18px_rgba(28,157,217,0.6)] focus-ring sm:w-auto sm:px-7 sm:py-3.5 sm:text-sm sm:tracking-[0.22em] lg:px-9 lg:py-4 lg:text-base"
+            style={{
+              fontFamily: "var(--font-sora), sans-serif",
+              fontWeight: 500,
+            }}
+          >
+            {speakers.applyCta}
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 10 10"
+              fill="none"
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            >
+              <path d="M2 1L7 5L2 9" stroke="currentColor" strokeWidth="1.4" />
+            </svg>
+          </a>
         </div>
       </Container>
 
