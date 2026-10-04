@@ -192,13 +192,20 @@ export function AgendaSection() {
         style={{ background: LINE }}
       />
 
-      {/* Desktop: two section-local circle outlines, as in the design. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block">
+      {/* Desktop: two section-local circle outlines, as in the design.
+          Same 1440px cap as the layout so they stay put relative to it. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 left-1/2 hidden w-full max-w-[1440px] -translate-x-1/2 lg:block"
+      >
         <span className="agenda-circle agenda-circle--a" />
         <span className="agenda-circle agenda-circle--b" />
       </div>
 
-      <div className="relative lg:grid lg:grid-cols-[10%_30%_60%]">
+      {/* Layout capped at 1440px (the design width) and centred, so on big
+          monitors the intro stays close to the timeline. The 50% line stays
+          on the page centre either way. */}
+      <div className="relative mx-auto max-w-[1440px] lg:grid lg:grid-cols-[10%_30%_60%]">
         {/* Intro — sticky on desktop while the timeline scrolls past. */}
         <div className="pl-[calc(10%+22px)] pr-6 lg:col-start-2 lg:pl-3 lg:pr-12">
           <div ref={introRef} className="lg:sticky lg:top-32">
