@@ -9,6 +9,7 @@ import { ValuePropSection } from "@/components/sections/ValuePropSection";
 import { AudienceSection } from "@/components/sections/AudienceSection";
 import { WhyReturnSection } from "@/components/sections/WhyReturnSection";
 import { SpeakersSection } from "@/components/sections/SpeakersSection";
+import { AgendaSection } from "@/components/sections/AgendaSection";
 import { ProgramSection } from "@/components/sections/ProgramSection";
 import { EventGallerySection } from "@/components/sections/EventGallerySection";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
@@ -57,6 +58,7 @@ export default function Home() {
       <WhyReturnSection />
       <ProgramSection />
       <SpeakersSection />
+      <AgendaSection />
       <EventGallerySection />
       <TestimonialsSection />
       <PartnersSection />

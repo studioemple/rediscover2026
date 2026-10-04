@@ -10,7 +10,19 @@
  * infinite cuts across the page.
  */
 
+import { useEffect, useRef, useState } from "react";
+
 const STROKE = "#D9D9D9";
+
+/* "Clear zones" — any element marked data-geometry-clear (e.g. the Agenda
+   section) is treated as INSERTED into the page: decorations below it are
+   pushed down by its height (so everything the vh positions were tuned for
+   keeps its original relationship to the content), and horizontal lines,
+   diagonals and circles that would straddle it are dropped. Vertical
+   hairlines are untouched. Zone tops are stored in "original" coordinates,
+   i.e. as if the zones did not exist. */
+type Zone = { top: number; height: number };
+type Geo = { vh: number; vw: number; zones: Zone[] };
 
 /* Vertical hairlines — span the full document height. Evenly spaced and
    symmetric: outer pair at 10% / 90%, inner pair splitting the span into
@@ -115,12 +127,74 @@ const DECORATIONS: Decor[] = [
 ];
 
 export function PageGeometry() {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [geo, setGeo] = useState<Geo | null>(null);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    // Probe = exact CSS vh / vw in px (matches the vh units used below).
+    const probe = document.createElement("div");
+    probe.style.cssText =
+      "position:absolute;top:0;left:0;width:100vw;height:100vh;visibility:hidden;pointer-events:none";
+    root.appendChild(probe);
+
+    const measure = () => {
+      const rootTop = root.getBoundingClientRect().top;
+      let removed = 0;
+      const zones = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-geometry-clear]"),
+      )
+        .map((el) => {
+          const r = el.getBoundingClientRect();
+          return { actualTop: r.top - rootTop, height: r.height };
+        })
+        .sort((a, b) => a.actualTop - b.actualTop)
+        .map((z) => {
+          const top = Math.round(z.actualTop - removed);
+          removed += z.height;
+          return { top, height: Math.round(z.height) };
+        });
+      const next: Geo = {
+        vh: probe.offsetHeight / 100,
+        vw: probe.offsetWidth / 100,
+        zones,
+      };
+      setGeo((prev) =>
+        prev && JSON.stringify(prev) === JSON.stringify(next) ? prev : next,
+      );
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(root);
+    document
+      .querySelectorAll("[data-geometry-clear]")
+      .forEach((el) => ro.observe(el));
+    return () => {
+      ro.disconnect();
+      probe.remove();
+    };
+  }, []);
+
+  /* Where a decoration (original top `t`, height `ext`, px) ends up. */
+  const place = (t: number, ext: number) => {
+    if (!geo) return { hidden: true, shift: 0 };
+    let shift = 0;
+    for (const z of geo.zones) {
+      if (z.top <= t) shift += z.height;
+      else if (z.top < t + ext) return { hidden: true, shift: 0 };
+    }
+    return { hidden: false, shift };
+  };
+
   return (
     /* Hidden on small screens — the diagonals, oversized circles and
        full-document vh positioning don't play well with narrow mobile
        viewports (lines look mis-placed and decorations clutter the
        centred content). Comes back from md (768px) upwards. */
     <div
+      ref={rootRef}
       aria-hidden
       className="pointer-events-none absolute inset-0 overflow-hidden"
       /* Gently fades the whole geometric backdrop in when it mounts (right as
@@ -149,19 +223,23 @@ export function PageGeometry() {
 
       {/* Horizontal hairlines — hidden on mobile (vh positions calibrated for
           the desktop document height would cross stacked mobile content). */}
-      {HORIZONTAL_LINES.map((topVh, i) => (
+      {HORIZONTAL_LINES.map((topVh, i) => {
+        const p = place(topVh * (geo?.vh ?? 0), 1);
+        if (p.hidden) return null;
+        return (
         <div
           key={`h-${i}-${topVh}`}
           className="absolute left-0 right-0 hidden md:block"
           style={{
-            top: `${topVh}vh`,
+            top: `calc(${topVh}vh + ${p.shift}px)`,
             height: 1,
             background: STROKE,
             animation: `pageDriftY${i % 2} ${28 + (i % 5) * 2.5}s ease-in-out ${(i * 1.1) % 5}s infinite`,
             willChange: "transform",
           }}
         />
-      ))}
+        );
+      })}
 
       {/* Scattered circles (Rentlio circle SVG) + diagonals */}
       {DECORATIONS.map((d, i) => {
@@ -192,13 +270,16 @@ export function PageGeometry() {
           ) => {
             const baseRot = rotOverride ?? d.rot ?? (i * 137 + 41) % 360;
             const sz = `min(${size}px, 62vw)`;
+            const szPx = Math.min(size, 62 * (geo?.vw ?? 0));
+            const p = place(topVh * (geo?.vh ?? 0) - szPx / 2, szPx);
+            if (p.hidden) return null;
             return (
               <div
                 key={subKey}
                 className={`absolute ${extraClass}`.trim()}
                 style={{
                   left,
-                  top: `calc(${topVh}vh - ${sz} / 2)`,
+                  top: `calc(${topVh}vh + ${p.shift}px - ${sz} / 2)`,
                   width: sz,
                   height: sz,
                   animation: driftAnim,
@@ -238,6 +319,8 @@ export function PageGeometry() {
         // Diagonal — oversized so endpoints clip OFF the visible page.
         // Width 140vw, anchored at left: -20vw (so 20vw bleeds off each side).
         const leftVw = d.leftVw ?? -20;
+        const p = place(d.topVh * (geo?.vh ?? 0), 48 * (geo?.vh ?? 0));
+        if (p.hidden) return null;
         return (
           <svg
             key={`d-${i}`}
@@ -247,7 +330,7 @@ export function PageGeometry() {
             viewBox="0 0 1400 480"
             style={{
               left: `${leftVw}vw`,
-              top: `${d.topVh}vh`,
+              top: `calc(${d.topVh}vh + ${p.shift}px)`,
               width: "140vw",
               height: "48vh",
               animation: driftAnim,
